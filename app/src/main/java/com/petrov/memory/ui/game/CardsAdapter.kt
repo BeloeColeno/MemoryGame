@@ -39,12 +39,14 @@ class CardsAdapter(
             else -> 2
         }
         
-        // Размер карточки с учетом отступов (48dp сверху для UI, 32dp снизу)
-        val availableHeight = screenHeight - (parent.context.resources.displayMetrics.density * 120).toInt()
+        // Размер карточки с учетом отступов (120dp для UI сверху/снизу, 32dp по бокам)
+        val availableHeight = screenHeight - (displayMetrics.density * 140).toInt()
+        val availableWidth = screenWidth - (displayMetrics.density * 32).toInt()
         val cardHeight = availableHeight / rows
-        val cardWidth = (screenWidth - (parent.context.resources.displayMetrics.density * 32).toInt()) / columns
+        val cardWidth = availableWidth / columns
         
-        binding.root.layoutParams = ViewGroup.LayoutParams(cardWidth, cardHeight)
+        // Устанавливаем LayoutParams для RecyclerView
+        binding.root.layoutParams = RecyclerView.LayoutParams(cardWidth, cardHeight)
         
         return CardViewHolder(binding)
     }
