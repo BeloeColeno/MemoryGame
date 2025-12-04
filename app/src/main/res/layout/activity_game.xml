@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFF8E1"
+    android:background="@drawable/backgroundls"
     tools:context=".ui.game.GameActivity">
 
     <!-- Заголовок -->
@@ -45,7 +45,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-        app:spanCount="4"
+        app:spanCount="2"
         app:layout_constraintBottom_toTopOf="@id/btnRestart"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
