@@ -1,12 +1,13 @@
 package com.petrov.memory.ui.game
 
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.petrov.memory.R
 import com.petrov.memory.databinding.ItemCardBinding
 import com.petrov.memory.domain.model.Card
-import com.petrov.memory.util.CardAnimations
 
 /**
  * Адаптер для отображения карточек в RecyclerView
@@ -30,6 +31,14 @@ class CardsAdapter(
         holder.bind(cards[position], position)
     }
 
+    override fun onBindViewHolder(holder: CardViewHolder, position: Int, payloads: MutableList<Any>) {
+        if (payloads.isEmpty()) {
+            super.onBindViewHolder(holder, position, payloads)
+        } else {
+            holder.bind(cards[position], position, payloads[0])
+        }
+    }
+
     override fun getItemCount(): Int = cards.size
 
     fun updateCards(newCards: List<Card>) {
@@ -38,10 +47,10 @@ class CardsAdapter(
     }
 
     /**
-     * Обновить одну карточку с анимацией
+     * Обновить одну карточку с плавной анимацией
      */
-    fun updateCardWithAnimation(position: Int) {
-        notifyItemChanged(position)
+    fun updateCardWithFlip(position: Int) {
+        notifyItemChanged(position, "flip")
     }
 
     inner class CardViewHolder(
@@ -49,41 +58,35 @@ class CardsAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(card: Card, position: Int) {
-            // ВАЖНО: Сбрасываем все анимации и трансформации перед bind
-            binding.root.animate().cancel()
-            binding.root.clearAnimation()
-            binding.cardView.animate().cancel()
-            binding.cardView.clearAnimation()
-            
-            // Сбрасываем все трансформации
-            binding.root.alpha = 1f
-            binding.root.scaleX = 1f
-            binding.root.scaleY = 1f
-            binding.root.translationX = 0f
-            binding.root.translationY = 0f
-            binding.root.rotation = 0f
-            binding.root.rotationX = 0f
-            binding.root.rotationY = 0f
-            
+            bind(card, position, null)
+        }
+
+        fun bind(card: Card, position: Int, payload: Any?) {
+            // ВАЖНО: Сбрасываем все трансформации перед bind
             binding.cardView.alpha = 1f
             binding.cardView.scaleX = 1f
             binding.cardView.scaleY = 1f
+            binding.cardView.rotationY = 0f
             
-            // Отображаем изображение карточки
             val imageRes = if (card.isRevealed || card.isMatched) {
                 card.imageResId
             } else {
-                R.drawable.cover // Закрытая карточка
+                R.drawable.cover
             }
-            
-            // Устанавливаем изображение без анимации при первой загрузке
-            binding.ivCard.setImageResource(imageRes)
+
+            // Если есть payload "flip" - делаем анимацию
+            if (payload == "flip") {
+                animateFlip {
+                    binding.ivCard.setImageResource(imageRes)
+                }
+            } else {
+                // Без анимации
+                binding.ivCard.setImageResource(imageRes)
+            }
 
             // Прозрачность для найденных пар
             if (card.isMatched) {
-                binding.cardView.alpha = 0.3f
-                binding.cardView.scaleX = 0.95f
-                binding.cardView.scaleY = 0.95f
+                animateMatch()
             }
 
             // Обработчик клика
@@ -91,6 +94,43 @@ class CardsAdapter(
                 if (!card.isRevealed && !card.isMatched) {
                     onCardClick(position)
                 }
+            }
+        }
+
+        /**
+         * Безопасная анимация переворота через ObjectAnimator
+         */
+        private fun animateFlip(onMiddle: () -> Unit) {
+            val flipOut = ObjectAnimator.ofFloat(binding.cardView, "rotationY", 0f, 90f).apply {
+                duration = 150
+            }
+            val flipIn = ObjectAnimator.ofFloat(binding.cardView, "rotationY", -90f, 0f).apply {
+                duration = 150
+            }
+
+            AnimatorSet().apply {
+                play(flipOut).before(flipIn)
+                flipOut.addListener(object : android.animation.AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: android.animation.Animator) {
+                        onMiddle()
+                    }
+                })
+                start()
+            }
+        }
+
+        /**
+         * Анимация для найденных пар
+         */
+        private fun animateMatch() {
+            val scaleX = ObjectAnimator.ofFloat(binding.cardView, "scaleX", 1f, 0.95f)
+            val scaleY = ObjectAnimator.ofFloat(binding.cardView, "scaleY", 1f, 0.95f)
+            val alpha = ObjectAnimator.ofFloat(binding.cardView, "alpha", 1f, 0.5f)
+
+            AnimatorSet().apply {
+                playTogether(scaleX, scaleY, alpha)
+                duration = 300
+                start()
             }
         }
     }
