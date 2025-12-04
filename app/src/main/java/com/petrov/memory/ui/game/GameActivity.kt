@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.petrov.memory.R
 import com.petrov.memory.databinding.ActivityGameBinding
 import com.petrov.memory.domain.model.Card
+import com.petrov.memory.util.CardAnimations
 
 /**
  * Экран игры Memory
@@ -91,9 +92,21 @@ class GameActivity : AppCompatActivity() {
         val card = cards[position]
         if (card.isRevealed || card.isMatched) return
 
-        // Открываем карточку
+        // Получаем View карточки из RecyclerView
+        val viewHolder = binding.rvCards.findViewHolderForAdapterPosition(position)
+        val cardView = viewHolder?.itemView
+
+        // Открываем карточку с анимацией
         card.isRevealed = true
-        adapter.updateCards(cards)
+        
+        if (cardView != null) {
+            CardAnimations.flipCard(cardView, onHalfway = {
+                // В середине анимации обновляем изображение
+                adapter.updateCardWithAnimation(position)
+            })
+        } else {
+            adapter.updateCards(cards)
+        }
 
         when {
             firstRevealedCard == null -> {
@@ -129,6 +142,17 @@ class GameActivity : AppCompatActivity() {
                     first.isMatched = true
                     second.isMatched = true
                     matchedPairs++
+                    
+                    // Анимация исчезновения для найденных пар
+                    val firstIndex = cards.indexOf(first)
+                    val secondIndex = cards.indexOf(second)
+                    
+                    val firstViewHolder = binding.rvCards.findViewHolderForAdapterPosition(firstIndex)
+                    val secondViewHolder = binding.rvCards.findViewHolderForAdapterPosition(secondIndex)
+                    
+                    firstViewHolder?.itemView?.let { CardAnimations.fadeOut(it) }
+                    secondViewHolder?.itemView?.let { CardAnimations.fadeOut(it) }
+                    
                     Toast.makeText(this, "Пара найдена!", Toast.LENGTH_SHORT).show()
 
                     // Проверяем, закончилась ли игра
@@ -140,9 +164,33 @@ class GameActivity : AppCompatActivity() {
                         ).show()
                     }
                 } else {
-                    // Не совпало - закрываем карточки
-                    first.isRevealed = false
-                    second.isRevealed = false
+                    // Не совпало - закрываем карточки с анимацией
+                    val firstIndex = cards.indexOf(first)
+                    val secondIndex = cards.indexOf(second)
+                    
+                    val firstViewHolder = binding.rvCards.findViewHolderForAdapterPosition(firstIndex)
+                    val secondViewHolder = binding.rvCards.findViewHolderForAdapterPosition(secondIndex)
+                    
+                    // Анимация "тряски"
+                    firstViewHolder?.itemView?.let { CardAnimations.shake(it) }
+                    secondViewHolder?.itemView?.let { CardAnimations.shake(it) }
+                    
+                    // Переворачиваем обратно с анимацией
+                    handler.postDelayed({
+                        first.isRevealed = false
+                        second.isRevealed = false
+                        
+                        firstViewHolder?.itemView?.let { view ->
+                            CardAnimations.flipCard(view, onHalfway = {
+                                adapter.updateCardWithAnimation(firstIndex)
+                            })
+                        }
+                        secondViewHolder?.itemView?.let { view ->
+                            CardAnimations.flipCard(view, onHalfway = {
+                                adapter.updateCardWithAnimation(secondIndex)
+                            })
+                        }
+                    }, 500)
                 }
 
                 adapter.updateCards(cards)
@@ -152,7 +200,7 @@ class GameActivity : AppCompatActivity() {
             firstRevealedCard = null
             secondRevealedCard = null
             isChecking = false
-        }, 200) // 200 мс = 0.2с из ТЗ
+        }, 600) // 600 мс чтобы пользователь успел увидеть обе карточки
     }
 
     /**
