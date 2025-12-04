@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/menuscreen">
+
+    <!-- Логотип вверху -->
+    <ImageView
+        android:id="@+id/ivLogoMenu"
+        android:layout_width="250dp"
+        android:layout_height="150dp"
+        android:layout_marginTop="48dp"
+        android:src="@drawable/logotype"
+        android:scaleType="fitCenter"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:contentDescription="Memory Game" />
+
+    <!-- Кнопка "Играть" -->
+    <Button
+        android:id="@+id/btnPlay"
+        android:layout_width="220dp"
+        android:layout_height="60dp"
+        android:backgroundTint="#FF6F00"
+        android:text="ИГРАТЬ"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:cornerRadius="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ivLogoMenu"
+        app:layout_constraintVertical_bias="0.35" />
+
+    <!-- Кнопка "Настройки" -->
+    <Button
+        android:id="@+id/btnSettings"
+        android:layout_width="220dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="#FFA726"
+        android:text="НАСТРОЙКИ"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:cornerRadius="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnPlay" />
+
+    <!-- Кнопка "Статистика" -->
+    <Button
+        android:id="@+id/btnStatistics"
+        android:layout_width="220dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="#FFA726"
+        android:text="СТАТИСТИКА"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:cornerRadius="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnSettings" />
+
+    <!-- Кнопка "Выход" -->
+    <Button
+        android:id="@+id/btnExit"
+        android:layout_width="220dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="#FF5722"
+        android:text="ВЫХОД"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:cornerRadius="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnStatistics" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

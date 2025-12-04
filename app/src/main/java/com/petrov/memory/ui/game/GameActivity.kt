@@ -8,7 +8,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.petrov.memory.R
 import com.petrov.memory.databinding.ActivityGameBinding
 import com.petrov.memory.domain.model.Card
-import com.petrov.memory.util.CardAnimations
 
 /**
  * Экран игры Memory

@@ -3,17 +3,15 @@ package com.petrov.memory
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.petrov.memory.ui.game.GameActivity
+import com.petrov.memory.ui.splash.SplashActivity
 
 /**
- * Главная Activity - временно запускает игру сразу
- * TODO: В будущем здесь будет меню (из ТЗ раздел 4.1.1.2)
+ * Главная Activity - перенаправляет на экран загрузки
  */
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Пока сразу запускаем игру для тестирования
-        startActivity(Intent(this, GameActivity::class.java))
+        startActivity(Intent(this, SplashActivity::class.java))
         finish()
     }
 }

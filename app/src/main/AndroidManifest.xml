@@ -21,6 +21,19 @@
             </intent-filter>
         </activity>
         
+        <!-- Экран загрузки -->
+        <activity
+            android:name=".ui.splash.SplashActivity"
+            android:exported="false"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
+        
+        <!-- Главное меню -->
+        <activity
+            android:name=".ui.menu.MenuActivity"
+            android:exported="false"
+            android:screenOrientation="landscape" />
+        
         <!-- Игровой экран -->
         <activity
             android:name=".ui.game.GameActivity"
