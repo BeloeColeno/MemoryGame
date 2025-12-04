@@ -163,22 +163,25 @@ class GameActivity : AppCompatActivity() {
                             Toast.LENGTH_LONG
                         ).show()
                     }
+                    
+                    adapter.updateCards(cards)
+                    
+                    // Сбрасываем выбор сразу после совпадения
+                    firstRevealedCard = null
+                    secondRevealedCard = null
+                    isChecking = false
                 } else {
                     // Не совпало - закрываем карточки с анимацией
                     val firstIndex = cards.indexOf(first)
                     val secondIndex = cards.indexOf(second)
                     
-                    val firstViewHolder = binding.rvCards.findViewHolderForAdapterPosition(firstIndex)
-                    val secondViewHolder = binding.rvCards.findViewHolderForAdapterPosition(secondIndex)
-                    
-                    // Анимация "тряски"
-                    firstViewHolder?.itemView?.let { CardAnimations.shake(it) }
-                    secondViewHolder?.itemView?.let { CardAnimations.shake(it) }
-                    
-                    // Переворачиваем обратно с анимацией
+                    // Переворачиваем обратно БЕЗ тряски (упрощенно)
                     handler.postDelayed({
                         first.isRevealed = false
                         second.isRevealed = false
+                        
+                        val firstViewHolder = binding.rvCards.findViewHolderForAdapterPosition(firstIndex)
+                        val secondViewHolder = binding.rvCards.findViewHolderForAdapterPosition(secondIndex)
                         
                         firstViewHolder?.itemView?.let { view ->
                             CardAnimations.flipCard(view, onHalfway = {
@@ -190,16 +193,16 @@ class GameActivity : AppCompatActivity() {
                                 adapter.updateCardWithAnimation(secondIndex)
                             })
                         }
+                        
+                        adapter.updateCards(cards)
+                        
+                        // Сбрасываем выбор после закрытия
+                        firstRevealedCard = null
+                        secondRevealedCard = null
+                        isChecking = false
                     }, 500)
                 }
-
-                adapter.updateCards(cards)
             }
-
-            // Сбрасываем выбор
-            firstRevealedCard = null
-            secondRevealedCard = null
-            isChecking = false
         }, 600) // 600 мс чтобы пользователь успел увидеть обе карточки
     }
 
