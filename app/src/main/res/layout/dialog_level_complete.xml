@@ -3,10 +3,23 @@
 <androidx.constraintlayout.widget.ConstraintLayout 
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="500dp"
+    android:layout_width="600dp"
     android:layout_height="wrap_content"
     android:background="@android:color/transparent"
     android:padding="16dp">
+
+    <!-- Ленточка "Level Complete" сверху -->
+    <ImageView
+        android:id="@+id/ivRibbon"
+        android:layout_width="400dp"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:src="@drawable/levelcompleteribbon"
+        android:scaleType="fitCenter"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:contentDescription="Level Complete Ribbon" />
 
     <!-- Фон с изображением levelcomplete -->
     <ImageView
@@ -16,12 +29,58 @@
         android:adjustViewBounds="true"
         android:src="@drawable/levelcomplete"
         android:scaleType="fitCenter"
-        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="-20dp"
+        app:layout_constraintTop_toBottomOf="@id/ivRibbon"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:contentDescription="Level Complete" />
 
-    <!-- Контейнер для кнопок поверх изображения -->
+    <!-- Контейнер со звездами (сверху на фоне) -->
+    <LinearLayout
+        android:id="@+id/llStars"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        app:layout_constraintTop_toTopOf="@id/ivLevelComplete"
+        app:layout_constraintBottom_toBottomOf="@id/ivLevelComplete"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintVertical_bias="0.35">
+
+        <!-- Звезда 1 -->
+        <ImageView
+            android:id="@+id/ivStar1"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/excitedstars"
+            android:scaleType="centerCrop"
+            android:layout_margin="4dp"
+            android:contentDescription="Star 1" />
+
+        <!-- Звезда 2 -->
+        <ImageView
+            android:id="@+id/ivStar2"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/excitedstars"
+            android:scaleType="centerCrop"
+            android:layout_margin="4dp"
+            android:contentDescription="Star 2" />
+
+        <!-- Звезда 3 -->
+        <ImageView
+            android:id="@+id/ivStar3"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/excitedstars"
+            android:scaleType="centerCrop"
+            android:layout_margin="4dp"
+            android:contentDescription="Star 3" />
+
+    </LinearLayout>
+
+    <!-- Контейнер для кнопок внизу -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -30,7 +89,7 @@
         app:layout_constraintBottom_toBottomOf="@id/ivLevelComplete"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="32dp">
+        android:layout_marginBottom="40dp">
 
         <!-- Кнопка "В меню" -->
         <ImageButton

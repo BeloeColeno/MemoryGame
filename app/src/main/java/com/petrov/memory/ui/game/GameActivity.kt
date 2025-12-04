@@ -210,6 +210,16 @@ class GameActivity : AppCompatActivity() {
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
         dialog.setCancelable(false)
 
+        // Настраиваем звезды
+        val star1 = dialog.findViewById<android.widget.ImageView>(R.id.ivStar1)
+        val star2 = dialog.findViewById<android.widget.ImageView>(R.id.ivStar2)
+        val star3 = dialog.findViewById<android.widget.ImageView>(R.id.ivStar3)
+        
+        // Затемняем звезды в зависимости от количества
+        star1.alpha = if (stars >= 1) 1.0f else 0.3f
+        star2.alpha = if (stars >= 2) 1.0f else 0.3f
+        star3.alpha = if (stars >= 3) 1.0f else 0.3f
+
         // Кнопка "В меню"
         dialog.findViewById<ImageButton>(R.id.btnMenu).setOnClickListener {
             dialog.dismiss()
