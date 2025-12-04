@@ -24,7 +24,10 @@ class GameActivity : AppCompatActivity() {
     private var cards = mutableListOf<Card>()
     private var moves = 0
     private var matchedPairs = 0
-    private var totalPairs = 4 // Уровень ЛЕГКИЙ = 4 пары (из ТЗ 4.1.1.4)
+    private var totalPairs = 4 // По умолчанию легкий
+    private var levelId = 1 // 1-легкий, 2-средний, 3-сложный
+    private var gridColumns = 4 // Количество колонок в сетке
+    private var startTime = 0L // Время старта игры
 
     private var firstRevealedCard: Card? = null
     private var secondRevealedCard: Card? = null
@@ -33,11 +36,26 @@ class GameActivity : AppCompatActivity() {
 
     private val handler = Handler(Looper.getMainLooper())
 
+    companion object {
+        const val EXTRA_LEVEL_ID = "level_id"
+        const val EXTRA_TOTAL_PAIRS = "total_pairs"
+        const val EXTRA_GRID_COLUMNS = "grid_columns"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityGameBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Получаем параметры уровня из Intent
+        levelId = intent.getIntExtra(EXTRA_LEVEL_ID, 1)
+        totalPairs = intent.getIntExtra(EXTRA_TOTAL_PAIRS, 4)
+        gridColumns = intent.getIntExtra(EXTRA_GRID_COLUMNS, 4)
+        
+        // Настраиваем сетку
+        (binding.rvCards.layoutManager as? androidx.recyclerview.widget.GridLayoutManager)?.spanCount = gridColumns
+
+        startTime = System.currentTimeMillis()
         setupGame()
         setupListeners()
     }
@@ -61,14 +79,22 @@ class GameActivity : AppCompatActivity() {
      */
     private fun generateCards(): MutableList<Card> {
         val cardsList = mutableListOf<Card>()
-        val drawableResources = listOf(
-            R.drawable.card1, R.drawable.card2, R.drawable.card3, R.drawable.card4
+        
+        // Все доступные карточки (14 штук)
+        val allCardResources = listOf(
+            R.drawable.card1, R.drawable.card2, R.drawable.card3, R.drawable.card4,
+            R.drawable.card5, R.drawable.card6, R.drawable.card7, R.drawable.card8,
+            R.drawable.card9, R.drawable.card10, R.drawable.card11, R.drawable.card12,
+            R.drawable.card13, R.drawable.card14
         )
+        
+        // Выбираем случайные карточки для текущей игры
+        val selectedCards = allCardResources.shuffled().take(totalPairs)
 
         // Создаем пары карточек
         var cardId = 0
         for (pairId in 0 until totalPairs) {
-            val imageRes = drawableResources[pairId]
+            val imageRes = selectedCards[pairId]
             // Добавляем две одинаковые карточки (пара)
             cardsList.add(Card(cardId++, imageRes, pairId))
             cardsList.add(Card(cardId++, imageRes, pairId))
@@ -174,6 +200,10 @@ class GameActivity : AppCompatActivity() {
      * Показать диалог завершения уровня
      */
     private fun showLevelCompleteDialog() {
+        val endTime = System.currentTimeMillis()
+        val timeSeconds = ((endTime - startTime) / 1000).toInt()
+        val stars = calculateStars(moves, timeSeconds)
+        
         val dialog = Dialog(this)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.setContentView(R.layout.dialog_level_complete)
@@ -192,12 +222,45 @@ class GameActivity : AppCompatActivity() {
             restartGame()
         }
 
-        // Кнопка "Следующий уровень" (пока заглушка)
+        // Кнопка "Следующий уровень"
         dialog.findViewById<ImageButton>(R.id.btnNext).setOnClickListener {
-            Toast.makeText(this, "Следующий уровень пока недоступен", Toast.LENGTH_SHORT).show()
+            if (levelId < 3) {
+                dialog.dismiss()
+                // Запускаем следующий уровень
+                val nextLevel = levelId + 1
+                val (pairs, cols) = when (nextLevel) {
+                    2 -> Pair(6, 4) // Средний: 6 пар, 4 колонки
+                    3 -> Pair(8, 4) // Сложный: 8 пар, 4 колонки
+                    else -> Pair(4, 4)
+                }
+                intent.putExtra(EXTRA_LEVEL_ID, nextLevel)
+                intent.putExtra(EXTRA_TOTAL_PAIRS, pairs)
+                intent.putExtra(EXTRA_GRID_COLUMNS, cols)
+                finish()
+                startActivity(intent)
+            } else {
+                Toast.makeText(this, "Это последний уровень!", Toast.LENGTH_SHORT).show()
+            }
         }
 
         dialog.show()
+        
+        Toast.makeText(this, "Время: ${timeSeconds}с, Звезд: $stars", Toast.LENGTH_LONG).show()
+    }
+    
+    /**
+     * Расчет количества звезд (1-3) на основе ходов и времени
+     */
+    private fun calculateStars(moves: Int, timeSeconds: Int): Int {
+        // Формула: меньше ходов и времени = больше звезд
+        val perfectMoves = totalPairs * 2 // Идеальное количество ходов
+        val perfectTime = totalPairs * 10 // Идеальное время (10 сек на пару)
+        
+        return when {
+            moves <= perfectMoves && timeSeconds <= perfectTime -> 3
+            moves <= perfectMoves * 1.5 && timeSeconds <= perfectTime * 1.5 -> 2
+            else -> 1
+        }
     }
 
     /**
@@ -209,6 +272,7 @@ class GameActivity : AppCompatActivity() {
         firstRevealedCard = null
         secondRevealedCard = null
         isChecking = false
+        startTime = System.currentTimeMillis()
         cards = generateCards()
         adapter.updateCards(cards)
         updateUI()
