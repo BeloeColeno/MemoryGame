@@ -34,6 +34,24 @@
             android:exported="false"
             android:screenOrientation="landscape" />
         
+        <!-- Выбор уровня -->
+        <activity
+            android:name=".ui.levels.LevelSelectActivity"
+            android:exported="false"
+            android:screenOrientation="landscape" />
+        
+        <!-- Настройки -->
+        <activity
+            android:name=".ui.settings.SettingsActivity"
+            android:exported="false"
+            android:screenOrientation="landscape" />
+        
+        <!-- Статистика -->
+        <activity
+            android:name=".ui.statistics.StatisticsActivity"
+            android:exported="false"
+            android:screenOrientation="landscape" />
+        
         <!-- Игровой экран -->
         <activity
             android:name=".ui.game.GameActivity"

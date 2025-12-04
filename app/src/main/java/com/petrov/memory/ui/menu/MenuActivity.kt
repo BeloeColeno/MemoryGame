@@ -23,19 +23,19 @@ class MenuActivity : AppCompatActivity() {
     }
 
     private fun setupButtons() {
-        // Кнопка "Играть"
+        // Кнопка "Играть" - открывает выбор уровня
         binding.btnPlay.setOnClickListener {
-            startActivity(Intent(this, GameActivity::class.java))
+            startActivity(Intent(this, com.petrov.memory.ui.levels.LevelSelectActivity::class.java))
         }
 
-        // Кнопка "Настройки" (пока заглушка)
+        // Кнопка "Настройки"
         binding.btnSettings.setOnClickListener {
-            // TODO: Открыть экран настроек
+            startActivity(Intent(this, com.petrov.memory.ui.settings.SettingsActivity::class.java))
         }
 
-        // Кнопка "Статистика" (пока заглушка)
+        // Кнопка "Статистика"
         binding.btnStatistics.setOnClickListener {
-            // TODO: Открыть экран статистики
+            startActivity(Intent(this, com.petrov.memory.ui.statistics.StatisticsActivity::class.java))
         }
 
         // Кнопка "Выход"
