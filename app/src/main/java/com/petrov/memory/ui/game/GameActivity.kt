@@ -92,9 +92,9 @@ class GameActivity : AppCompatActivity() {
         val card = cards[position]
         if (card.isRevealed || card.isMatched) return
 
-        // Открываем карточку БЕЗ анимации (для стабильности)
+        // Открываем карточку с анимацией
         card.isRevealed = true
-        adapter.updateCards(cards)
+        adapter.updateCardWithFlip(position)
 
         when {
             firstRevealedCard == null -> {
@@ -131,6 +131,8 @@ class GameActivity : AppCompatActivity() {
                     second.isMatched = true
                     matchedPairs++
                     
+                    adapter.updateCards(cards) // Обновляем для эффекта прозрачности
+                    
                     Toast.makeText(this, "Пара найдена!", Toast.LENGTH_SHORT).show()
 
                     // Проверяем, закончилась ли игра
@@ -142,12 +144,15 @@ class GameActivity : AppCompatActivity() {
                         ).show()
                     }
                 } else {
-                    // Не совпало - закрываем карточки
+                    // Не совпало - закрываем карточки с анимацией
                     first.isRevealed = false
                     second.isRevealed = false
+                    
+                    val firstIndex = cards.indexOf(first)
+                    val secondIndex = cards.indexOf(second)
+                    adapter.updateCardWithFlip(firstIndex)
+                    adapter.updateCardWithFlip(secondIndex)
                 }
-
-                adapter.updateCards(cards)
             }
 
             // Сбрасываем выбор
