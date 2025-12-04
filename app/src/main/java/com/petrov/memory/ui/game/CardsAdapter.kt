@@ -49,6 +49,26 @@ class CardsAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(card: Card, position: Int) {
+            // ВАЖНО: Сбрасываем все анимации и трансформации перед bind
+            binding.root.animate().cancel()
+            binding.root.clearAnimation()
+            binding.cardView.animate().cancel()
+            binding.cardView.clearAnimation()
+            
+            // Сбрасываем все трансформации
+            binding.root.alpha = 1f
+            binding.root.scaleX = 1f
+            binding.root.scaleY = 1f
+            binding.root.translationX = 0f
+            binding.root.translationY = 0f
+            binding.root.rotation = 0f
+            binding.root.rotationX = 0f
+            binding.root.rotationY = 0f
+            
+            binding.cardView.alpha = 1f
+            binding.cardView.scaleX = 1f
+            binding.cardView.scaleY = 1f
+            
             // Отображаем изображение карточки
             val imageRes = if (card.isRevealed || card.isMatched) {
                 card.imageResId
@@ -64,10 +84,6 @@ class CardsAdapter(
                 binding.cardView.alpha = 0.3f
                 binding.cardView.scaleX = 0.95f
                 binding.cardView.scaleY = 0.95f
-            } else {
-                binding.cardView.alpha = 1.0f
-                binding.cardView.scaleX = 1.0f
-                binding.cardView.scaleY = 1.0f
             }
 
             // Обработчик клика
