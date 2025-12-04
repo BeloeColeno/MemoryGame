@@ -1,8 +1,11 @@
 package com.petrov.memory.ui.game
 
+import android.app.Dialog
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.Window
+import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.petrov.memory.R
@@ -26,6 +29,7 @@ class GameActivity : AppCompatActivity() {
     private var firstRevealedCard: Card? = null
     private var secondRevealedCard: Card? = null
     private var isChecking = false
+    private var isSoundEnabled = true
 
     private val handler = Handler(Looper.getMainLooper())
 
@@ -136,11 +140,9 @@ class GameActivity : AppCompatActivity() {
 
                     // Проверяем, закончилась ли игра
                     if (matchedPairs == totalPairs) {
-                        Toast.makeText(
-                            this,
-                            "Победа! Ходов: $moves",
-                            Toast.LENGTH_LONG
-                        ).show()
+                        handler.postDelayed({
+                            showLevelCompleteDialog()
+                        }, 500)
                     }
                 } else {
                     // Не совпало - закрываем карточки с анимацией
@@ -169,18 +171,72 @@ class GameActivity : AppCompatActivity() {
     }
 
     /**
+     * Показать диалог завершения уровня
+     */
+    private fun showLevelCompleteDialog() {
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setContentView(R.layout.dialog_level_complete)
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.setCancelable(false)
+
+        // Кнопка "В меню"
+        dialog.findViewById<ImageButton>(R.id.btnMenu).setOnClickListener {
+            dialog.dismiss()
+            finish()
+        }
+
+        // Кнопка "Повторить"
+        dialog.findViewById<ImageButton>(R.id.btnReplay).setOnClickListener {
+            dialog.dismiss()
+            restartGame()
+        }
+
+        // Кнопка "Следующий уровень" (пока заглушка)
+        dialog.findViewById<ImageButton>(R.id.btnNext).setOnClickListener {
+            Toast.makeText(this, "Следующий уровень пока недоступен", Toast.LENGTH_SHORT).show()
+        }
+
+        dialog.show()
+    }
+
+    /**
      * Перезапуск игры
      */
+    private fun restartGame() {
+        moves = 0
+        matchedPairs = 0
+        firstRevealedCard = null
+        secondRevealedCard = null
+        isChecking = false
+        cards = generateCards()
+        adapter.updateCards(cards)
+        updateUI()
+    }
+
+    /**
+     * Настройка слушателей кнопок
+     */
     private fun setupListeners() {
-        binding.btnRestart.setOnClickListener {
-            moves = 0
-            matchedPairs = 0
-            firstRevealedCard = null
-            secondRevealedCard = null
-            isChecking = false
-            cards = generateCards()
-            adapter.updateCards(cards)
-            updateUI()
+        // Кнопка "В меню"
+        binding.btnMenu.setOnClickListener {
+            finish()
+        }
+
+        // Кнопка "Звук"
+        binding.btnSound.setOnClickListener {
+            isSoundEnabled = !isSoundEnabled
+            val iconRes = if (isSoundEnabled) {
+                android.R.drawable.ic_lock_silent_mode_off
+            } else {
+                android.R.drawable.ic_lock_silent_mode
+            }
+            binding.btnSound.setImageResource(iconRes)
+            Toast.makeText(
+                this,
+                if (isSoundEnabled) "Звук включен" else "Звук выключен",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
