@@ -74,4 +74,7 @@ dependencies {
 
     // ConstraintLayout - Адаптивная верстка
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+
+    // CardView - Для карточек с тенью
+    implementation("androidx.cardview:cardview:1.0.0")
 }
