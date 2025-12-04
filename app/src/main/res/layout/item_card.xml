@@ -7,7 +7,8 @@
     android:layout_height="wrap_content"
     android:layout_margin="4dp"
     app:cardCornerRadius="8dp"
-    app:cardElevation="4dp">
+    app:cardElevation="4dp"
+    app:cardBackgroundColor="@android:color/transparent">
 
     <ImageView
         android:id="@+id/ivCard"
@@ -16,6 +17,7 @@
         android:adjustViewBounds="true"
         android:maxHeight="250dp"
         android:scaleType="fitCenter"
+        android:background="@android:color/transparent"
         android:src="@drawable/cover"
         android:contentDescription="Card" />
 
