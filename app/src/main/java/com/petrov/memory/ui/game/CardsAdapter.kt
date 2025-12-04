@@ -24,6 +24,28 @@ class CardsAdapter(
             parent,
             false
         )
+        
+        // Вычисляем размер карточки на основе размера экрана и количества колонок
+        val displayMetrics = parent.context.resources.displayMetrics
+        val screenWidth = displayMetrics.widthPixels
+        val screenHeight = displayMetrics.heightPixels
+        
+        // Учитываем отступы и количество колонок
+        val layoutManager = (parent as? androidx.recyclerview.widget.RecyclerView)?.layoutManager 
+            as? androidx.recyclerview.widget.GridLayoutManager
+        val columns = layoutManager?.spanCount ?: 4
+        val rows = when (columns) {
+            4 -> if (itemCount <= 8) 2 else if (itemCount <= 12) 3 else 4
+            else -> 2
+        }
+        
+        // Размер карточки с учетом отступов (48dp сверху для UI, 32dp снизу)
+        val availableHeight = screenHeight - (parent.context.resources.displayMetrics.density * 120).toInt()
+        val cardHeight = availableHeight / rows
+        val cardWidth = (screenWidth - (parent.context.resources.displayMetrics.density * 32).toInt()) / columns
+        
+        binding.root.layoutParams = ViewGroup.LayoutParams(cardWidth, cardHeight)
+        
         return CardViewHolder(binding)
     }
 
