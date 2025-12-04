@@ -5,15 +5,16 @@
     android:id="@+id/cardView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="6dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="6dp">
+    android:layout_margin="4dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="4dp">
 
     <ImageView
         android:id="@+id/ivCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:adjustViewBounds="true"
+        android:maxHeight="250dp"
         android:scaleType="fitCenter"
         android:src="@drawable/cover"
         android:contentDescription="Card" />
