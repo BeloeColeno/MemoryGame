@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.petrov.memory.R
 import com.petrov.memory.databinding.ItemCardBinding
 import com.petrov.memory.domain.model.Card
+import com.petrov.memory.util.CardAnimations
 
 /**
  * Адаптер для отображения карточек в RecyclerView
@@ -36,6 +37,13 @@ class CardsAdapter(
         notifyDataSetChanged()
     }
 
+    /**
+     * Обновить одну карточку с анимацией
+     */
+    fun updateCardWithAnimation(position: Int) {
+        notifyItemChanged(position)
+    }
+
     inner class CardViewHolder(
         private val binding: ItemCardBinding
     ) : RecyclerView.ViewHolder(binding.root) {
@@ -47,10 +55,20 @@ class CardsAdapter(
             } else {
                 R.drawable.cover // Закрытая карточка
             }
+            
+            // Устанавливаем изображение без анимации при первой загрузке
             binding.ivCard.setImageResource(imageRes)
 
-            // Устанавливаем прозрачность для найденных пар
-            binding.ivCard.alpha = if (card.isMatched) 0.5f else 1.0f
+            // Прозрачность для найденных пар
+            if (card.isMatched) {
+                binding.cardView.alpha = 0.3f
+                binding.cardView.scaleX = 0.95f
+                binding.cardView.scaleY = 0.95f
+            } else {
+                binding.cardView.alpha = 1.0f
+                binding.cardView.scaleX = 1.0f
+                binding.cardView.scaleY = 1.0f
+            }
 
             // Обработчик клика
             binding.cardView.setOnClickListener {
