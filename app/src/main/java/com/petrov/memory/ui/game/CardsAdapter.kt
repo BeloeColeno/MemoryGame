@@ -43,8 +43,12 @@ class CardsAdapter(
             val availableWidth = screenWidth - sideMargins
             val availableHeight = screenHeight - topBottomReserved
             
+            android.util.Log.d("CardsAdapter", "Screen: ${screenWidth}×${screenHeight}, Available: ${availableWidth}×${availableHeight}, Cards: $itemCount")
+            
             // УМНЫЙ АЛГОРИТМ: находим оптимальный размер карточки
             val gridLayout = calculateOptimalCardSize(itemCount, availableWidth, availableHeight, minGap)
+            
+            android.util.Log.d("CardsAdapter", "Grid: ${gridLayout.columns}×${gridLayout.rows}, CardSize: ${gridLayout.cardSize}px")
             
             // Обновляем количество колонок в GridLayoutManager
             val layoutManager = (parent as? androidx.recyclerview.widget.RecyclerView)?.layoutManager 
