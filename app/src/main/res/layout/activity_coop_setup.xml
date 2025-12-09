@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/menuscreen">
+
+    <!-- Заголовок -->
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:text="НАСТРОЙКА ИГРЫ"
+        android:textColor="#FFFFFF"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:shadowColor="#000000"
+        android:shadowDx="2"
+        android:shadowDy="2"
+        android:shadowRadius="4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Выбор количества пар -->
+    <TextView
+        android:id="@+id/tvPairsLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:text="Количество пар:"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:shadowColor="#000000"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius="3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+
+    <RadioGroup
+        android:id="@+id/rgPairs"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvPairsLabel">
+
+        <RadioButton
+            android:id="@+id/rbPairs4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:text="4 пары"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:checked="true"
+            android:buttonTint="#9C27B0" />
+
+        <RadioButton
+            android:id="@+id/rbPairs6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:text="6 пар"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:buttonTint="#9C27B0" />
+
+        <RadioButton
+            android:id="@+id/rbPairs9"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="9 пар"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:buttonTint="#9C27B0" />
+    </RadioGroup>
+
+    <!-- Выбор режима таймера -->
+    <TextView
+        android:id="@+id/tvTimerModeLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Режим таймера:"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:shadowColor="#000000"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius="3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/rgPairs" />
+
+    <RadioGroup
+        android:id="@+id/rgTimerMode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvTimerModeLabel">
+
+        <RadioButton
+            android:id="@+id/rbWithTimer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="24dp"
+            android:text="С таймером"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:buttonTint="#9C27B0" />
+
+        <RadioButton
+            android:id="@+id/rbWithoutTimer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Без таймера"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:checked="true"
+            android:buttonTint="#9C27B0" />
+    </RadioGroup>
+
+    <!-- Выбор лимита времени (видим только если включен таймер) -->
+    <TextView
+        android:id="@+id/tvTimerLimitLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Лимит времени:"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:shadowColor="#000000"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius="3"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/rgTimerMode" />
+
+    <RadioGroup
+        android:id="@+id/rgTimerLimit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvTimerLimitLabel">
+
+        <RadioButton
+            android:id="@+id/rbLimit60"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:text="60 сек"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:checked="true"
+            android:buttonTint="#9C27B0" />
+
+        <RadioButton
+            android:id="@+id/rbLimit90"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:text="90 сек"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:buttonTint="#9C27B0" />
+
+        <RadioButton
+            android:id="@+id/rbLimit120"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="120 сек"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:buttonTint="#9C27B0" />
+    </RadioGroup>
+
+    <!-- Кнопка "Начать игру" -->
+    <Button
+        android:id="@+id/btnStartGame"
+        android:layout_width="240dp"
+        android:layout_height="70dp"
+        android:layout_marginBottom="40dp"
+        android:backgroundTint="#9C27B0"
+        android:text="НАЧАТЬ ИГРУ"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:cornerRadius="14dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Кнопка "Назад" -->
+    <Button
+        android:id="@+id/btnBack"
+        android:layout_width="120dp"
+        android:layout_height="50dp"
+        android:layout_margin="24dp"
+        android:backgroundTint="#7B1FA2"
+        android:text="НАЗАД"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:cornerRadius="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
