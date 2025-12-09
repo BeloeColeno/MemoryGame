@@ -18,8 +18,8 @@ class CardsAdapter(
     private val onCardClick: (Int) -> Unit
 ) : RecyclerView.Adapter<CardsAdapter.CardViewHolder>() {
 
-    private var cardSize: Int = 0
-    private var isLayoutCalculated = false
+    private var cachedCardSize: Int = 0
+    private var cachedColumns: Int = 1
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardViewHolder {
         val binding = ItemCardBinding.inflate(
@@ -28,8 +28,8 @@ class CardsAdapter(
             false
         )
         
-        // Вычисляем размеры ТОЛЬКО ОДИН РАЗ при создании первого ViewHolder
-        if (!isLayoutCalculated) {
+        // Вычисляем размеры ТОЛЬКО ОДИН РАЗ или если кеш пустой
+        if (cachedCardSize == 0) {
             val displayMetrics = parent.context.resources.displayMetrics
             val screenWidth = displayMetrics.widthPixels
             val screenHeight = displayMetrics.heightPixels
@@ -55,12 +55,12 @@ class CardsAdapter(
                 as? androidx.recyclerview.widget.GridLayoutManager
             layoutManager?.spanCount = gridLayout.columns
             
-            cardSize = gridLayout.cardSize
-            isLayoutCalculated = true
+            cachedCardSize = gridLayout.cardSize
+            cachedColumns = gridLayout.columns
         }
         
         // Устанавливаем размер карточки
-        binding.root.layoutParams = RecyclerView.LayoutParams(cardSize, cardSize)
+        binding.root.layoutParams = RecyclerView.LayoutParams(cachedCardSize, cachedCardSize)
         
         return CardViewHolder(binding)
     }
@@ -71,8 +71,11 @@ class CardsAdapter(
      * с минимальными зазорами между карточками
      */
     private fun calculateOptimalCardSize(totalCards: Int, width: Int, height: Int, gap: Int): GridLayout {
+        android.util.Log.d("CardsAdapter", "calculateOptimalCardSize: totalCards=$totalCards, width=$width, height=$height, gap=$gap")
+        
         // Защита от некорректных данных
         if (totalCards <= 0 || width <= 0 || height <= 0) {
+            android.util.Log.e("CardsAdapter", "Invalid input! Using fallback")
             return GridLayout(1, 1, 100) // Минимальные значения по умолчанию
         }
         
@@ -109,10 +112,14 @@ class CardsAdapter(
         
         // Если не нашли подходящий вариант, используем минимальный размер
         if (maxCardSize == 0) {
+            android.util.Log.w("CardsAdapter", "No valid layout found! Using fallback")
             val minSize = minOf(width / totalCards, height / totalCards, 50)
-            return GridLayout(totalCards, 1, maxOf(minSize, 10))
+            val fallbackSize = maxOf(minSize, 10)
+            android.util.Log.w("CardsAdapter", "Fallback: size=$fallbackSize")
+            return GridLayout(totalCards, 1, fallbackSize)
         }
         
+        android.util.Log.d("CardsAdapter", "Best layout: ${bestLayout.columns}×${bestLayout.rows}, size=${bestLayout.cardSize}")
         return bestLayout
     }
     
@@ -141,7 +148,7 @@ class CardsAdapter(
 
     fun updateCards(newCards: List<Card>) {
         cards = newCards
-        isLayoutCalculated = false // Сбрасываем флаг при обновлении
+        cachedCardSize = 0 // Сбрасываем кеш для пересчета
         notifyDataSetChanged()
     }
 
