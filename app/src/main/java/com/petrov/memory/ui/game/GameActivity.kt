@@ -22,6 +22,7 @@ class GameActivity : AppCompatActivity() {
     private lateinit var binding: ActivityGameBinding
     private lateinit var adapter: CardsAdapter
     private var cards = mutableListOf<Card>()
+    private var cardsWithPlaceholders = mutableListOf<Card>()  // Карточки с заглушками
     private var moves = 0
     private var matchedPairs = 0
     private var totalPairs = 4 // По умолчанию легкий
@@ -78,19 +79,30 @@ class GameActivity : AppCompatActivity() {
         
         val optimalColumns = calculateOptimalColumns(cards.size, availableWidth, availableHeight, minGap)
         
+        // Добавляем невидимые карточки для симметричного размещения
+        cardsWithPlaceholders = addPlaceholdersForSymmetry(cards, optimalColumns).toMutableList()
+        
         // Устанавливаем spanCount ДО создания адаптера!
         (binding.rvCards.layoutManager as? androidx.recyclerview.widget.GridLayoutManager)?.spanCount = optimalColumns
         
         // Добавляем декоратор для минимальных отступов (только первый раз)
         if (binding.rvCards.itemDecorationCount == 0) {
             val spacing = (density * 2).toInt()
-            binding.rvCards.addItemDecoration(CenteredGridDecoration(spacing, optimalColumns, cards.size))
+            binding.rvCards.addItemDecoration(CenteredGridDecoration(spacing, optimalColumns, cardsWithPlaceholders.size))
         }
         
-        android.util.Log.d("GameActivity", "Setting spanCount=$optimalColumns for ${cards.size} cards")
+        android.util.Log.d("GameActivity", "Setting spanCount=$optimalColumns for ${cards.size} cards (${cardsWithPlaceholders.size} with placeholders)")
         
-        adapter = CardsAdapter(cards, availableWidth, availableHeight, minGap) { position ->
-            onCardClick(position)
+        adapter = CardsAdapter(cardsWithPlaceholders, availableWidth, availableHeight, minGap) { position ->
+            // Получаем карточку из списка с заглушками
+            val clickedCard = cardsWithPlaceholders[position]
+            if (!clickedCard.isPlaceholder) {
+                // Находим индекс этой карточки в настоящем списке
+                val realPosition = cards.indexOf(clickedCard)
+                if (realPosition >= 0) {
+                    onCardClick(realPosition)
+                }
+            }
         }
         binding.rvCards.adapter = adapter
         
@@ -100,6 +112,55 @@ class GameActivity : AppCompatActivity() {
         }
         
         updateUI()
+    }
+    
+    /**
+     * Добавляет невидимые карточки-заглушки для симметричного размещения
+     */
+    private fun addPlaceholdersForSymmetry(realCards: List<Card>, columns: Int): List<Card> {
+        val lastRowItems = realCards.size % columns
+        
+        if (lastRowItems == 0) {
+            // Полная сетка - не нужны заглушки
+            return realCards
+        }
+        
+        val emptySpaces = columns - lastRowItems
+        val leftPlaceholders = emptySpaces / 2
+        val rightPlaceholders = emptySpaces - leftPlaceholders
+        
+        // Вычисляем где вставить заглушки
+        val totalRows = (realCards.size + columns - 1) / columns
+        val firstRowStart = 0
+        val lastRowStart = (totalRows - 1) * columns
+        
+        val result = mutableListOf<Card>()
+        
+        // Распределяем заглушки чередуя: первая строка - слева, последняя - справа
+        for (i in 0 until totalRows * columns) {
+            val row = i / columns
+            val col = i % columns
+            
+            when {
+                row == 0 && col < leftPlaceholders -> {
+                    // Первая строка - заглушки слева
+                    result.add(Card(-1, 0, isPlaceholder = true))
+                }
+                row == totalRows - 1 && col >= lastRowItems + leftPlaceholders -> {
+                    // Последняя строка - заглушки справа
+                    result.add(Card(-1, 0, isPlaceholder = true))
+                }
+                else -> {
+                    // Реальная карточка
+                    val cardIndex = result.count { !it.isPlaceholder }
+                    if (cardIndex < realCards.size) {
+                        result.add(realCards[cardIndex])
+                    }
+                }
+            }
+        }
+        
+        return result
     }
     
     /**
@@ -218,7 +279,12 @@ class GameActivity : AppCompatActivity() {
 
         // Открываем карточку с анимацией
         card.isRevealed = true
-        adapter.updateCardWithFlip(position)
+        
+        // Находим позицию этой карточки в списке с заглушками
+        val adapterPosition = cardsWithPlaceholders.indexOf(card)
+        if (adapterPosition >= 0) {
+            adapter.updateCardWithFlip(adapterPosition)
+        }
 
         when {
             firstRevealedCard == null -> {
@@ -255,7 +321,7 @@ class GameActivity : AppCompatActivity() {
                     second.isMatched = true
                     matchedPairs++
                     
-                    adapter.updateCards(cards) // Обновляем для эффекта прозрачности
+                    adapter.updateCards(cardsWithPlaceholders) // Обновляем для эффекта прозрачности
                     
                     Toast.makeText(this, "Пара найдена!", Toast.LENGTH_SHORT).show()
 
@@ -270,10 +336,10 @@ class GameActivity : AppCompatActivity() {
                     first.isRevealed = false
                     second.isRevealed = false
                     
-                    val firstIndex = cards.indexOf(first)
-                    val secondIndex = cards.indexOf(second)
-                    adapter.updateCardWithFlip(firstIndex)
-                    adapter.updateCardWithFlip(secondIndex)
+                    val firstIndex = cardsWithPlaceholders.indexOf(first)
+                    val secondIndex = cardsWithPlaceholders.indexOf(second)
+                    if (firstIndex >= 0) adapter.updateCardWithFlip(firstIndex)
+                    if (secondIndex >= 0) adapter.updateCardWithFlip(secondIndex)
                 }
             }
 
@@ -379,7 +445,13 @@ class GameActivity : AppCompatActivity() {
         isChecking = false
         startTime = System.currentTimeMillis()
         cards = generateCards()
-        adapter.updateCards(cards)
+        
+        // Пересоздаем список с заглушками
+        val gridLayoutManager = binding.rvCards.layoutManager as? androidx.recyclerview.widget.GridLayoutManager
+        val columns = gridLayoutManager?.spanCount ?: 4
+        cardsWithPlaceholders = addPlaceholdersForSymmetry(cards, columns).toMutableList()
+        
+        adapter.updateCards(cardsWithPlaceholders)
         updateUI()
     }
 

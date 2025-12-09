@@ -147,6 +147,14 @@ class CardsAdapter(
         }
 
         fun bind(card: Card, position: Int, payload: Any?) {
+            // Скрываем карточки-заглушки
+            if (card.isPlaceholder) {
+                binding.root.visibility = android.view.View.INVISIBLE
+                return
+            }
+            
+            binding.root.visibility = android.view.View.VISIBLE
+            
             // ВАЖНО: Сбрасываем все трансформации перед bind
             binding.cardView.alpha = 1f
             binding.cardView.scaleX = 1f
@@ -174,9 +182,9 @@ class CardsAdapter(
                 animateMatch()
             }
 
-            // Обработчик клика
+            // Обработчик клика (только для реальных карточек)
             binding.cardView.setOnClickListener {
-                if (!card.isRevealed && !card.isMatched) {
+                if (!card.isRevealed && !card.isMatched && !card.isPlaceholder) {
                     onCardClick(position)
                 }
             }
