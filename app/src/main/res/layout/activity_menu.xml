@@ -36,14 +36,14 @@
         app:layout_constraintTop_toBottomOf="@id/ivLogoMenu"
         app:layout_constraintVertical_bias="0.35" />
 
-    <!-- Кнопка "Настройки" -->
+    <!-- Кнопка "Статистика" -->
     <Button
-        android:id="@+id/btnSettings"
+        android:id="@+id/btnStatistics"
         android:layout_width="220dp"
         android:layout_height="60dp"
         android:layout_marginTop="16dp"
-        android:backgroundTint="#BA68C8"
-        android:text="НАСТРОЙКИ"
+        android:backgroundTint="#9C27B0"
+        android:text="СТАТИСТИКА"
         android:textColor="#FFFFFF"
         android:textSize="18sp"
         android:textStyle="bold"
@@ -52,21 +52,21 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btnPlay" />
 
-    <!-- Кнопка "Статистика" -->
+    <!-- Кнопка "Настройки" -->
     <Button
-        android:id="@+id/btnStatistics"
+        android:id="@+id/btnSettings"
         android:layout_width="220dp"
         android:layout_height="60dp"
         android:layout_marginTop="16dp"
-        android:backgroundTint="#BA68C8"
-        android:text="СТАТИСТИКА"
+        android:backgroundTint="#9C27B0"
+        android:text="НАСТРОЙКИ"
         android:textColor="#FFFFFF"
         android:textSize="18sp"
         android:textStyle="bold"
         app:cornerRadius="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnSettings" />
+        app:layout_constraintTop_toBottomOf="@id/btnStatistics" />
 
     <!-- Кнопка "Выход" -->
     <Button
@@ -82,6 +82,6 @@
         app:cornerRadius="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnStatistics" />
+        app:layout_constraintTop_toBottomOf="@id/btnSettings" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
