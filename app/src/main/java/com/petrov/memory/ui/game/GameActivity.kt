@@ -50,10 +50,11 @@ class GameActivity : AppCompatActivity() {
         // Получаем параметры уровня из Intent
         levelId = intent.getIntExtra(EXTRA_LEVEL_ID, 1)
         totalPairs = intent.getIntExtra(EXTRA_TOTAL_PAIRS, 4)
-        gridColumns = intent.getIntExtra(EXTRA_GRID_COLUMNS, 4)
-        
-        // Настраиваем сетку
-        (binding.rvCards.layoutManager as? androidx.recyclerview.widget.GridLayoutManager)?.spanCount = gridColumns
+        // gridColumns больше не используется - будет вычислен адаптером
+
+        // Добавляем декоратор для минимальных отступов между карточками (4dp)
+        val spacing = (resources.displayMetrics.density * 4).toInt()
+        binding.rvCards.addItemDecoration(CenteredGridDecoration(spacing))
 
         startTime = System.currentTimeMillis()
         setupGame()
@@ -70,11 +71,6 @@ class GameActivity : AppCompatActivity() {
             onCardClick(position)
         }
         binding.rvCards.adapter = adapter
-        
-        // Добавляем декоратор для минимальных отступов между карточками (4dp)
-        val spacing = (resources.displayMetrics.density * 4).toInt()
-        binding.rvCards.addItemDecoration(CenteredGridDecoration(spacing))
-        
         updateUI()
     }
 

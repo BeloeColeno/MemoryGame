@@ -18,6 +18,9 @@ class CardsAdapter(
     private val onCardClick: (Int) -> Unit
 ) : RecyclerView.Adapter<CardsAdapter.CardViewHolder>() {
 
+    private var cardSize: Int = 0
+    private var isLayoutCalculated = false
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardViewHolder {
         val binding = ItemCardBinding.inflate(
             LayoutInflater.from(parent.context),
@@ -25,30 +28,35 @@ class CardsAdapter(
             false
         )
         
-        // Вычисляем оптимальный размер и размещение карточек
-        val displayMetrics = parent.context.resources.displayMetrics
-        val screenWidth = displayMetrics.widthPixels
-        val screenHeight = displayMetrics.heightPixels
-        val density = displayMetrics.density
-        
-        // Резервируем место для UI элементов
-        val topBottomReserved = (density * 140).toInt()
-        val sideMargins = (density * 32).toInt()
-        val minGap = (density * 4).toInt() // Минимальный зазор 4dp между карточками
-        
-        val availableWidth = screenWidth - sideMargins
-        val availableHeight = screenHeight - topBottomReserved
-        
-        // НОВЫЙ УМНЫЙ АЛГОРИТМ: находим оптимальный размер карточки
-        val gridLayout = calculateOptimalCardSize(itemCount, availableWidth, availableHeight, minGap)
-        
-        // Обновляем количество колонок в GridLayoutManager
-        val layoutManager = (parent as? androidx.recyclerview.widget.RecyclerView)?.layoutManager 
-            as? androidx.recyclerview.widget.GridLayoutManager
-        layoutManager?.spanCount = gridLayout.columns
+        // Вычисляем размеры ТОЛЬКО ОДИН РАЗ при создании первого ViewHolder
+        if (!isLayoutCalculated) {
+            val displayMetrics = parent.context.resources.displayMetrics
+            val screenWidth = displayMetrics.widthPixels
+            val screenHeight = displayMetrics.heightPixels
+            val density = displayMetrics.density
+            
+            // Резервируем место для UI элементов
+            val topBottomReserved = (density * 140).toInt()
+            val sideMargins = (density * 32).toInt()
+            val minGap = (density * 4).toInt() // Минимальный зазор 4dp между карточками
+            
+            val availableWidth = screenWidth - sideMargins
+            val availableHeight = screenHeight - topBottomReserved
+            
+            // УМНЫЙ АЛГОРИТМ: находим оптимальный размер карточки
+            val gridLayout = calculateOptimalCardSize(itemCount, availableWidth, availableHeight, minGap)
+            
+            // Обновляем количество колонок в GridLayoutManager
+            val layoutManager = (parent as? androidx.recyclerview.widget.RecyclerView)?.layoutManager 
+                as? androidx.recyclerview.widget.GridLayoutManager
+            layoutManager?.spanCount = gridLayout.columns
+            
+            cardSize = gridLayout.cardSize
+            isLayoutCalculated = true
+        }
         
         // Устанавливаем размер карточки
-        binding.root.layoutParams = RecyclerView.LayoutParams(gridLayout.cardSize, gridLayout.cardSize)
+        binding.root.layoutParams = RecyclerView.LayoutParams(cardSize, cardSize)
         
         return CardViewHolder(binding)
     }
@@ -129,6 +137,7 @@ class CardsAdapter(
 
     fun updateCards(newCards: List<Card>) {
         cards = newCards
+        isLayoutCalculated = false // Сбрасываем флаг при обновлении
         notifyDataSetChanged()
     }
 
