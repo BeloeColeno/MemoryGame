@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.petrov.memory.R
 import com.petrov.memory.databinding.ActivityGameBinding
 import com.petrov.memory.domain.model.Card
+import com.petrov.memory.data.preferences.StatsManager
 
 /**
  * Экран игры Memory
@@ -21,6 +22,7 @@ class GameActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityGameBinding
     private lateinit var adapter: CardsAdapter
+    private lateinit var statsManager: StatsManager  // Менеджер статистики
     private var cards = mutableListOf<Card>()
     private var cardsWithPlaceholders = mutableListOf<Card>()  // Карточки с заглушками
     private var moves = 0
@@ -47,6 +49,9 @@ class GameActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityGameBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Инициализируем менеджер статистики
+        statsManager = StatsManager(this)
 
         // Получаем параметры уровня из Intent
         levelId = intent.getIntExtra(EXTRA_LEVEL_ID, 1)
@@ -365,6 +370,15 @@ class GameActivity : AppCompatActivity() {
         val timeSeconds = ((endTime - startTime) / 1000).toInt()
         val stars = calculateStars(moves, timeSeconds)
         
+        // СОХРАНЯЕМ СТАТИСТИКУ
+        statsManager.saveGameResult(
+            levelId = levelId,
+            won = true,
+            time = timeSeconds,
+            moves = moves,
+            stars = stars
+        )
+        
         val dialog = Dialog(this)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.setContentView(R.layout.dialog_level_complete)
@@ -400,8 +414,8 @@ class GameActivity : AppCompatActivity() {
                 // Запускаем следующий уровень
                 val nextLevel = levelId + 1
                 val (pairs, cols) = when (nextLevel) {
-                    2 -> Pair(6, 4) // Средний: 6 пар, 4 колонки
-                    3 -> Pair(8, 4) // Сложный: 8 пар, 4 колонки
+                    2 -> Pair(6, 4) // Средний: 6 пар
+                    3 -> Pair(9, 4) // Сложный: 9 пар
                     else -> Pair(4, 4)
                 }
                 intent.putExtra(EXTRA_LEVEL_ID, nextLevel)
