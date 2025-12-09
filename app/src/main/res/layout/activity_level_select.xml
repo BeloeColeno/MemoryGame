@@ -60,7 +60,7 @@
         android:layout_height="70dp"
         android:layout_marginTop="16dp"
         android:backgroundTint="#9C27B0"
-        android:text="СЛОЖНЫЙ\n(8 пар)"
+        android:text="СЛОЖНЫЙ\n(9 пар)"
         android:textColor="#FFFFFF"
         android:textSize="18sp"
         android:textStyle="bold"

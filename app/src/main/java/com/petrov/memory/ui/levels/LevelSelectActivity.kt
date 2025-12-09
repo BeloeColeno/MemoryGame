@@ -29,9 +29,9 @@ class LevelSelectActivity : AppCompatActivity() {
             startGame(levelId = 2, pairs = 6, columns = 4)
         }
 
-        // Сложный уровень: 10 пар, сетка динамическая
+        // Сложный уровень: 9 пар, сетка динамическая
         binding.btnHard.setOnClickListener {
-            startGame(levelId = 3, pairs = 10, columns = 4)
+            startGame(levelId = 3, pairs = 9, columns = 4)
         }
 
         binding.btnBack.setOnClickListener {
