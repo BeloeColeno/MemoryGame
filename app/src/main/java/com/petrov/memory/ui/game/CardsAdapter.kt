@@ -25,43 +25,75 @@ class CardsAdapter(
             false
         )
         
-        // Вычисляем размер карточки на основе размера экрана и количества колонок
+        // Вычисляем оптимальную сетку для карточек
         val displayMetrics = parent.context.resources.displayMetrics
         val screenWidth = displayMetrics.widthPixels
         val screenHeight = displayMetrics.heightPixels
-        
-        // Учитываем отступы и количество колонок
-        val layoutManager = (parent as? androidx.recyclerview.widget.RecyclerView)?.layoutManager 
-            as? androidx.recyclerview.widget.GridLayoutManager
-        val columns = layoutManager?.spanCount ?: 4
-        val rows = when (columns) {
-            4 -> if (itemCount <= 8) 2 else if (itemCount <= 12) 3 else 4
-            else -> 2
-        }
-        
-        // Отступы и padding в пикселях
         val density = displayMetrics.density
-        val topBottomReserved = (density * 140).toInt() // UI элементы сверху/снизу
-        val sideMargins = (density * 32).toInt() // Отступы RecyclerView по бокам
-        val cardPadding = (density * 3).toInt() // Padding каждой карточки
         
-        // Доступное пространство для карточек
+        // Резервируем место для UI элементов
+        val topBottomReserved = (density * 140).toInt()
+        val sideMargins = (density * 32).toInt()
+        val cardGap = (density * 6).toInt() // Минимальный зазор между карточками
+        
         val availableWidth = screenWidth - sideMargins
         val availableHeight = screenHeight - topBottomReserved
         
-        // Размер одной ячейки с учетом padding
-        val cellWidth = availableWidth / columns
-        val cellHeight = availableHeight / rows
+        // УМНЫЙ АЛГОРИТМ: находим оптимальное соотношение колонок/рядов
+        val gridLayout = calculateOptimalGrid(itemCount, availableWidth, availableHeight, cardGap)
         
-        // Размер самой карточки (без padding)
-        val cardWidth = cellWidth - (cardPadding * 2)
-        val cardHeight = cellHeight - (cardPadding * 2)
+        // Обновляем количество колонок в GridLayoutManager
+        val layoutManager = (parent as? androidx.recyclerview.widget.RecyclerView)?.layoutManager 
+            as? androidx.recyclerview.widget.GridLayoutManager
+        layoutManager?.spanCount = gridLayout.columns
         
-        // Устанавливаем размер ячейки (FrameLayout будет такого размера)
-        binding.root.layoutParams = RecyclerView.LayoutParams(cellWidth, cellHeight)
+        // Размер квадратной карточки (используем минимальный, чтобы все поместилось)
+        val cardSize = gridLayout.cardSize
+        
+        // Устанавливаем размер ячейки
+        binding.root.layoutParams = RecyclerView.LayoutParams(cardSize, cardSize)
         
         return CardViewHolder(binding)
     }
+    
+    /**
+     * Вычисляет оптимальную сетку для размещения карточек
+     * Алгоритм пробует разные варианты колонок/рядов и выбирает тот,
+     * который дает максимальный размер карточки
+     */
+    private fun calculateOptimalGrid(totalCards: Int, width: Int, height: Int, gap: Int): GridLayout {
+        var bestLayout = GridLayout(1, totalCards, 0)
+        var maxCardSize = 0
+        
+        // Пробуем разные варианты от 1 до totalCards колонок
+        for (cols in 1..totalCards) {
+            val rows = (totalCards + cols - 1) / cols // Округление вверх
+            
+            // Вычисляем размер карточки для этого варианта
+            val cardWidth = (width - (cols - 1) * gap) / cols
+            val cardHeight = (height - (rows - 1) * gap) / rows
+            
+            // Карточки квадратные - берем минимальное значение
+            val cardSize = minOf(cardWidth, cardHeight)
+            
+            // Выбираем вариант с максимальным размером карточки
+            if (cardSize > maxCardSize) {
+                maxCardSize = cardSize
+                bestLayout = GridLayout(cols, rows, cardSize)
+            }
+        }
+        
+        return bestLayout
+    }
+    
+    /**
+     * Данные об оптимальной сетке
+     */
+    private data class GridLayout(
+        val columns: Int,
+        val rows: Int,
+        val cardSize: Int
+    )
 
     override fun onBindViewHolder(holder: CardViewHolder, position: Int) {
         holder.bind(cards[position], position)

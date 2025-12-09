@@ -70,6 +70,11 @@ class GameActivity : AppCompatActivity() {
             onCardClick(position)
         }
         binding.rvCards.adapter = adapter
+        
+        // Добавляем декоратор для равномерных отступов между карточками
+        val spacing = (resources.displayMetrics.density * 6).toInt() // 6dp между карточками
+        binding.rvCards.addItemDecoration(CenteredGridDecoration(spacing))
+        
         updateUI()
     }
 
