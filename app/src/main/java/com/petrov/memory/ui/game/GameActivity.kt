@@ -50,11 +50,6 @@ class GameActivity : AppCompatActivity() {
         // Получаем параметры уровня из Intent
         levelId = intent.getIntExtra(EXTRA_LEVEL_ID, 1)
         totalPairs = intent.getIntExtra(EXTRA_TOTAL_PAIRS, 4)
-        // gridColumns больше не используется - будет вычислен адаптером
-
-        // Добавляем декоратор для минимальных отступов между карточками (2dp)
-        val spacing = (resources.displayMetrics.density * 2).toInt()
-        binding.rvCards.addItemDecoration(CenteredGridDecoration(spacing))
 
         startTime = System.currentTimeMillis()
         setupGame()
@@ -86,13 +81,50 @@ class GameActivity : AppCompatActivity() {
         // Устанавливаем spanCount ДО создания адаптера!
         (binding.rvCards.layoutManager as? androidx.recyclerview.widget.GridLayoutManager)?.spanCount = optimalColumns
         
+        // Добавляем декоратор для минимальных отступов (только первый раз)
+        if (binding.rvCards.itemDecorationCount == 0) {
+            val spacing = (density * 2).toInt()
+            binding.rvCards.addItemDecoration(CenteredGridDecoration(spacing, optimalColumns, cards.size))
+        }
+        
         android.util.Log.d("GameActivity", "Setting spanCount=$optimalColumns for ${cards.size} cards")
         
         adapter = CardsAdapter(cards, availableWidth, availableHeight, minGap) { position ->
             onCardClick(position)
         }
         binding.rvCards.adapter = adapter
+        
+        // Центрируем сетку через padding после того как адаптер установлен
+        binding.rvCards.post {
+            centerGrid(optimalColumns, minGap)
+        }
+        
         updateUI()
+    }
+    
+    /**
+     * Центрирует сетку карточек на экране
+     */
+    private fun centerGrid(columns: Int, gap: Int) {
+        val firstChild = binding.rvCards.getChildAt(0) ?: return
+        val cardSize = firstChild.width
+        
+        if (cardSize == 0) return
+        
+        val rows = (cards.size + columns - 1) / columns
+        
+        val totalGridWidth = cardSize * columns + gap * (columns - 1)
+        val totalGridHeight = cardSize * rows + gap * (rows - 1)
+        
+        val parentWidth = binding.rvCards.width
+        val parentHeight = binding.rvCards.height
+        
+        val horizontalPadding = maxOf(0, (parentWidth - totalGridWidth) / 2)
+        val verticalPadding = maxOf(0, (parentHeight - totalGridHeight) / 2)
+        
+        binding.rvCards.setPadding(horizontalPadding, verticalPadding, horizontalPadding, verticalPadding)
+        
+        android.util.Log.d("GameActivity", "Grid centered: hPadding=$horizontalPadding, vPadding=$verticalPadding")
     }
     
     /**
