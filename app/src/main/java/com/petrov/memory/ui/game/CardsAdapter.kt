@@ -39,23 +39,26 @@ class CardsAdapter(
             else -> 2
         }
         
-        // Размер карточки с учетом отступов и padding
-        // 140dp для UI сверху/снизу, 32dp по бокам RecyclerView, 6dp padding самой карточки
-        val topBottomReserved = (displayMetrics.density * 140).toInt()
-        val sideMargins = (displayMetrics.density * 32).toInt()
-        val cardPadding = (displayMetrics.density * 6).toInt() // 3dp с каждой стороны
+        // Отступы и padding в пикселях
+        val density = displayMetrics.density
+        val topBottomReserved = (density * 140).toInt() // UI элементы сверху/снизу
+        val sideMargins = (density * 32).toInt() // Отступы RecyclerView по бокам
+        val cardPadding = (density * 3).toInt() // Padding каждой карточки
         
-        val availableHeight = screenHeight - topBottomReserved - (cardPadding * rows)
-        val availableWidth = screenWidth - sideMargins - (cardPadding * columns)
+        // Доступное пространство для карточек
+        val availableWidth = screenWidth - sideMargins
+        val availableHeight = screenHeight - topBottomReserved
         
-        val cardHeight = availableHeight / rows
-        val cardWidth = availableWidth / columns
+        // Размер одной ячейки с учетом padding
+        val cellWidth = availableWidth / columns
+        val cellHeight = availableHeight / rows
         
-        // Используем минимальный размер для квадратных карточек
-        val cardSize = minOf(cardWidth, cardHeight)
+        // Размер самой карточки (без padding)
+        val cardWidth = cellWidth - (cardPadding * 2)
+        val cardHeight = cellHeight - (cardPadding * 2)
         
-        // Устанавливаем LayoutParams для RecyclerView
-        binding.root.layoutParams = RecyclerView.LayoutParams(cardSize, cardSize)
+        // Устанавливаем размер ячейки (FrameLayout будет такого размера)
+        binding.root.layoutParams = RecyclerView.LayoutParams(cellWidth, cellHeight)
         
         return CardViewHolder(binding)
     }
