@@ -34,6 +34,18 @@
             android:exported="false"
             android:screenOrientation="landscape" />
         
+        <!-- Выбор режима -->
+        <activity
+            android:name=".ui.mode.ModeSelectionActivity"
+            android:exported="false"
+            android:screenOrientation="landscape" />
+        
+        <!-- Настройка кооперативной игры -->
+        <activity
+            android:name=".ui.mode.CoopSetupActivity"
+            android:exported="false"
+            android:screenOrientation="landscape" />
+        
         <!-- Выбор уровня -->
         <activity
             android:name=".ui.levels.LevelSelectActivity"
@@ -55,6 +67,12 @@
         <!-- Игровой экран -->
         <activity
             android:name=".ui.game.GameActivity"
+            android:exported="false"
+            android:screenOrientation="landscape" />
+        
+        <!-- Кооперативный игровой экран -->
+        <activity
+            android:name=".ui.game.CoopGameActivity"
             android:exported="false"
             android:screenOrientation="landscape" />
     </application>

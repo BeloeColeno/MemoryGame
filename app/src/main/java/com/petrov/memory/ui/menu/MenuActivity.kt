@@ -23,9 +23,9 @@ class MenuActivity : AppCompatActivity() {
     }
 
     private fun setupButtons() {
-        // Кнопка "Играть" - открывает выбор уровня
+        // Кнопка "Играть" - открывает выбор режима
         binding.btnPlay.setOnClickListener {
-            startActivity(Intent(this, com.petrov.memory.ui.levels.LevelSelectActivity::class.java))
+            startActivity(Intent(this, com.petrov.memory.ui.mode.ModeSelectionActivity::class.java))
         }
 
         // Кнопка "Настройки"
