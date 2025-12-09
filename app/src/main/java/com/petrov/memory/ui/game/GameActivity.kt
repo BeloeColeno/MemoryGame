@@ -129,6 +129,7 @@ class GameActivity : AppCompatActivity() {
     
     /**
      * Вычисляет оптимальное количество колонок для сетки
+     * Предпочитает симметричные варианты (где последняя строка заполнена или близка к центру)
      */
     private fun calculateOptimalColumns(totalCards: Int, width: Int, height: Int, gap: Int): Int {
         var bestColumns = 1
@@ -146,8 +147,20 @@ class GameActivity : AppCompatActivity() {
             
             val cardSize = minOf(cardWidth, cardHeight)
             
-            if (cardSize > maxCardSize) {
-                maxCardSize = cardSize
+            // Бонус за симметричность (полная последняя строка или близко к ней)
+            val lastRowItems = totalCards % cols
+            val symmetryBonus = if (lastRowItems == 0) {
+                cardSize / 10  // +10% за полностью заполненную сетку
+            } else if (lastRowItems >= cols / 2) {
+                cardSize / 20  // +5% за >50% заполненную последнюю строку
+            } else {
+                0
+            }
+            
+            val effectiveSize = cardSize + symmetryBonus
+            
+            if (effectiveSize > maxCardSize) {
+                maxCardSize = effectiveSize
                 bestColumns = cols
             }
         }

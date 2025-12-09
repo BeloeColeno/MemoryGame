@@ -2,7 +2,6 @@ package com.petrov.memory.ui.game
 
 import android.graphics.Rect
 import android.view.View
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 /**
@@ -22,9 +21,6 @@ class CenteredGridDecoration(
     ) {
         val position = parent.getChildAdapterPosition(view)
         if (position < 0) return
-        
-        val column = position % spanCount
-        val row = position / spanCount
         
         // Равномерные минимальные зазоры между карточками
         outRect.left = spacing / 2
