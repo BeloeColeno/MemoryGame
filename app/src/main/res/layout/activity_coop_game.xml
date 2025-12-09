@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background1">
+
+    <!-- Фоновый фильтр текущего игрока -->
+    <View
+        android:id="@+id/viewPlayerBackground"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0.15"
+        android:background="#2196F3" />
+
+    <!-- Кнопка "В меню" -->
+    <ImageButton
+        android:id="@+id/btnMenu"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_margin="16dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@android:drawable/ic_menu_revert"
+        android:scaleType="fitCenter"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:contentDescription="Menu" />
+
+    <!-- Панель Игрока 1 (слева) -->
+    <LinearLayout
+        android:id="@+id/layoutPlayer1"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:orientation="vertical"
+        android:padding="12dp"
+        android:background="@drawable/rounded_background"
+        android:elevation="4dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnMenu">
+
+        <TextView
+            android:id="@+id/tvPlayer1Name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Игрок 1"
+            android:textColor="#2196F3"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvPlayer1Pairs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Пары: 0"
+            android:textColor="#424242"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tvPlayer1Score"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Очки: 0"
+            android:textColor="#424242"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <!-- Панель Игрока 2 (справа) -->
+    <LinearLayout
+        android:id="@+id/layoutPlayer2"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:orientation="vertical"
+        android:padding="12dp"
+        android:background="@drawable/rounded_background"
+        android:elevation="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnMenu">
+
+        <TextView
+            android:id="@+id/tvPlayer2Name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Игрок 2"
+            android:textColor="#F44336"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvPlayer2Pairs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Пары: 0"
+            android:textColor="#424242"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tvPlayer2Score"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Очки: 0"
+            android:textColor="#424242"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <!-- Таймер (по центру) -->
+    <TextView
+        android:id="@+id/tvTimer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="01:30"
+        android:textColor="#9C27B0"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/layoutPlayer1" />
+
+    <!-- Индикатор текущего хода -->
+    <TextView
+        android:id="@+id/tvCurrentTurn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Ход: Игрок 1"
+        android:textColor="#2196F3"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:shadowColor="#000000"
+        android:shadowDx="2"
+        android:shadowDy="2"
+        android:shadowRadius="4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvTimer" />
+
+    <!-- Игровое поле -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvCards"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="16dp"
+        android:clipToPadding="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvCurrentTurn" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
