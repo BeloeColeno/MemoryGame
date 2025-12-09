@@ -15,11 +15,13 @@ import com.petrov.memory.domain.model.Card
  */
 class CardsAdapter(
     private var cards: List<Card>,
+    private val availableWidth: Int,
+    private val availableHeight: Int,
+    private val gap: Int,
     private val onCardClick: (Int) -> Unit
 ) : RecyclerView.Adapter<CardsAdapter.CardViewHolder>() {
 
     private var cachedCardSize: Int = 0
-    private var cachedColumns: Int = 1
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardViewHolder {
         val binding = ItemCardBinding.inflate(
@@ -28,35 +30,12 @@ class CardsAdapter(
             false
         )
         
-        // Вычисляем размеры ТОЛЬКО ОДИН РАЗ или если кеш пустой
+        // Вычисляем размер карточки ТОЛЬКО ОДИН РАЗ
         if (cachedCardSize == 0) {
-            val displayMetrics = parent.context.resources.displayMetrics
-            val screenWidth = displayMetrics.widthPixels
-            val screenHeight = displayMetrics.heightPixels
-            val density = displayMetrics.density
-            
-            // Резервируем место для UI элементов
-            val topBottomReserved = (density * 140).toInt()
-            val sideMargins = (density * 32).toInt()
-            val minGap = (density * 4).toInt() // Минимальный зазор 4dp между карточками
-            
-            val availableWidth = screenWidth - sideMargins
-            val availableHeight = screenHeight - topBottomReserved
-            
-            android.util.Log.d("CardsAdapter", "Screen: ${screenWidth}×${screenHeight}, Available: ${availableWidth}×${availableHeight}, Cards: $itemCount")
-            
-            // УМНЫЙ АЛГОРИТМ: находим оптимальный размер карточки
-            val gridLayout = calculateOptimalCardSize(itemCount, availableWidth, availableHeight, minGap)
+            val gridLayout = calculateOptimalCardSize(itemCount, availableWidth, availableHeight, gap)
+            cachedCardSize = gridLayout.cardSize
             
             android.util.Log.d("CardsAdapter", "Grid: ${gridLayout.columns}×${gridLayout.rows}, CardSize: ${gridLayout.cardSize}px")
-            
-            // Обновляем количество колонок в GridLayoutManager
-            val layoutManager = (parent as? androidx.recyclerview.widget.RecyclerView)?.layoutManager 
-                as? androidx.recyclerview.widget.GridLayoutManager
-            layoutManager?.spanCount = gridLayout.columns
-            
-            cachedCardSize = gridLayout.cardSize
-            cachedColumns = gridLayout.columns
         }
         
         // Устанавливаем размер карточки

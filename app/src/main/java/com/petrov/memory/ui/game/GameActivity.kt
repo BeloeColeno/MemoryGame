@@ -67,11 +67,60 @@ class GameActivity : AppCompatActivity() {
      */
     private fun setupGame() {
         cards = generateCards()
-        adapter = CardsAdapter(cards) { position ->
+        
+        // ВАЖНО: Вычисляем оптимальную сетку ДО создания адаптера
+        val displayMetrics = resources.displayMetrics
+        val screenWidth = displayMetrics.widthPixels
+        val screenHeight = displayMetrics.heightPixels
+        val density = displayMetrics.density
+        
+        val topBottomReserved = (density * 140).toInt()
+        val sideMargins = (density * 32).toInt()
+        val minGap = (density * 4).toInt()
+        
+        val availableWidth = screenWidth - sideMargins
+        val availableHeight = screenHeight - topBottomReserved
+        
+        val optimalColumns = calculateOptimalColumns(cards.size, availableWidth, availableHeight, minGap)
+        
+        // Устанавливаем spanCount ДО создания адаптера!
+        (binding.rvCards.layoutManager as? androidx.recyclerview.widget.GridLayoutManager)?.spanCount = optimalColumns
+        
+        android.util.Log.d("GameActivity", "Setting spanCount=$optimalColumns for ${cards.size} cards")
+        
+        adapter = CardsAdapter(cards, availableWidth, availableHeight, minGap) { position ->
             onCardClick(position)
         }
         binding.rvCards.adapter = adapter
         updateUI()
+    }
+    
+    /**
+     * Вычисляет оптимальное количество колонок для сетки
+     */
+    private fun calculateOptimalColumns(totalCards: Int, width: Int, height: Int, gap: Int): Int {
+        var bestColumns = 1
+        var maxCardSize = 0
+        
+        for (cols in 1..totalCards) {
+            val rows = (totalCards + cols - 1) / cols
+            val totalGapWidth = (cols - 1) * gap
+            val totalGapHeight = (rows - 1) * gap
+            
+            val cardWidth = (width - totalGapWidth) / cols
+            val cardHeight = (height - totalGapHeight) / rows
+            
+            if (cardWidth <= 0 || cardHeight <= 0) continue
+            
+            val cardSize = minOf(cardWidth, cardHeight)
+            
+            if (cardSize > maxCardSize) {
+                maxCardSize = cardSize
+                bestColumns = cols
+            }
+        }
+        
+        return bestColumns
     }
 
     /**
