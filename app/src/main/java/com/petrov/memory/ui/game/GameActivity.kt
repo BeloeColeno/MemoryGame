@@ -12,6 +12,7 @@ import com.petrov.memory.R
 import com.petrov.memory.databinding.ActivityGameBinding
 import com.petrov.memory.domain.model.Card
 import com.petrov.memory.data.preferences.StatsManager
+import com.petrov.memory.data.preferences.SettingsManager
 
 /**
  * Экран игры Memory
@@ -23,6 +24,7 @@ class GameActivity : AppCompatActivity() {
     private lateinit var binding: ActivityGameBinding
     private lateinit var adapter: CardsAdapter
     private lateinit var statsManager: StatsManager  // Менеджер статистики
+    private lateinit var settingsManager: SettingsManager  // Менеджер настроек
     private var cards = mutableListOf<Card>()
     private var cardsWithPlaceholders = mutableListOf<Card>()  // Карточки с заглушками
     private var moves = 0
@@ -52,6 +54,10 @@ class GameActivity : AppCompatActivity() {
 
         // Инициализируем менеджер статистики
         statsManager = StatsManager(this)
+        
+        // Инициализируем менеджер настроек
+        settingsManager = SettingsManager(this)
+        isSoundEnabled = settingsManager.isSoundEnabled
 
         // Получаем параметры уровня из Intent
         levelId = intent.getIntExtra(EXTRA_LEVEL_ID, 1)
@@ -481,6 +487,7 @@ class GameActivity : AppCompatActivity() {
         // Кнопка "Звук"
         binding.btnSound.setOnClickListener {
             isSoundEnabled = !isSoundEnabled
+            settingsManager.isSoundEnabled = isSoundEnabled  // Сохраняем в настройках
             val iconRes = if (isSoundEnabled) {
                 android.R.drawable.ic_lock_silent_mode_off
             } else {
