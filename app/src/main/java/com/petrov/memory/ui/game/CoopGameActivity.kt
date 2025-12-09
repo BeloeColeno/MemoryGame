@@ -310,7 +310,7 @@ class CoopGameActivity : AppCompatActivity() {
         timerRunnable = object : Runnable {
             override fun run() {
                 coopGameState = coopGameState.copy(
-                    elapsedTime = System.currentTimeMillis() - (coopGameState.elapsedTime)
+                    elapsedTime = System.currentTimeMillis() - coopGameState.startTime
                 )
                 
                 updateTimerDisplay()

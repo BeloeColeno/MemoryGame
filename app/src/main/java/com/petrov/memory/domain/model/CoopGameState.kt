@@ -10,6 +10,7 @@ data class CoopGameState(
     val currentPlayerId: Int,               // ID текущего игрока (1 или 2)
     val timerMode: TimerMode,               // Режим таймера
     val timerLimit: Int,                    // Лимит времени (секунды, 0 если без лимита)
+    val startTime: Long = System.currentTimeMillis(), // Время начала игры
     val elapsedTime: Long = 0L,             // Прошедшее время (миллисекунды)
     val totalMoves: Int = 0,                // Общее количество ходов
     val matchedPairs: Int = 0,              // Найденных пар
