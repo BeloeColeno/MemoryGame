@@ -52,8 +52,8 @@ class GameActivity : AppCompatActivity() {
         totalPairs = intent.getIntExtra(EXTRA_TOTAL_PAIRS, 4)
         // gridColumns больше не используется - будет вычислен адаптером
 
-        // Добавляем декоратор для минимальных отступов между карточками (4dp)
-        val spacing = (resources.displayMetrics.density * 4).toInt()
+        // Добавляем декоратор для минимальных отступов между карточками (2dp)
+        val spacing = (resources.displayMetrics.density * 2).toInt()
         binding.rvCards.addItemDecoration(CenteredGridDecoration(spacing))
 
         startTime = System.currentTimeMillis()
@@ -76,7 +76,7 @@ class GameActivity : AppCompatActivity() {
         
         val topBottomReserved = (density * 140).toInt()
         val sideMargins = (density * 32).toInt()
-        val minGap = (density * 4).toInt()
+        val minGap = (density * 2).toInt() // 2dp - минимальный зазор
         
         val availableWidth = screenWidth - sideMargins
         val availableHeight = screenHeight - topBottomReserved

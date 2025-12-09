@@ -6,8 +6,8 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 /**
- * ItemDecoration для добавления минимальных отступов между карточками
- * и центрирования всей сетки на экране
+ * ItemDecoration для центрирования сетки карточек на экране
+ * с минимальными зазорами между карточками
  */
 class CenteredGridDecoration(private val spacing: Int) : RecyclerView.ItemDecoration() {
     
@@ -26,12 +26,43 @@ class CenteredGridDecoration(private val spacing: Int) : RecyclerView.ItemDecora
         
         val column = position % spanCount
         val row = position / spanCount
+        val totalRows = (itemCount + spanCount - 1) / spanCount
         
-        // Добавляем минимальные зазоры между карточками
-        // Половина зазора с каждой стороны для равномерного распределения
+        // Минимальные зазоры между карточками (половина с каждой стороны)
         outRect.left = spacing / 2
         outRect.right = spacing / 2
         outRect.top = spacing / 2
         outRect.bottom = spacing / 2
+        
+        // Добавляем padding для центрирования сетки
+        // Вычисляем размер всей сетки
+        val firstChild = parent.getChildAt(0) ?: return
+        val childWidth = firstChild.width
+        val childHeight = firstChild.height
+        
+        if (childWidth > 0 && childHeight > 0) {
+            val totalGridWidth = childWidth * spanCount + spacing * (spanCount - 1)
+            val totalGridHeight = childHeight * totalRows + spacing * (totalRows - 1)
+            
+            val parentWidth = parent.width
+            val parentHeight = parent.height
+            
+            val horizontalPadding = maxOf(0, (parentWidth - totalGridWidth) / 2)
+            val verticalPadding = maxOf(0, (parentHeight - totalGridHeight) / 2)
+            
+            // Добавляем центрирующий padding к первой/последней колонке и строке
+            if (column == 0) {
+                outRect.left += horizontalPadding
+            }
+            if (column == spanCount - 1) {
+                outRect.right += horizontalPadding
+            }
+            if (row == 0) {
+                outRect.top += verticalPadding
+            }
+            if (row == totalRows - 1) {
+                outRect.bottom += verticalPadding
+            }
+        }
     }
 }
