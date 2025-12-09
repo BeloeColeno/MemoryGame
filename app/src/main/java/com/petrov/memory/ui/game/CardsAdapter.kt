@@ -25,7 +25,7 @@ class CardsAdapter(
             false
         )
         
-        // Вычисляем оптимальную сетку для карточек
+        // Вычисляем оптимальный размер и размещение карточек
         val displayMetrics = parent.context.resources.displayMetrics
         val screenWidth = displayMetrics.widthPixels
         val screenHeight = displayMetrics.heightPixels
@@ -34,53 +34,71 @@ class CardsAdapter(
         // Резервируем место для UI элементов
         val topBottomReserved = (density * 140).toInt()
         val sideMargins = (density * 32).toInt()
-        val cardGap = (density * 6).toInt() // Минимальный зазор между карточками
+        val minGap = (density * 4).toInt() // Минимальный зазор 4dp между карточками
         
         val availableWidth = screenWidth - sideMargins
         val availableHeight = screenHeight - topBottomReserved
         
-        // УМНЫЙ АЛГОРИТМ: находим оптимальное соотношение колонок/рядов
-        val gridLayout = calculateOptimalGrid(itemCount, availableWidth, availableHeight, cardGap)
+        // НОВЫЙ УМНЫЙ АЛГОРИТМ: находим оптимальный размер карточки
+        val gridLayout = calculateOptimalCardSize(itemCount, availableWidth, availableHeight, minGap)
         
         // Обновляем количество колонок в GridLayoutManager
         val layoutManager = (parent as? androidx.recyclerview.widget.RecyclerView)?.layoutManager 
             as? androidx.recyclerview.widget.GridLayoutManager
         layoutManager?.spanCount = gridLayout.columns
         
-        // Размер квадратной карточки (используем минимальный, чтобы все поместилось)
-        val cardSize = gridLayout.cardSize
-        
-        // Устанавливаем размер ячейки
-        binding.root.layoutParams = RecyclerView.LayoutParams(cardSize, cardSize)
+        // Устанавливаем размер карточки
+        binding.root.layoutParams = RecyclerView.LayoutParams(gridLayout.cardSize, gridLayout.cardSize)
         
         return CardViewHolder(binding)
     }
     
     /**
-     * Вычисляет оптимальную сетку для размещения карточек
-     * Алгоритм пробует разные варианты колонок/рядов и выбирает тот,
-     * который дает максимальный размер карточки
+     * УЛУЧШЕННЫЙ АЛГОРИТМ размещения карточек
+     * Находит максимальный размер квадратной карточки, которая поместится в игровую зону
+     * с минимальными зазорами между карточками
      */
-    private fun calculateOptimalGrid(totalCards: Int, width: Int, height: Int, gap: Int): GridLayout {
+    private fun calculateOptimalCardSize(totalCards: Int, width: Int, height: Int, gap: Int): GridLayout {
+        // Защита от некорректных данных
+        if (totalCards <= 0 || width <= 0 || height <= 0) {
+            return GridLayout(1, 1, 100) // Минимальные значения по умолчанию
+        }
+        
         var bestLayout = GridLayout(1, totalCards, 0)
         var maxCardSize = 0
         
-        // Пробуем разные варианты от 1 до totalCards колонок
+        // Пробуем все возможные комбинации колонок и рядов
         for (cols in 1..totalCards) {
             val rows = (totalCards + cols - 1) / cols // Округление вверх
             
-            // Вычисляем размер карточки для этого варианта
-            val cardWidth = (width - (cols - 1) * gap) / cols
-            val cardHeight = (height - (rows - 1) * gap) / rows
+            // Вычисляем размер карточки для этой комбинации
+            // Формула: (доступная_ширина - зазоры) / количество_колонок
+            val totalGapWidth = (cols - 1) * gap
+            val totalGapHeight = (rows - 1) * gap
             
-            // Карточки квадратные - берем минимальное значение
+            val cardWidth = (width - totalGapWidth) / cols
+            val cardHeight = (height - totalGapHeight) / rows
+            
+            // Защита от отрицательных значений
+            if (cardWidth <= 0 || cardHeight <= 0) continue
+            
+            // Карточки квадратные - берем минимальный размер
             val cardSize = minOf(cardWidth, cardHeight)
             
-            // Выбираем вариант с максимальным размером карточки
-            if (cardSize > maxCardSize) {
+            // Проверяем, что карточки действительно помещаются
+            val totalWidth = cardSize * cols + totalGapWidth
+            val totalHeight = cardSize * rows + totalGapHeight
+            
+            if (totalWidth <= width && totalHeight <= height && cardSize > maxCardSize) {
                 maxCardSize = cardSize
                 bestLayout = GridLayout(cols, rows, cardSize)
             }
+        }
+        
+        // Если не нашли подходящий вариант, используем минимальный размер
+        if (maxCardSize == 0) {
+            val minSize = minOf(width / totalCards, height / totalCards, 50)
+            return GridLayout(totalCards, 1, maxOf(minSize, 10))
         }
         
         return bestLayout

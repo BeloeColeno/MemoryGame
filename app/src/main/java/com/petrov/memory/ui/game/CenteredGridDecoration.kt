@@ -6,7 +6,8 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 /**
- * ItemDecoration для центрирования сетки карточек и добавления равномерных отступов
+ * ItemDecoration для добавления минимальных отступов между карточками
+ * и центрирования всей сетки на экране
  */
 class CenteredGridDecoration(private val spacing: Int) : RecyclerView.ItemDecoration() {
     
@@ -18,13 +19,16 @@ class CenteredGridDecoration(private val spacing: Int) : RecyclerView.ItemDecora
     ) {
         val layoutManager = parent.layoutManager as? GridLayoutManager ?: return
         val spanCount = layoutManager.spanCount
+        val itemCount = state.itemCount
         val position = parent.getChildAdapterPosition(view)
         
         if (position < 0) return
         
         val column = position % spanCount
+        val row = position / spanCount
         
-        // Равномерные отступы между карточками
+        // Добавляем минимальные зазоры между карточками
+        // Половина зазора с каждой стороны для равномерного распределения
         outRect.left = spacing / 2
         outRect.right = spacing / 2
         outRect.top = spacing / 2
