@@ -24,190 +24,196 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Выбор количества пар -->
-    <TextView
-        android:id="@+id/tvPairsLabel"
-        android:layout_width="wrap_content"
+    <!-- Полупрозрачная панель для настроек -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/settingsPanel"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
-        android:text="Количество пар:"
-        android:textColor="#FFFFFF"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:shadowColor="#000000"
-        android:shadowDx="1"
-        android:shadowDy="1"
-        android:shadowRadius="3"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvTitle" />
-
-    <RadioGroup
-        android:id="@+id/rgPairs"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvPairsLabel">
-
-        <RadioButton
-            android:id="@+id/rbPairs4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:text="4 пары"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp"
-            android:checked="true"
-            android:buttonTint="#9C27B0" />
-
-        <RadioButton
-            android:id="@+id/rbPairs6"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:text="6 пар"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp"
-            android:buttonTint="#9C27B0" />
-
-        <RadioButton
-            android:id="@+id/rbPairs9"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="9 пар"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp"
-            android:buttonTint="#9C27B0" />
-    </RadioGroup>
-
-    <!-- Выбор режима таймера -->
-    <TextView
-        android:id="@+id/tvTimerModeLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_marginStart="40dp"
+        android:layout_marginEnd="40dp"
         android:layout_marginTop="24dp"
-        android:text="Режим таймера:"
-        android:textColor="#FFFFFF"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:shadowColor="#000000"
-        android:shadowDx="1"
-        android:shadowDy="1"
-        android:shadowRadius="3"
+        app:cardBackgroundColor="#CC222222"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/rgPairs" />
+        app:layout_constraintTop_toBottomOf="@id/tvTitle">
 
-    <RadioGroup
-        android:id="@+id/rgTimerMode"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvTimerModeLabel">
-
-        <RadioButton
-            android:id="@+id/rbWithTimer"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="24dp"
-            android:text="С таймером"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp"
-            android:buttonTint="#9C27B0" />
+            android:orientation="vertical"
+            android:padding="24dp">
 
-        <RadioButton
-            android:id="@+id/rbWithoutTimer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Без таймера"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp"
-            android:checked="true"
-            android:buttonTint="#9C27B0" />
-    </RadioGroup>
+            <!-- Выбор количества пар -->
+            <TextView
+                android:id="@+id/tvPairsLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Количество пар:"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_gravity="center_horizontal" />
 
-    <!-- Выбор лимита времени (видим только если включен таймер) -->
-    <TextView
-        android:id="@+id/tvTimerLimitLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Лимит времени:"
-        android:textColor="#FFFFFF"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:shadowColor="#000000"
-        android:shadowDx="1"
-        android:shadowDy="1"
-        android:shadowRadius="3"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/rgTimerMode" />
+            <RadioGroup
+                android:id="@+id/rgPairs"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                android:layout_gravity="center_horizontal">
 
-    <RadioGroup
-        android:id="@+id/rgTimerLimit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:orientation="horizontal"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvTimerLimitLabel">
+                <RadioButton
+                    android:id="@+id/rbPairs4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:text="4 пары"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:checked="true"
+                    android:buttonTint="#9C27B0" />
 
-        <RadioButton
-            android:id="@+id/rbLimit60"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:text="60 сек"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp"
-            android:checked="true"
-            android:buttonTint="#9C27B0" />
+                <RadioButton
+                    android:id="@+id/rbPairs6"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:text="6 пар"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:buttonTint="#9C27B0" />
 
-        <RadioButton
-            android:id="@+id/rbLimit90"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:text="90 сек"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp"
-            android:buttonTint="#9C27B0" />
+                <RadioButton
+                    android:id="@+id/rbPairs9"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="9 пар"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:buttonTint="#9C27B0" />
+            </RadioGroup>
 
-        <RadioButton
-            android:id="@+id/rbLimit120"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="120 сек"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp"
-            android:buttonTint="#9C27B0" />
-    </RadioGroup>
+            <!-- Разделитель -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                android:background="#44FFFFFF" />
+
+            <!-- Выбор режима таймера -->
+            <TextView
+                android:id="@+id/tvTimerModeLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Режим таймера:"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_gravity="center_horizontal" />
+
+            <RadioGroup
+                android:id="@+id/rgTimerMode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                android:layout_gravity="center_horizontal">
+
+                <RadioButton
+                    android:id="@+id/rbWithTimer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="24dp"
+                    android:text="С таймером"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:buttonTint="#9C27B0" />
+
+                <RadioButton
+                    android:id="@+id/rbWithoutTimer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Без таймера"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:checked="true"
+                    android:buttonTint="#9C27B0" />
+            </RadioGroup>
+
+            <!-- Выбор лимита времени (видим только если включен таймер) -->
+            <TextView
+                android:id="@+id/tvTimerLimitLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="Лимит времени:"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                android:layout_gravity="center_horizontal" />
+
+            <RadioGroup
+                android:id="@+id/rgTimerLimit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                android:visibility="gone"
+                android:layout_gravity="center_horizontal">
+
+                <RadioButton
+                    android:id="@+id/rbLimit60"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:text="60 сек"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:checked="true"
+                    android:buttonTint="#9C27B0" />
+
+                <RadioButton
+                    android:id="@+id/rbLimit90"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:text="90 сек"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:buttonTint="#9C27B0" />
+
+                <RadioButton
+                    android:id="@+id/rbLimit120"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="120 сек"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:buttonTint="#9C27B0" />
+            </RadioGroup>
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
     <!-- Кнопка "Начать игру" -->
     <Button
         android:id="@+id/btnStartGame"
         android:layout_width="240dp"
         android:layout_height="70dp"
-        android:layout_marginBottom="40dp"
+        android:layout_marginTop="32dp"
         android:backgroundTint="#9C27B0"
         android:text="НАЧАТЬ ИГРУ"
         android:textColor="#FFFFFF"
         android:textSize="20sp"
         android:textStyle="bold"
         app:cornerRadius="14dp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/settingsPanel" />
 
     <!-- Кнопка "Назад" -->
     <Button
