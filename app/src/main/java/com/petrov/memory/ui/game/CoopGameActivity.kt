@@ -81,19 +81,21 @@ class CoopGameActivity : AppCompatActivity() {
     private fun setupGame() {
         cards = generateCards()
         
-        // Вычисляем оптимальную сетку (как в одиночном режиме)
+        // Вычисляем оптимальную сетку с максимальным использованием пространства
         val displayMetrics = resources.displayMetrics
         val screenWidth = displayMetrics.widthPixels
         val screenHeight = displayMetrics.heightPixels
         val density = displayMetrics.density
         
-        // Резервируем место только для верхней панели (компактная)
-        val topBottomReserved = (density * 100).toInt()  // Уменьшено с 180 до 100
-        val sideMargins = (density * 32).toInt()
-        val minGap = (density * 2).toInt()
+        // Резервируем минимум места для компактной верхней панели
+        val topBottomReserved = (density * 80).toInt()  // Уменьшено до 80dp
+        val sideMargins = (density * 16).toInt()  // Уменьшено с 32 до 16dp
+        val minGap = (density * 4).toInt()  // Увеличено с 2 до 4dp для лучшей видимости
         
         val availableWidth = screenWidth - sideMargins
         val availableHeight = screenHeight - topBottomReserved
+        
+        android.util.Log.d("CoopGameActivity", "Screen: ${screenWidth}x${screenHeight}, Available: ${availableWidth}x${availableHeight}")
         
         val optimalColumns = calculateOptimalColumns(cards.size, availableWidth, availableHeight, minGap)
         
