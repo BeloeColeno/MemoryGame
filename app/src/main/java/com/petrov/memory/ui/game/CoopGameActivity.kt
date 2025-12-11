@@ -81,37 +81,19 @@ class CoopGameActivity : AppCompatActivity() {
     private fun setupGame() {
         cards = generateCards()
         
-        // Ждем, пока панели игроков отрисуются, чтобы узнать их реальные размеры
-        binding.layoutPlayer1.post {
-            setupGameGrid()
-        }
-    }
-    
-    private fun setupGameGrid() {
-        // Вычисляем оптимальную сетку с учетом панелей игроков
+        // Вычисляем оптимальную сетку (как в одиночном режиме)
         val displayMetrics = resources.displayMetrics
         val screenWidth = displayMetrics.widthPixels
         val screenHeight = displayMetrics.heightPixels
         val density = displayMetrics.density
         
-        // Измеряем высоту панелей игроков
-        val player1Height = binding.layoutPlayer1.height
-        val player2Height = binding.layoutPlayer2.height
-        val maxPlayerPanelHeight = maxOf(player1Height, player2Height)
-        
-        // Учитываем высоту кнопки меню, таймера и индикатора хода
-        val btnMenuHeight = binding.btnMenu.height
-        val tvCurrentTurnHeight = binding.tvCurrentTurn.height
-        val tvTimerHeight = if (binding.tvTimer.visibility == View.VISIBLE) binding.tvTimer.height else 0
-        
-        // Резервируем место сверху: кнопка + max(панели игроков, таймер) + индикатор хода + отступы
-        val topReserved = btnMenuHeight + maxOf(maxPlayerPanelHeight, tvTimerHeight) + tvCurrentTurnHeight + (density * 48).toInt()
-        val bottomReserved = (density * 16).toInt()
+        // Резервируем место только для верхней панели (компактная)
+        val topBottomReserved = (density * 100).toInt()  // Уменьшено с 180 до 100
         val sideMargins = (density * 32).toInt()
         val minGap = (density * 2).toInt()
         
         val availableWidth = screenWidth - sideMargins
-        val availableHeight = screenHeight - topReserved - bottomReserved
+        val availableHeight = screenHeight - topBottomReserved
         
         val optimalColumns = calculateOptimalColumns(cards.size, availableWidth, availableHeight, minGap)
         
@@ -319,16 +301,13 @@ class CoopGameActivity : AppCompatActivity() {
     }
 
     private fun updateUI() {
-        // Обновляем информацию игроков
-        binding.tvPlayer1Pairs.text = "Пары: ${coopGameState.player1.pairsFound}"
-        binding.tvPlayer1Score.text = "Очки: ${coopGameState.player1.totalScore}"
-        
-        binding.tvPlayer2Pairs.text = "Пары: ${coopGameState.player2.pairsFound}"
-        binding.tvPlayer2Score.text = "Очки: ${coopGameState.player2.totalScore}"
+        // Обновляем информацию игроков (новый компактный формат)
+        binding.tvPlayer1Score.text = "${coopGameState.player1.totalScore} • ${coopGameState.player1.pairsFound} пар"
+        binding.tvPlayer2Score.text = "${coopGameState.player2.totalScore} • ${coopGameState.player2.pairsFound} пар"
         
         // Обновляем индикатор хода
         val currentPlayer = coopGameState.getCurrentPlayer()
-        binding.tvCurrentTurn.text = "Ход: ${currentPlayer.name}"
+        binding.tvCurrentTurn.text = "Ход игрока ${currentPlayer.name.last()}"
         binding.tvCurrentTurn.setTextColor(currentPlayer.color)
         
         // Обновляем фоновый фильтр

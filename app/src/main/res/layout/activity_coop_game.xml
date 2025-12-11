@@ -27,117 +27,126 @@
         app:layout_constraintTop_toTopOf="parent"
         android:contentDescription="Menu" />
 
-    <!-- Панель Игрока 1 (слева) -->
+    <!-- Верхняя информационная панель -->
     <LinearLayout
-        android:id="@+id/layoutPlayer1"
-        android:layout_width="200dp"
+        android:id="@+id/layoutTopInfo"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:orientation="vertical"
-        android:padding="12dp"
-        android:background="@drawable/rounded_background"
-        android:elevation="4dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnMenu">
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/btnMenu"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/tvPlayer1Name"
+        <!-- Информация Игрока 1 (слева) -->
+        <LinearLayout
+            android:id="@+id/layoutPlayer1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="start">
+
+            <TextView
+                android:id="@+id/tvPlayer1Name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Игрок 1"
+                android:textColor="#2196F3"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:shadowColor="#000000"
+                android:shadowDx="1"
+                android:shadowDy="1"
+                android:shadowRadius="3" />
+
+            <TextView
+                android:id="@+id/tvPlayer1Score"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0 • 0 пар"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:shadowColor="#000000"
+                android:shadowDx="1"
+                android:shadowDy="1"
+                android:shadowRadius="3" />
+        </LinearLayout>
+
+        <!-- Таймер и индикатор хода (центр) -->
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Игрок 1"
-            android:textColor="#2196F3"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp">
 
-        <TextView
-            android:id="@+id/tvPlayer1Pairs"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Пары: 0"
-            android:textColor="#424242"
-            android:textSize="16sp" />
+            <TextView
+                android:id="@+id/tvTimer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="01:30"
+                android:textColor="#9C27B0"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                android:shadowColor="#000000"
+                android:shadowDx="2"
+                android:shadowDy="2"
+                android:shadowRadius="4" />
 
-        <TextView
-            android:id="@+id/tvPlayer1Score"
-            android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/tvCurrentTurn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ход игрока 1"
+                android:textColor="#2196F3"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:shadowColor="#000000"
+                android:shadowDx="1"
+                android:shadowDy="1"
+                android:shadowRadius="3" />
+        </LinearLayout>
+
+        <!-- Информация Игрока 2 (справа) -->
+        <LinearLayout
+            android:id="@+id/layoutPlayer2"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Очки: 0"
-            android:textColor="#424242"
-            android:textSize="16sp" />
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="end">
+
+            <TextView
+                android:id="@+id/tvPlayer2Name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Игрок 2"
+                android:textColor="#F44336"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:shadowColor="#000000"
+                android:shadowDx="1"
+                android:shadowDy="1"
+                android:shadowRadius="3" />
+
+            <TextView
+                android:id="@+id/tvPlayer2Score"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0 • 0 пар"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:shadowColor="#000000"
+                android:shadowDx="1"
+                android:shadowDy="1"
+                android:shadowRadius="3" />
+        </LinearLayout>
     </LinearLayout>
-
-    <!-- Панель Игрока 2 (справа) -->
-    <LinearLayout
-        android:id="@+id/layoutPlayer2"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:orientation="vertical"
-        android:padding="12dp"
-        android:background="@drawable/rounded_background"
-        android:elevation="4dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnMenu">
-
-        <TextView
-            android:id="@+id/tvPlayer2Name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Игрок 2"
-            android:textColor="#F44336"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/tvPlayer2Pairs"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Пары: 0"
-            android:textColor="#424242"
-            android:textSize="16sp" />
-
-        <TextView
-            android:id="@+id/tvPlayer2Score"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Очки: 0"
-            android:textColor="#424242"
-            android:textSize="16sp" />
-    </LinearLayout>
-
-    <!-- Таймер (по центру) -->
-    <TextView
-        android:id="@+id/tvTimer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="01:30"
-        android:textColor="#9C27B0"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/layoutPlayer1" />
-
-    <!-- Индикатор текущего хода -->
-    <TextView
-        android:id="@+id/tvCurrentTurn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Ход: Игрок 1"
-        android:textColor="#2196F3"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:shadowColor="#000000"
-        android:shadowDx="2"
-        android:shadowDy="2"
-        android:shadowRadius="4"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvTimer" />
 
     <!-- Игровое поле -->
     <androidx.recyclerview.widget.RecyclerView
@@ -149,6 +158,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvCurrentTurn" />
+        app:layout_constraintTop_toBottomOf="@id/layoutTopInfo" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
