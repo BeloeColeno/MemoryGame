@@ -90,19 +90,21 @@ class CoopGameActivity : AppCompatActivity() {
         // Учитываем только margin RecyclerView из layout (8dp * 2 = 16dp)
         val layoutMargin = (density * 16).toInt()
         
-        // Резервируем место для верхней компактной панели (меньше чем раньше)
-        val topReserved = (density * 64).toInt()  // Уменьшено с 72dp до 64dp
+        // Резервируем место для верхней компактной панели
+        val topReserved = (density * 64).toInt()
         
-        // Минимальный зазор между карточками (отступы идут из padding в item_card.xml)
-        val minGap = (density * 2).toInt()
+        // ВАЖНО: padding в item_card.xml = 4dp, это создает 8dp зазор между карточками
+        // Нужно учесть это при расчете: gap должен включать padding!
+        val cardPadding = (density * 4).toInt()  // 4dp padding с каждой стороны
+        val effectiveGap = cardPadding * 2  // 8dp эффективный зазор между карточками
         
         // Доступное пространство = экран - отступы layout - резерв сверху
         val availableWidth = screenWidth - layoutMargin
         val availableHeight = screenHeight - topReserved - (density * 8).toInt() // 8dp снизу
         
-        android.util.Log.d("CoopGameActivity", "Screen: ${screenWidth}x${screenHeight}, Available: ${availableWidth}x${availableHeight}, gap=$minGap")
+        android.util.Log.d("CoopGameActivity", "Screen: ${screenWidth}x${screenHeight}, Available: ${availableWidth}x${availableHeight}, effectiveGap=$effectiveGap, cardPadding=$cardPadding")
         
-        val optimalColumns = calculateOptimalColumns(cards.size, availableWidth, availableHeight, minGap)
+        val optimalColumns = calculateOptimalColumns(cards.size, availableWidth, availableHeight, effectiveGap)
         
         cardsWithPlaceholders = addPlaceholdersForSymmetry(cards, optimalColumns).toMutableList()
         
@@ -119,7 +121,7 @@ class CoopGameActivity : AppCompatActivity() {
             )
         }
 
-        adapter = CardsAdapter(cardsWithPlaceholders, availableWidth, availableHeight, minGap, optimalColumns) { position ->
+        adapter = CardsAdapter(cardsWithPlaceholders, availableWidth, availableHeight, effectiveGap, optimalColumns) { position ->
             val card = cardsWithPlaceholders[position]
             onCardClicked(card)
         }
