@@ -38,8 +38,11 @@ class CardsAdapter(
             android.util.Log.d("CardsAdapter", "Columns: $columns, CardSize: ${cachedCardSize}px")
         }
         
-        // Устанавливаем размер карточки
-        binding.root.layoutParams = RecyclerView.LayoutParams(cachedCardSize, cachedCardSize)
+        // Устанавливаем ФИКСИРОВАННЫЙ размер карточки (не растягивается)
+        val layoutParams = RecyclerView.LayoutParams(cachedCardSize, cachedCardSize)
+        layoutParams.width = cachedCardSize
+        layoutParams.height = cachedCardSize
+        binding.root.layoutParams = layoutParams
         
         return CardViewHolder(binding)
     }
