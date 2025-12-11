@@ -197,8 +197,8 @@ class CoopGameActivity : AppCompatActivity() {
             android.util.Log.d("CoopGameActivity", "  cols=$cols, rows=$rows -> cardSize=$cardSize (grid: ${totalGridWidth}x${totalGridHeight}, remainder=$widthRemainder)")
             
             // Выбираем вариант с МАКСИМАЛЬНЫМ размером карточки
-            // При равном размере - выбираем тот, у которого меньше остаток (лучше центрируется)
-            if (cardSize > maxCardSize || (cardSize == maxCardSize && widthRemainder < minWidthRemainder)) {
+            // При равном размере - предпочитаем МЕНЬШЕ колонок (более компактная сетка)
+            if (cardSize > maxCardSize || (cardSize == maxCardSize && cols < bestCols)) {
                 maxCardSize = cardSize
                 minWidthRemainder = widthRemainder
                 bestCols = cols
