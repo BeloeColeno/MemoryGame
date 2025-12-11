@@ -81,50 +81,53 @@ class CoopGameActivity : AppCompatActivity() {
     private fun setupGame() {
         cards = generateCards()
         
-        // Вычисляем оптимальную сетку - RecyclerView сам обрабатывает margin из layout
+        // ВАЖНО: Вычисляем оптимальную сетку ДО создания адаптера (копия логики из GameActivity)
         val displayMetrics = resources.displayMetrics
         val screenWidth = displayMetrics.widthPixels
         val screenHeight = displayMetrics.heightPixels
         val density = displayMetrics.density
         
-        // RecyclerView имеет layout_margin="8dp" в XML
-        val rvMargin = (density * 8).toInt()
-        
-        // Резервируем место для верхней компактной панели
+        // Резервируем место для верхней компактной панели вместо topBottom
         val topReserved = (density * 64).toInt()
+        val bottomReserved = (density * 8).toInt()
+        val sideMargins = (density * 32).toInt()
         
-        // ВАЖНО: padding в item_card.xml = 2dp, это создает 4dp зазор между карточками
-        val cardPadding = (density * 2).toInt()  // 2dp padding с каждой стороны
-        val effectiveGap = cardPadding * 2  // 4dp эффективный зазор между карточками
+        // Padding в item_card.xml - 2dp с каждой стороны = 4dp между карточками
+        val cardPadding = (density * 2).toInt()
+        val effectiveGap = cardPadding * 2  // 4dp эффективный зазор
         
-        // Доступное пространство = экран - отступы RecyclerView со всех сторон - резерв сверху
-        val availableWidth = screenWidth - (rvMargin * 2)  // margin слева и справа
-        val availableHeight = screenHeight - topReserved - (rvMargin * 2)  // margin сверху и снизу
-        
-        android.util.Log.d("CoopGameActivity", "Screen: ${screenWidth}x${screenHeight}, Available: ${availableWidth}x${availableHeight}, effectiveGap=$effectiveGap, rvMargin=$rvMargin")
+        val availableWidth = screenWidth - sideMargins
+        val availableHeight = screenHeight - topReserved - bottomReserved
         
         val optimalColumns = calculateOptimalColumns(cards.size, availableWidth, availableHeight, effectiveGap)
         
+        // Добавляем невидимые карточки для симметричного размещения
         cardsWithPlaceholders = addPlaceholdersForSymmetry(cards, optimalColumns).toMutableList()
         
+        // Устанавливаем spanCount ДО создания адаптера!
         binding.rvCards.layoutManager = GridLayoutManager(this, optimalColumns)
+        
+        // Добавляем декоратор для центрирования с учетом эффективного зазора
+        if (binding.rvCards.itemDecorationCount == 0) {
+            binding.rvCards.addItemDecoration(CenteredGridDecoration(effectiveGap, optimalColumns, cardsWithPlaceholders.size))
+        }
         
         // Отключаем скролл полностью
         binding.rvCards.isNestedScrollingEnabled = false
         binding.rvCards.overScrollMode = View.OVER_SCROLL_NEVER
         
-        if (binding.rvCards.itemDecorationCount == 0) {
-            // CenteredGridDecoration центрирует сетку с учетом эффективного зазора
-            binding.rvCards.addItemDecoration(
-                CenteredGridDecoration(effectiveGap, optimalColumns, cardsWithPlaceholders.size)
-            )
-        }
+        android.util.Log.d("CoopGameActivity", "Setting spanCount=$optimalColumns for ${cards.size} cards (${cardsWithPlaceholders.size} with placeholders)")
 
         adapter = CardsAdapter(cardsWithPlaceholders, availableWidth, availableHeight, effectiveGap, optimalColumns) { position ->
             val card = cardsWithPlaceholders[position]
             onCardClicked(card)
         }
         binding.rvCards.adapter = adapter
+        
+        // Центрируем сетку через padding после того как адаптер установлен
+        binding.rvCards.post {
+            centerGrid(optimalColumns, effectiveGap)
+        }
 
         updateUI()
     }
@@ -162,24 +165,50 @@ class CoopGameActivity : AppCompatActivity() {
         return cardsList
     }
 
+    /**
+     * Центрирует сетку карточек на экране (копия из GameActivity)
+     */
+    private fun centerGrid(columns: Int, gap: Int) {
+        val firstChild = binding.rvCards.getChildAt(0) ?: return
+        val cardSize = firstChild.width
+        
+        if (cardSize == 0) return
+        
+        val rows = (cards.size + columns - 1) / columns
+        
+        val totalGridWidth = cardSize * columns + gap * (columns - 1)
+        val totalGridHeight = cardSize * rows + gap * (rows - 1)
+        
+        val parentWidth = binding.rvCards.width
+        val parentHeight = binding.rvCards.height
+        
+        val horizontalPadding = maxOf(0, (parentWidth - totalGridWidth) / 2)
+        val verticalPadding = maxOf(0, (parentHeight - totalGridHeight) / 2)
+        
+        binding.rvCards.setPadding(horizontalPadding, verticalPadding, horizontalPadding, verticalPadding)
+        
+        android.util.Log.d("CoopGameActivity", "Grid centered: hPadding=$horizontalPadding, vPadding=$verticalPadding")
+    }
+
+    /**
+     * Вычисляет оптимальное количество колонок для сетки (копия из GameActivity)
+     * Предпочитает симметричные варианты (где последняя строка заполнена или близка к центру)
+     */
     private fun calculateOptimalColumns(totalCards: Int, width: Int, height: Int, gap: Int): Int {
-        var bestCols = 1
+        var bestColumns = 1
         var maxCardSize = 0
-        var minWidthRemainder = Int.MAX_VALUE
         
-        android.util.Log.d("CoopGameActivity", "calculateOptimalColumns: cards=$totalCards, w=$width, h=$height, gap=$gap")
-        
-        // Пробуем все возможные варианты сетки и выбираем тот, где карточки МАКСИМАЛЬНОГО размера
         for (cols in 1..totalCards) {
             val rows = (totalCards + cols - 1) / cols
-            if (rows < 1) continue
+            val totalGapWidth = (cols - 1) * gap
+            val totalGapHeight = (rows - 1) * gap
             
-            // Вычисляем размер карточки для этой конфигурации
-            val cardWidth = (width - (gap * (cols - 1))) / cols
-            val cardHeight = (height - (gap * (rows - 1))) / rows
-            val cardSize = minOf(cardWidth, cardHeight)  // Карточки квадратные
+            val cardWidth = (width - totalGapWidth) / cols
+            val cardHeight = (height - totalGapHeight) / rows
             
-            if (cardSize < 50) continue  // Слишком маленькие карточки
+            if (cardWidth <= 0 || cardHeight <= 0) continue
+            
+            val cardSize = minOf(cardWidth, cardHeight)
             
             // КРИТИЧНО: Проверяем, что вся сетка поместится в доступное пространство
             val totalGridWidth = cardSize * cols + gap * (cols - 1)
@@ -187,54 +216,73 @@ class CoopGameActivity : AppCompatActivity() {
             
             // Если сетка не помещается - пропускаем этот вариант
             if (totalGridWidth > width || totalGridHeight > height) {
-                android.util.Log.d("CoopGameActivity", "  cols=$cols SKIPPED: grid ${totalGridWidth}x${totalGridHeight} > available ${width}x${height}")
                 continue
             }
             
-            // Вычисляем остаток пространства по ширине
-            val widthRemainder = width - totalGridWidth
+            // Бонус за симметричность (полная последняя строка или близко к ней)
+            val lastRowItems = totalCards % cols
+            val symmetryBonus = if (lastRowItems == 0) {
+                cardSize / 10  // +10% за полностью заполненную сетку
+            } else if (lastRowItems >= cols / 2) {
+                cardSize / 20  // +5% за >50% заполненную последнюю строку
+            } else {
+                0
+            }
             
-            android.util.Log.d("CoopGameActivity", "  cols=$cols, rows=$rows -> cardSize=$cardSize (grid: ${totalGridWidth}x${totalGridHeight}, remainder=$widthRemainder)")
+            val effectiveSize = cardSize + symmetryBonus
             
-            // Выбираем вариант с МАКСИМАЛЬНЫМ размером карточки
-            // При равном размере - предпочитаем МЕНЬШЕ колонок (более компактная сетка)
-            if (cardSize > maxCardSize || (cardSize == maxCardSize && cols < bestCols)) {
-                maxCardSize = cardSize
-                minWidthRemainder = widthRemainder
-                bestCols = cols
+            if (effectiveSize > maxCardSize) {
+                maxCardSize = effectiveSize
+                bestColumns = cols
             }
         }
         
-        android.util.Log.d("CoopGameActivity", "  BEST: cols=$bestCols, cardSize=$maxCardSize")
-        
-        return bestCols
+        return bestColumns
     }
 
-    private fun addPlaceholdersForSymmetry(cards: List<Card>, columns: Int): List<Card> {
-        val totalCells = ((cards.size + columns - 1) / columns) * columns
-        val placeholdersNeeded = totalCells - cards.size
+    /**
+     * Добавляет заглушки для симметричного размещения карточек (копия из GameActivity)
+     */
+    private fun addPlaceholdersForSymmetry(realCards: List<Card>, columns: Int): List<Card> {
+        val lastRowItems = realCards.size % columns
         
-        if (placeholdersNeeded == 0) return cards
+        if (lastRowItems == 0) {
+            // Полная сетка - не нужны заглушки
+            return realCards
+        }
         
-        // Простой подход: карточки идут подряд, placeholder'ы в конце последнего ряда
-        val result = cards.toMutableList()
+        val emptySpaces = columns - lastRowItems
+        val leftPlaceholders = emptySpaces / 2
+        val rightPlaceholders = emptySpaces - leftPlaceholders
         
-        // Добавляем невидимые placeholder'ы слева и справа в последнем ряду для центрирования
-        val cardsInLastRow = cards.size % columns
-        if (cardsInLastRow > 0) {
-            val placeholdersInLastRow = columns - cardsInLastRow
-            val leftPlaceholders = placeholdersInLastRow / 2
-            val rightPlaceholders = placeholdersInLastRow - leftPlaceholders
+        // Вычисляем где вставить заглушки
+        val totalRows = (realCards.size + columns - 1) / columns
+        val firstRowStart = 0
+        val lastRowStart = (totalRows - 1) * columns
+        
+        val result = mutableListOf<Card>()
+        
+        // Распределяем заглушки чередуя: первая строка - слева, последняя - справа
+        for (i in 0 until totalRows * columns) {
+            val row = i / columns
+            val col = i % columns
             
-            // Вставляем левые placeholder'ы ПЕРЕД последним рядом
-            val lastRowStartIndex = (cards.size / columns) * columns
-            repeat(leftPlaceholders) {
-                result.add(lastRowStartIndex, Card(id = -1, imageResId = 0, isPlaceholder = true))
-            }
-            
-            // Добавляем правые placeholder'ы в конец
-            repeat(rightPlaceholders) {
-                result.add(Card(id = -1, imageResId = 0, isPlaceholder = true))
+            when {
+                row == 0 && col < leftPlaceholders -> {
+                    // Первая строка - заглушки слева
+                    result.add(Card(-1, 0, isPlaceholder = true))
+                }
+                row == totalRows - 1 && col >= lastRowItems + leftPlaceholders -> {
+                    // Последняя строка - заглушки справа
+                    result.add(Card(-1, 0, isPlaceholder = true))
+                }
+                else -> {
+                    // Реальная карточка
+                    val cardIndex = result.count { !it.isPlaceholder }
+                    if (cardIndex < realCards.size) {
+                        result.add(realCards[cardIndex])
+                    }
+                }
             }
         }
         
