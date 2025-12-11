@@ -13,6 +13,8 @@ import com.petrov.memory.databinding.ActivityGameBinding
 import com.petrov.memory.domain.model.Card
 import com.petrov.memory.data.preferences.StatsManager
 import com.petrov.memory.data.preferences.SettingsManager
+import com.petrov.memory.util.SoundManager
+import com.petrov.memory.util.VibrationManager
 
 /**
  * Экран игры Memory
@@ -25,6 +27,8 @@ class GameActivity : AppCompatActivity() {
     private lateinit var adapter: CardsAdapter
     private lateinit var statsManager: StatsManager  // Менеджер статистики
     private lateinit var settingsManager: SettingsManager  // Менеджер настроек
+    private lateinit var soundManager: SoundManager  // Менеджер звуков
+    private lateinit var vibrationManager: VibrationManager  // Менеджер вибрации
     private var cards = mutableListOf<Card>()
     private var cardsWithPlaceholders = mutableListOf<Card>()  // Карточки с заглушками
     private var moves = 0
@@ -52,12 +56,16 @@ class GameActivity : AppCompatActivity() {
         binding = ActivityGameBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Инициализируем менеджер статистики
+        // Инициализируем менеджеры
         statsManager = StatsManager(this)
-        
-        // Инициализируем менеджер настроек
         settingsManager = SettingsManager(this)
+        soundManager = SoundManager(this)
+        vibrationManager = VibrationManager(this)
+        
+        // Загружаем настройки
         isSoundEnabled = settingsManager.isSoundEnabled
+        soundManager.setEnabled(isSoundEnabled)
+        vibrationManager.setEnabled(settingsManager.isVibrationEnabled)
 
         // Получаем параметры уровня из Intent
         levelId = intent.getIntExtra(EXTRA_LEVEL_ID, 1)
@@ -288,6 +296,9 @@ class GameActivity : AppCompatActivity() {
         val card = cards[position]
         if (card.isRevealed || card.isMatched) return
 
+        // Звук и вибрация при перевороте карточки
+        vibrationManager.vibrate(VibrationManager.VibrationType.LIGHT)
+        
         // Открываем карточку с анимацией
         card.isRevealed = true
         
@@ -332,6 +343,9 @@ class GameActivity : AppCompatActivity() {
                     second.isMatched = true
                     matchedPairs++
                     
+                    // Звук и вибрация успеха
+                    vibrationManager.vibrate(VibrationManager.VibrationType.SUCCESS)
+                    
                     adapter.updateCards(cardsWithPlaceholders) // Обновляем для эффекта прозрачности
                     
                     Toast.makeText(this, "Пара найдена!", Toast.LENGTH_SHORT).show()
@@ -346,6 +360,9 @@ class GameActivity : AppCompatActivity() {
                     // Не совпало - закрываем карточки с анимацией
                     first.isRevealed = false
                     second.isRevealed = false
+                    
+                    // Звук и вибрация ошибки
+                    vibrationManager.vibrate(VibrationManager.VibrationType.ERROR)
                     
                     val firstIndex = cardsWithPlaceholders.indexOf(first)
                     val secondIndex = cardsWithPlaceholders.indexOf(second)
@@ -505,5 +522,7 @@ class GameActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         handler.removeCallbacksAndMessages(null)
+        soundManager.release()
+        vibrationManager.cancel()
     }
 }

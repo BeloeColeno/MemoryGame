@@ -15,6 +15,8 @@ import com.petrov.memory.R
 import com.petrov.memory.databinding.ActivityCoopGameBinding
 import com.petrov.memory.domain.model.*
 import com.petrov.memory.data.preferences.SettingsManager
+import com.petrov.memory.util.SoundManager
+import com.petrov.memory.util.VibrationManager
 import java.util.*
 
 /**
@@ -27,6 +29,8 @@ class CoopGameActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCoopGameBinding
     private lateinit var adapter: CardsAdapter
     private lateinit var settingsManager: SettingsManager
+    private lateinit var soundManager: SoundManager
+    private lateinit var vibrationManager: VibrationManager
     private lateinit var coopGameState: CoopGameState
     
     private var cards = mutableListOf<Card>()
@@ -45,7 +49,12 @@ class CoopGameActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         settingsManager = SettingsManager(this)
+        soundManager = SoundManager(this)
+        vibrationManager = VibrationManager(this)
+        
         isSoundEnabled = settingsManager.isSoundEnabled
+        soundManager.setEnabled(isSoundEnabled)
+        vibrationManager.setEnabled(settingsManager.isVibrationEnabled)
 
         // Получаем параметры игры
         val pairsCount = intent.getIntExtra("pairs_count", 4)
@@ -234,6 +243,8 @@ class CoopGameActivity : AppCompatActivity() {
     private fun onCardClicked(card: Card) {
         if (isChecking || card.isRevealed || card.isMatched || card.isPlaceholder) return
 
+        vibrationManager.vibrate(VibrationManager.VibrationType.LIGHT)
+        
         card.isRevealed = true
         adapter.notifyItemChanged(cardsWithPlaceholders.indexOf(card))
 
@@ -265,6 +276,8 @@ class CoopGameActivity : AppCompatActivity() {
             first.isMatched = true
             second.isMatched = true
             
+            vibrationManager.vibrate(VibrationManager.VibrationType.SUCCESS)
+            
             // Начисляем очки
             val score = coopGameState.calculatePairScore()
             currentPlayer.pairsFound++
@@ -282,6 +295,8 @@ class CoopGameActivity : AppCompatActivity() {
             // Не совпали - переворачиваем обратно
             first.isRevealed = false
             second.isRevealed = false
+            
+            vibrationManager.vibrate(VibrationManager.VibrationType.ERROR)
             
             // Обновляем состояние и МЕНЯЕМ игрока
             coopGameState = coopGameState.copy(
@@ -430,5 +445,7 @@ class CoopGameActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         timerRunnable?.let { handler.removeCallbacks(it) }
+        soundManager.release()
+        vibrationManager.cancel()
     }
 }
