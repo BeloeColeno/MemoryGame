@@ -72,18 +72,37 @@ class CoopGameActivity : AppCompatActivity() {
     private fun setupGame() {
         cards = generateCards()
         
-        // Вычисляем оптимальную сетку
+        // Ждем, пока панели игроков отрисуются, чтобы узнать их реальные размеры
+        binding.layoutPlayer1.post {
+            setupGameGrid()
+        }
+    }
+    
+    private fun setupGameGrid() {
+        // Вычисляем оптимальную сетку с учетом панелей игроков
         val displayMetrics = resources.displayMetrics
         val screenWidth = displayMetrics.widthPixels
         val screenHeight = displayMetrics.heightPixels
         val density = displayMetrics.density
         
-        val topBottomReserved = (density * 180).toInt()
+        // Измеряем высоту панелей игроков
+        val player1Height = binding.layoutPlayer1.height
+        val player2Height = binding.layoutPlayer2.height
+        val maxPlayerPanelHeight = maxOf(player1Height, player2Height)
+        
+        // Учитываем высоту кнопки меню, таймера и индикатора хода
+        val btnMenuHeight = binding.btnMenu.height
+        val tvCurrentTurnHeight = binding.tvCurrentTurn.height
+        val tvTimerHeight = if (binding.tvTimer.visibility == View.VISIBLE) binding.tvTimer.height else 0
+        
+        // Резервируем место сверху: кнопка + max(панели игроков, таймер) + индикатор хода + отступы
+        val topReserved = btnMenuHeight + maxOf(maxPlayerPanelHeight, tvTimerHeight) + tvCurrentTurnHeight + (density * 48).toInt()
+        val bottomReserved = (density * 16).toInt()
         val sideMargins = (density * 32).toInt()
         val minGap = (density * 2).toInt()
         
         val availableWidth = screenWidth - sideMargins
-        val availableHeight = screenHeight - topBottomReserved
+        val availableHeight = screenHeight - topReserved - bottomReserved
         
         val optimalColumns = calculateOptimalColumns(cards.size, availableWidth, availableHeight, minGap)
         
