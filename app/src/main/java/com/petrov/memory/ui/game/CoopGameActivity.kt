@@ -81,21 +81,26 @@ class CoopGameActivity : AppCompatActivity() {
     private fun setupGame() {
         cards = generateCards()
         
-        // Вычисляем оптимальную сетку с максимальным использованием пространства
+        // Вычисляем оптимальную сетку - RecyclerView сам обрабатывает margin из layout
         val displayMetrics = resources.displayMetrics
         val screenWidth = displayMetrics.widthPixels
         val screenHeight = displayMetrics.heightPixels
         val density = displayMetrics.density
         
-        // Резервируем минимум места для компактной верхней панели
-        val topBottomReserved = (density * 80).toInt()  // Уменьшено до 80dp
-        val sideMargins = (density * 16).toInt()  // Уменьшено с 32 до 16dp
-        val minGap = (density * 4).toInt()  // Увеличено с 2 до 4dp для лучшей видимости
+        // Учитываем только margin RecyclerView из layout (8dp * 2 = 16dp)
+        val layoutMargin = (density * 16).toInt()
         
-        val availableWidth = screenWidth - sideMargins
-        val availableHeight = screenHeight - topBottomReserved
+        // Резервируем место для верхней панели (~64dp высоты панели + 8dp margin сверху)
+        val topReserved = (density * 72).toInt()
         
-        android.util.Log.d("CoopGameActivity", "Screen: ${screenWidth}x${screenHeight}, Available: ${availableWidth}x${availableHeight}")
+        // Зазор между карточками
+        val minGap = (density * 4).toInt()
+        
+        // Доступное пространство = экран - отступы layout - резерв сверху
+        val availableWidth = screenWidth - layoutMargin
+        val availableHeight = screenHeight - topReserved - (density * 8).toInt() // 8dp снизу
+        
+        android.util.Log.d("CoopGameActivity", "Screen: ${screenWidth}x${screenHeight}, Available: ${availableWidth}x${availableHeight}, gap=$minGap")
         
         val optimalColumns = calculateOptimalColumns(cards.size, availableWidth, availableHeight, minGap)
         
