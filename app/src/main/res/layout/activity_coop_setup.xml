@@ -24,17 +24,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Полупрозрачная панель для настроек -->
+    <!-- Полупрозрачная фиолетовая панель для настроек -->
     <androidx.cardview.widget.CardView
         android:id="@+id/settingsPanel"
-        android:layout_width="0dp"
+        android:layout_width="600dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="40dp"
-        android:layout_marginEnd="40dp"
         android:layout_marginTop="24dp"
-        app:cardBackgroundColor="#CC222222"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="8dp"
+        app:cardBackgroundColor="#DD9C27B0"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvTitle">
@@ -43,7 +41,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="24dp">
+            android:padding="32dp">
 
             <!-- Выбор количества пар -->
             <TextView
@@ -52,7 +50,7 @@
                 android:layout_height="wrap_content"
                 android:text="Количество пар:"
                 android:textColor="#FFFFFF"
-                android:textSize="20sp"
+                android:textSize="22sp"
                 android:textStyle="bold"
                 android:layout_gravity="center_horizontal" />
 
@@ -60,7 +58,7 @@
                 android:id="@+id/rgPairs"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="12dp"
                 android:orientation="horizontal"
                 android:layout_gravity="center_horizontal">
 
@@ -68,22 +66,22 @@
                     android:id="@+id/rbPairs4"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
+                    android:layout_marginEnd="20dp"
                     android:text="4 пары"
                     android:textColor="#FFFFFF"
                     android:textSize="18sp"
                     android:checked="true"
-                    android:buttonTint="#9C27B0" />
+                    android:buttonTint="#FFFFFF" />
 
                 <RadioButton
                     android:id="@+id/rbPairs6"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
+                    android:layout_marginEnd="20dp"
                     android:text="6 пар"
                     android:textColor="#FFFFFF"
                     android:textSize="18sp"
-                    android:buttonTint="#9C27B0" />
+                    android:buttonTint="#FFFFFF" />
 
                 <RadioButton
                     android:id="@+id/rbPairs9"
@@ -92,16 +90,16 @@
                     android:text="9 пар"
                     android:textColor="#FFFFFF"
                     android:textSize="18sp"
-                    android:buttonTint="#9C27B0" />
+                    android:buttonTint="#FFFFFF" />
             </RadioGroup>
 
             <!-- Разделитель -->
             <View
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="20dp"
-                android:background="#44FFFFFF" />
+                android:layout_height="2dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="24dp"
+                android:background="#66FFFFFF" />
 
             <!-- Выбор режима таймера -->
             <TextView
@@ -110,7 +108,7 @@
                 android:layout_height="wrap_content"
                 android:text="Режим таймера:"
                 android:textColor="#FFFFFF"
-                android:textSize="20sp"
+                android:textSize="22sp"
                 android:textStyle="bold"
                 android:layout_gravity="center_horizontal" />
 
@@ -118,7 +116,7 @@
                 android:id="@+id/rgTimerMode"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="12dp"
                 android:orientation="horizontal"
                 android:layout_gravity="center_horizontal">
 
@@ -126,11 +124,11 @@
                     android:id="@+id/rbWithTimer"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="24dp"
+                    android:layout_marginEnd="28dp"
                     android:text="С таймером"
                     android:textColor="#FFFFFF"
                     android:textSize="18sp"
-                    android:buttonTint="#9C27B0" />
+                    android:buttonTint="#FFFFFF" />
 
                 <RadioButton
                     android:id="@+id/rbWithoutTimer"
@@ -140,7 +138,7 @@
                     android:textColor="#FFFFFF"
                     android:textSize="18sp"
                     android:checked="true"
-                    android:buttonTint="#9C27B0" />
+                    android:buttonTint="#FFFFFF" />
             </RadioGroup>
 
             <!-- Выбор лимита времени (видим только если включен таймер) -->
@@ -148,10 +146,10 @@
                 android:id="@+id/tvTimerLimitLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="24dp"
                 android:text="Лимит времени:"
                 android:textColor="#FFFFFF"
-                android:textSize="20sp"
+                android:textSize="22sp"
                 android:textStyle="bold"
                 android:visibility="gone"
                 android:layout_gravity="center_horizontal" />
@@ -160,7 +158,7 @@
                 android:id="@+id/rgTimerLimit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="12dp"
                 android:orientation="horizontal"
                 android:visibility="gone"
                 android:layout_gravity="center_horizontal">
@@ -169,22 +167,22 @@
                     android:id="@+id/rbLimit60"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
+                    android:layout_marginEnd="20dp"
                     android:text="60 сек"
                     android:textColor="#FFFFFF"
                     android:textSize="18sp"
                     android:checked="true"
-                    android:buttonTint="#9C27B0" />
+                    android:buttonTint="#FFFFFF" />
 
                 <RadioButton
                     android:id="@+id/rbLimit90"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
+                    android:layout_marginEnd="20dp"
                     android:text="90 сек"
                     android:textColor="#FFFFFF"
                     android:textSize="18sp"
-                    android:buttonTint="#9C27B0" />
+                    android:buttonTint="#FFFFFF" />
 
                 <RadioButton
                     android:id="@+id/rbLimit120"
@@ -193,7 +191,7 @@
                     android:text="120 сек"
                     android:textColor="#FFFFFF"
                     android:textSize="18sp"
-                    android:buttonTint="#9C27B0" />
+                    android:buttonTint="#FFFFFF" />
             </RadioGroup>
 
         </LinearLayout>

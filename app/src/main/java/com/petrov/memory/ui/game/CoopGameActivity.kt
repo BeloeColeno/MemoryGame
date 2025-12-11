@@ -90,11 +90,11 @@ class CoopGameActivity : AppCompatActivity() {
         // Учитываем только margin RecyclerView из layout (8dp * 2 = 16dp)
         val layoutMargin = (density * 16).toInt()
         
-        // Резервируем место для верхней панели (~64dp высоты панели + 8dp margin сверху)
-        val topReserved = (density * 72).toInt()
+        // Резервируем место для верхней компактной панели (меньше чем раньше)
+        val topReserved = (density * 64).toInt()  // Уменьшено с 72dp до 64dp
         
-        // Зазор между карточками - минимальный, так как отступы теперь в item_card.xml
-        val minGap = (density * 2).toInt()  // Уменьшено с 8dp до 2dp (как в одиночной игре)
+        // Минимальный зазор между карточками (отступы идут из padding в item_card.xml)
+        val minGap = (density * 2).toInt()
         
         // Доступное пространство = экран - отступы layout - резерв сверху
         val availableWidth = screenWidth - layoutMargin
