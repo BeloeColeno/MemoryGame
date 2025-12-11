@@ -107,7 +107,7 @@ class CoopGameActivity : AppCompatActivity() {
             )
         }
 
-        adapter = CardsAdapter(cardsWithPlaceholders, availableWidth, availableHeight, minGap) { position ->
+        adapter = CardsAdapter(cardsWithPlaceholders, availableWidth, availableHeight, minGap, optimalColumns) { position ->
             val card = cardsWithPlaceholders[position]
             onCardClicked(card)
         }

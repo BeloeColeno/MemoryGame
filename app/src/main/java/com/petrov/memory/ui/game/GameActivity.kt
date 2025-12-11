@@ -112,7 +112,7 @@ class GameActivity : AppCompatActivity() {
         
         android.util.Log.d("GameActivity", "Setting spanCount=$optimalColumns for ${cards.size} cards (${cardsWithPlaceholders.size} with placeholders)")
         
-        adapter = CardsAdapter(cardsWithPlaceholders, availableWidth, availableHeight, minGap) { position ->
+        adapter = CardsAdapter(cardsWithPlaceholders, availableWidth, availableHeight, minGap, optimalColumns) { position ->
             // Получаем карточку из списка с заглушками
             val clickedCard = cardsWithPlaceholders[position]
             if (!clickedCard.isPlaceholder) {
