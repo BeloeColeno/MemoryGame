@@ -93,8 +93,8 @@ class CoopGameActivity : AppCompatActivity() {
         // Резервируем место для верхней панели (~64dp высоты панели + 8dp margin сверху)
         val topReserved = (density * 72).toInt()
         
-        // Зазор между карточками
-        val minGap = (density * 4).toInt()
+        // Зазор между карточками - увеличен для лучшей видимости
+        val minGap = (density * 8).toInt()  // Увеличено с 4dp до 8dp
         
         // Доступное пространство = экран - отступы layout - резерв сверху
         val availableWidth = screenWidth - layoutMargin
@@ -107,6 +107,10 @@ class CoopGameActivity : AppCompatActivity() {
         cardsWithPlaceholders = addPlaceholdersForSymmetry(cards, optimalColumns).toMutableList()
         
         binding.rvCards.layoutManager = GridLayoutManager(this, optimalColumns)
+        
+        // Отключаем скролл полностью
+        binding.rvCards.isNestedScrollingEnabled = false
+        binding.rvCards.overScrollMode = View.OVER_SCROLL_NEVER
         
         if (binding.rvCards.itemDecorationCount == 0) {
             binding.rvCards.addItemDecoration(
