@@ -33,11 +33,8 @@ class CenteredGridDecoration(
             isInitialized = true
         }
         
-        // Равномерные зазоры между карточками
-        outRect.left = spacing / 2
-        outRect.right = spacing / 2
-        outRect.top = spacing / 2
-        outRect.bottom = spacing / 2
+        // НЕ добавляем offsets - padding идет из item_card.xml
+        // Оставляем пустым, чтобы не дублировать отступы
     }
     
     /**

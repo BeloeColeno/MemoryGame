@@ -108,9 +108,9 @@ class GameActivity : AppCompatActivity() {
         // Устанавливаем spanCount ДО создания адаптера!
         (binding.rvCards.layoutManager as? androidx.recyclerview.widget.GridLayoutManager)?.spanCount = optimalColumns
         
-        // Добавляем декоратор только для центрирования (без дополнительных отступов)
+        // Добавляем декоратор для центрирования с учетом эффективного зазора
         if (binding.rvCards.itemDecorationCount == 0) {
-            binding.rvCards.addItemDecoration(CenteredGridDecoration(0, optimalColumns, cardsWithPlaceholders.size))
+            binding.rvCards.addItemDecoration(CenteredGridDecoration(effectiveGap, optimalColumns, cardsWithPlaceholders.size))
         }
         
         // Отключаем скролл полностью
