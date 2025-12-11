@@ -178,7 +178,17 @@ class CoopGameActivity : AppCompatActivity() {
             
             if (cardSize < 50) continue  // Слишком маленькие карточки
             
-            android.util.Log.d("CoopGameActivity", "  cols=$cols, rows=$rows -> cardSize=$cardSize (w=$cardWidth, h=$cardHeight)")
+            // КРИТИЧНО: Проверяем, что вся сетка поместится в доступное пространство
+            val totalGridWidth = cardSize * cols + gap * (cols - 1)
+            val totalGridHeight = cardSize * rows + gap * (rows - 1)
+            
+            // Если сетка не помещается - пропускаем этот вариант
+            if (totalGridWidth > width || totalGridHeight > height) {
+                android.util.Log.d("CoopGameActivity", "  cols=$cols SKIPPED: grid ${totalGridWidth}x${totalGridHeight} > available ${width}x${height}")
+                continue
+            }
+            
+            android.util.Log.d("CoopGameActivity", "  cols=$cols, rows=$rows -> cardSize=$cardSize (grid: ${totalGridWidth}x${totalGridHeight})")
             
             // Выбираем вариант с МАКСИМАЛЬНЫМ размером карточки
             if (cardSize > maxCardSize) {

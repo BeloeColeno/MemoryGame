@@ -227,6 +227,15 @@ class GameActivity : AppCompatActivity() {
             
             val cardSize = minOf(cardWidth, cardHeight)
             
+            // КРИТИЧНО: Проверяем, что вся сетка поместится в доступное пространство
+            val totalGridWidth = cardSize * cols + gap * (cols - 1)
+            val totalGridHeight = cardSize * rows + gap * (rows - 1)
+            
+            // Если сетка не помещается - пропускаем этот вариант
+            if (totalGridWidth > width || totalGridHeight > height) {
+                continue
+            }
+            
             // Бонус за симметричность (полная последняя строка или близко к ней)
             val lastRowItems = totalCards % cols
             val symmetryBonus = if (lastRowItems == 0) {
