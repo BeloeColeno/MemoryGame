@@ -216,29 +216,23 @@ class CoopGameActivity : AppCompatActivity() {
         
         if (placeholdersNeeded == 0) return cards
         
-        val result = mutableListOf<Card>()
-        val rows = totalCells / columns
-        val cardsPerRow = cards.size / rows
-        val extraCards = cards.size % rows
+        // Простой подход: карточки идут подряд, placeholder'ы в конце последнего ряда
+        val result = cards.toMutableList()
         
-        var cardIndex = 0
-        for (row in 0 until rows) {
-            val cardsInThisRow = cardsPerRow + if (row < extraCards) 1 else 0
-            val placeholdersInRow = columns - cardsInThisRow
+        // Добавляем невидимые placeholder'ы слева и справа в последнем ряду для центрирования
+        val cardsInLastRow = cards.size % columns
+        if (cardsInLastRow > 0) {
+            val placeholdersInLastRow = columns - cardsInLastRow
+            val leftPlaceholders = placeholdersInLastRow / 2
+            val rightPlaceholders = placeholdersInLastRow - leftPlaceholders
             
-            val leftPlaceholders = placeholdersInRow / 2
-            val rightPlaceholders = placeholdersInRow - leftPlaceholders
-            
+            // Вставляем левые placeholder'ы ПЕРЕД последним рядом
+            val lastRowStartIndex = (cards.size / columns) * columns
             repeat(leftPlaceholders) {
-                result.add(Card(id = -1, imageResId = 0, isPlaceholder = true))
+                result.add(lastRowStartIndex, Card(id = -1, imageResId = 0, isPlaceholder = true))
             }
             
-            repeat(cardsInThisRow) {
-                if (cardIndex < cards.size) {
-                    result.add(cards[cardIndex++])
-                }
-            }
-            
+            // Добавляем правые placeholder'ы в конец
             repeat(rightPlaceholders) {
                 result.add(Card(id = -1, imageResId = 0, isPlaceholder = true))
             }
