@@ -93,8 +93,8 @@ class CoopGameActivity : AppCompatActivity() {
         // Резервируем место для верхней панели (~64dp высоты панели + 8dp margin сверху)
         val topReserved = (density * 72).toInt()
         
-        // Зазор между карточками - увеличен для лучшей видимости
-        val minGap = (density * 8).toInt()  // Увеличено с 4dp до 8dp
+        // Зазор между карточками - минимальный, так как отступы теперь в item_card.xml
+        val minGap = (density * 2).toInt()  // Уменьшено с 8dp до 2dp (как в одиночной игре)
         
         // Доступное пространство = экран - отступы layout - резерв сверху
         val availableWidth = screenWidth - layoutMargin
