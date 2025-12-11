@@ -92,12 +92,15 @@ class GameActivity : AppCompatActivity() {
         
         val topBottomReserved = (density * 140).toInt()
         val sideMargins = (density * 32).toInt()
-        val minGap = (density * 2).toInt() // 2dp - минимальный зазор
+        
+        // Padding в item_card.xml - 2dp с каждой стороны = 4dp между карточками
+        val cardPadding = (density * 2).toInt()
+        val effectiveGap = cardPadding * 2  // 4dp эффективный зазор
         
         val availableWidth = screenWidth - sideMargins
         val availableHeight = screenHeight - topBottomReserved
         
-        val optimalColumns = calculateOptimalColumns(cards.size, availableWidth, availableHeight, minGap)
+        val optimalColumns = calculateOptimalColumns(cards.size, availableWidth, availableHeight, effectiveGap)
         
         // Добавляем невидимые карточки для симметричного размещения
         cardsWithPlaceholders = addPlaceholdersForSymmetry(cards, optimalColumns).toMutableList()
@@ -116,7 +119,7 @@ class GameActivity : AppCompatActivity() {
         
         android.util.Log.d("GameActivity", "Setting spanCount=$optimalColumns for ${cards.size} cards (${cardsWithPlaceholders.size} with placeholders)")
         
-        adapter = CardsAdapter(cardsWithPlaceholders, availableWidth, availableHeight, minGap, optimalColumns) { position ->
+        adapter = CardsAdapter(cardsWithPlaceholders, availableWidth, availableHeight, effectiveGap, optimalColumns) { position ->
             // Получаем карточку из списка с заглушками
             val clickedCard = cardsWithPlaceholders[position]
             if (!clickedCard.isPlaceholder) {
@@ -131,7 +134,7 @@ class GameActivity : AppCompatActivity() {
         
         // Центрируем сетку через padding после того как адаптер установлен
         binding.rvCards.post {
-            centerGrid(optimalColumns, minGap)
+            centerGrid(optimalColumns, effectiveGap)
         }
         
         updateUI()
