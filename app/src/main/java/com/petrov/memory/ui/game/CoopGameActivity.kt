@@ -165,6 +165,7 @@ class CoopGameActivity : AppCompatActivity() {
     private fun calculateOptimalColumns(totalCards: Int, width: Int, height: Int, gap: Int): Int {
         var bestCols = 1
         var maxCardSize = 0
+        var minWidthRemainder = Int.MAX_VALUE
         
         android.util.Log.d("CoopGameActivity", "calculateOptimalColumns: cards=$totalCards, w=$width, h=$height, gap=$gap")
         
@@ -190,11 +191,16 @@ class CoopGameActivity : AppCompatActivity() {
                 continue
             }
             
-            android.util.Log.d("CoopGameActivity", "  cols=$cols, rows=$rows -> cardSize=$cardSize (grid: ${totalGridWidth}x${totalGridHeight})")
+            // Вычисляем остаток пространства по ширине
+            val widthRemainder = width - totalGridWidth
+            
+            android.util.Log.d("CoopGameActivity", "  cols=$cols, rows=$rows -> cardSize=$cardSize (grid: ${totalGridWidth}x${totalGridHeight}, remainder=$widthRemainder)")
             
             // Выбираем вариант с МАКСИМАЛЬНЫМ размером карточки
-            if (cardSize > maxCardSize) {
+            // При равном размере - выбираем тот, у которого меньше остаток (лучше центрируется)
+            if (cardSize > maxCardSize || (cardSize == maxCardSize && widthRemainder < minWidthRemainder)) {
                 maxCardSize = cardSize
+                minWidthRemainder = widthRemainder
                 bestCols = cols
             }
         }
