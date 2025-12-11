@@ -113,8 +113,9 @@ class CoopGameActivity : AppCompatActivity() {
         binding.rvCards.overScrollMode = View.OVER_SCROLL_NEVER
         
         if (binding.rvCards.itemDecorationCount == 0) {
+            // CenteredGridDecoration только центрирует сетку, без дополнительных отступов
             binding.rvCards.addItemDecoration(
-                CenteredGridDecoration(minGap, optimalColumns, cardsWithPlaceholders.size)
+                CenteredGridDecoration(0, optimalColumns, cardsWithPlaceholders.size)
             )
         }
 

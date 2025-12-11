@@ -4,6 +4,7 @@ import android.app.Dialog
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.View
 import android.view.Window
 import android.widget.ImageButton
 import android.widget.Toast
@@ -104,11 +105,14 @@ class GameActivity : AppCompatActivity() {
         // Устанавливаем spanCount ДО создания адаптера!
         (binding.rvCards.layoutManager as? androidx.recyclerview.widget.GridLayoutManager)?.spanCount = optimalColumns
         
-        // Добавляем декоратор для минимальных отступов (только первый раз)
+        // Добавляем декоратор только для центрирования (без дополнительных отступов)
         if (binding.rvCards.itemDecorationCount == 0) {
-            val spacing = (density * 2).toInt()
-            binding.rvCards.addItemDecoration(CenteredGridDecoration(spacing, optimalColumns, cardsWithPlaceholders.size))
+            binding.rvCards.addItemDecoration(CenteredGridDecoration(0, optimalColumns, cardsWithPlaceholders.size))
         }
+        
+        // Отключаем скролл полностью
+        binding.rvCards.isNestedScrollingEnabled = false
+        binding.rvCards.overScrollMode = View.OVER_SCROLL_NEVER
         
         android.util.Log.d("GameActivity", "Setting spanCount=$optimalColumns for ${cards.size} cards (${cardsWithPlaceholders.size} with placeholders)")
         
