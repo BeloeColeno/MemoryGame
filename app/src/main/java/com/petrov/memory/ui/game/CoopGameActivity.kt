@@ -158,30 +158,32 @@ class CoopGameActivity : AppCompatActivity() {
 
     private fun calculateOptimalColumns(totalCards: Int, width: Int, height: Int, gap: Int): Int {
         var bestCols = 1
-        var bestScore = Float.MAX_VALUE
+        var maxCardSize = 0
         
+        android.util.Log.d("CoopGameActivity", "calculateOptimalColumns: cards=$totalCards, w=$width, h=$height, gap=$gap")
+        
+        // Пробуем все возможные варианты сетки и выбираем тот, где карточки МАКСИМАЛЬНОГО размера
         for (cols in 1..totalCards) {
             val rows = (totalCards + cols - 1) / cols
             if (rows < 1) continue
             
+            // Вычисляем размер карточки для этой конфигурации
             val cardWidth = (width - (gap * (cols - 1))) / cols
             val cardHeight = (height - (gap * (rows - 1))) / rows
-            val cardSize = minOf(cardWidth, cardHeight)
+            val cardSize = minOf(cardWidth, cardHeight)  // Карточки квадратные
             
-            if (cardSize < 50) continue
+            if (cardSize < 50) continue  // Слишком маленькие карточки
             
-            val aspectRatio = cardWidth.toFloat() / cardHeight
-            val aspectDiff = kotlin.math.abs(aspectRatio - 0.75f)
-            val spaceLoss = (width - cardSize * cols - gap * (cols - 1)).toFloat() / width +
-                           (height - cardSize * rows - gap * (rows - 1)).toFloat() / height
+            android.util.Log.d("CoopGameActivity", "  cols=$cols, rows=$rows -> cardSize=$cardSize (w=$cardWidth, h=$cardHeight)")
             
-            val score = aspectDiff * 2 + spaceLoss
-            
-            if (score < bestScore) {
-                bestScore = score
+            // Выбираем вариант с МАКСИМАЛЬНЫМ размером карточки
+            if (cardSize > maxCardSize) {
+                maxCardSize = cardSize
                 bestCols = cols
             }
         }
+        
+        android.util.Log.d("CoopGameActivity", "  BEST: cols=$bestCols, cardSize=$maxCardSize")
         
         return bestCols
     }
