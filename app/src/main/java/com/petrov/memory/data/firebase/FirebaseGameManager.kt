@@ -241,21 +241,30 @@ class FirebaseGameManager {
      * Поиск доступных комнат
      */
     suspend fun findAvailableRooms(): List<OnlineGameRoom> {
+        android.util.Log.d("FirebaseManager", "findAvailableRooms: Loading rooms...")
+        
         val snapshot = roomsRef
-            .orderByChild("gameStarted")
-            .equalTo(false)
-            .limitToFirst(20)
+            .limitToFirst(50)
             .get()
             .await()
         
+        android.util.Log.d("FirebaseManager", "findAvailableRooms: Got ${snapshot.childrenCount} rooms")
+        
         val rooms = mutableListOf<OnlineGameRoom>()
         snapshot.children.forEach { child ->
-            val room = child.getValue(OnlineGameRoom::class.java)
-            if (room != null && room.guestPlayerId == null) {
-                rooms.add(room)
+            try {
+                val room = child.getValue(OnlineGameRoom::class.java)
+                // Показываем только незаполненные комнаты где игра не началась
+                if (room != null && room.guestPlayerId == null && !room.gameStarted) {
+                    rooms.add(room)
+                    android.util.Log.d("FirebaseManager", "findAvailableRooms: Found room ${room.roomId}")
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("FirebaseManager", "findAvailableRooms: Error parsing room", e)
             }
         }
         
+        android.util.Log.d("FirebaseManager", "findAvailableRooms: Returning ${rooms.size} available rooms")
         return rooms
     }
     
