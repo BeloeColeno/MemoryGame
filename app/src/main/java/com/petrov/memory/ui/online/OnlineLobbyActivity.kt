@@ -13,6 +13,7 @@ import com.petrov.memory.data.firebase.FirebaseGameManager
 import com.petrov.memory.databinding.ActivityOnlineLobbyBinding
 import com.petrov.memory.domain.model.TimerMode
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 
 /**
  * Экран онлайн-лобби
@@ -128,11 +129,17 @@ class OnlineLobbyActivity : AppCompatActivity() {
         
         lifecycleScope.launch {
             try {
-                val roomId = firebaseManager.createRoom(
-                    selectedLevel,
-                    selectedTimerMode,
-                    selectedTimeLimit
-                )
+                android.util.Log.d("OnlineLobby", "Creating room: level=$selectedLevel, timer=$selectedTimerMode, limit=$selectedTimeLimit")
+                
+                val roomId = withTimeout(10000) { // 10 секунд timeout
+                    firebaseManager.createRoom(
+                        selectedLevel,
+                        selectedTimerMode,
+                        selectedTimeLimit
+                    )
+                }
+                
+                android.util.Log.d("OnlineLobby", "Room created: $roomId")
                 
                 // Переходим в комнату ожидания
                 val intent = Intent(this@OnlineLobbyActivity, OnlineWaitingRoomActivity::class.java)
@@ -142,11 +149,19 @@ class OnlineLobbyActivity : AppCompatActivity() {
                 startActivity(intent)
                 finish()
                 
+            } catch (e: kotlinx.coroutines.TimeoutCancellationException) {
+                android.util.Log.e("OnlineLobby", "Timeout creating room", e)
+                Toast.makeText(
+                    this@OnlineLobbyActivity,
+                    "Превышено время ожидания. Проверьте интернет.",
+                    Toast.LENGTH_LONG
+                ).show()
             } catch (e: Exception) {
+                android.util.Log.e("OnlineLobby", "Error creating room", e)
                 Toast.makeText(
                     this@OnlineLobbyActivity,
                     "Ошибка создания комнаты: ${e.message}",
-                    Toast.LENGTH_SHORT
+                    Toast.LENGTH_LONG
                 ).show()
             } finally {
                 binding.progressBar.visibility = View.GONE

@@ -1,14 +1,13 @@
 {
   "project_info": {
-    "project_number": "123456789000",
-    "firebase_url": "https://memorygame-temp.firebaseio.com",
-    "project_id": "memorygame-temp",
-    "storage_bucket": "memorygame-temp.appspot.com"
+    "project_number": "159025507805",
+    "project_id": "memorygame-f92f8",
+    "storage_bucket": "memorygame-f92f8.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:123456789000:android:abcdef123456",
+        "mobilesdk_app_id": "1:159025507805:android:6ac2c361d2c9a980c4da34",
         "android_client_info": {
           "package_name": "com.petrov.memory"
         }
@@ -16,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDEMO_KEY_REPLACE_WITH_REAL_ONE"
+          "current_key": "AIzaSyCLD4ryGU7rlfpKSqTvmUAa7gMFlAHz_mc"
         }
       ],
       "services": {
