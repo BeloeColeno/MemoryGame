@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -75,6 +77,24 @@
         <!-- Кооперативный игровой экран -->
         <activity
             android:name=".ui.game.CoopGameActivity"
+            android:exported="false"
+            android:screenOrientation="landscape" />
+        
+        <!-- Онлайн лобби -->
+        <activity
+            android:name=".ui.online.OnlineLobbyActivity"
+            android:exported="false"
+            android:screenOrientation="landscape" />
+        
+        <!-- Комната ожидания -->
+        <activity
+            android:name=".ui.online.OnlineWaitingRoomActivity"
+            android:exported="false"
+            android:screenOrientation="landscape" />
+        
+        <!-- Онлайн игра -->
+        <activity
+            android:name=".ui.online.OnlineGameActivity"
             android:exported="false"
             android:screenOrientation="landscape" />
     </application>
