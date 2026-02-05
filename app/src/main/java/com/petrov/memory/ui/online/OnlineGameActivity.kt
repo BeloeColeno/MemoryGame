@@ -68,12 +68,35 @@ class OnlineGameActivity : AppCompatActivity() {
     private fun setupGame() {
         val (columns, _) = getGridSize(level)
         
-        cardsAdapter = CardsAdapter { card ->
-            onCardClick(card)
+        // Вычисляем доступное пространство для карточек
+        val displayMetrics = resources.displayMetrics
+        val screenWidth = displayMetrics.widthPixels
+        val screenHeight = displayMetrics.heightPixels
+        val density = displayMetrics.density
+        
+        val topBottomReserved = (density * 140).toInt()
+        val sideMargins = (density * 32).toInt()
+        val cardPadding = (density * 2).toInt()
+        val effectiveGap = cardPadding * 2
+        
+        val availableWidth = screenWidth - sideMargins
+        val availableHeight = screenHeight - topBottomReserved
+        
+        cardsAdapter = CardsAdapter(
+            cards = emptyList(),
+            availableWidth = availableWidth,
+            availableHeight = availableHeight,
+            gap = effectiveGap,
+            columns = columns
+        ) { position ->
+            val card = cards.getOrNull(position)
+            if (card != null) {
+                onCardClick(card)
+            }
         }
         
         binding.recyclerCards.apply {
-            layoutManager = GridLayoutManager(this@OnlineGameActivity, columns)
+            layoutManager = androidx.recyclerview.widget.GridLayoutManager(this@OnlineGameActivity, columns)
             adapter = cardsAdapter
         }
     }
@@ -111,20 +134,20 @@ class OnlineGameActivity : AppCompatActivity() {
                 Card(
                     id = onlineCard.id,
                     imageResId = getImageResource(onlineCard.imageResId),
-                    isFlipped = onlineCard.isFlipped,
+                    isRevealed = onlineCard.isFlipped,
                     isMatched = onlineCard.isMatched
                 )
             })
-            cardsAdapter.submitList(cards.toList())
+            cardsAdapter.updateCards(cards.toList())
         } else {
             // Обновляем существующие карточки
             room.cards.forEachIndexed { index, onlineCard ->
                 if (index < cards.size) {
-                    cards[index].isFlipped = onlineCard.isFlipped
+                    cards[index].isRevealed = onlineCard.isFlipped
                     cards[index].isMatched = onlineCard.isMatched
                 }
             }
-            cardsAdapter.notifyDataSetChanged()
+            cardsAdapter.updateCards(cards.toList())
         }
         
         // Обновляем счет
@@ -148,14 +171,14 @@ class OnlineGameActivity : AppCompatActivity() {
     }
 
     private fun onCardClick(card: Card) {
-        if (isProcessing || card.isMatched || card.isFlipped) return
+        if (isProcessing || card.isMatched || card.isRevealed) return
         
         lifecycleScope.launch {
             try {
                 val success = firebaseManager.makeMove(roomId, card.id)
                 
                 if (success) {
-                    soundManager.playCardFlip()
+                    soundManager.playSound(SoundManager.SoundType.CARD_FLIP)
                     
                     if (firstFlippedCard == null) {
                         firstFlippedCard = card
@@ -210,7 +233,7 @@ class OnlineGameActivity : AppCompatActivity() {
     private fun getImageResource(resourceId: Int): Int {
         // Здесь должна быть логика получения реального ресурса изображения
         // Пока возвращаем placeholder
-        return R.drawable.card_back // Заглушка
+        return R.drawable.cover // Заглушка
     }
 
     private fun showResultDialog(room: OnlineGameRoom) {
