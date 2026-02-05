@@ -67,40 +67,60 @@ class OnlineLobbyActivity : AppCompatActivity() {
         val levels = arrayOf("Уровень 1 (4 пары)", "Уровень 2 (6 пар)", "Уровень 3 (9 пар)")
         val timerModes = arrayOf("Без таймера", "С таймером (60 сек)", "С таймером (90 сек)", "С таймером (120 сек)")
         
-        var selectedLevelIndex = 0
-        var selectedTimerIndex = 0
-        
         val dialogView = layoutInflater.inflate(R.layout.dialog_create_room, null)
         
-        AlertDialog.Builder(this)
-            .setTitle("Создать комнату")
+        // Настраиваем Spinners
+        val spinnerLevel = dialogView.findViewById<android.widget.Spinner>(R.id.spinnerLevel)
+        val spinnerTimer = dialogView.findViewById<android.widget.Spinner>(R.id.spinnerTimer)
+        
+        val levelAdapter = android.widget.ArrayAdapter(this, android.R.layout.simple_spinner_item, levels)
+        levelAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerLevel.adapter = levelAdapter
+        
+        val timerAdapter = android.widget.ArrayAdapter(this, android.R.layout.simple_spinner_item, timerModes)
+        timerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerTimer.adapter = timerAdapter
+        
+        val dialog = AlertDialog.Builder(this)
             .setView(dialogView)
-            .setPositiveButton("Создать") { _, _ ->
-                selectedLevel = selectedLevelIndex + 1
-                
-                when (selectedTimerIndex) {
-                    0 -> {
-                        selectedTimerMode = TimerMode.WITHOUT_TIMER
-                        selectedTimeLimit = null
-                    }
-                    1 -> {
-                        selectedTimerMode = TimerMode.WITH_TIMER
-                        selectedTimeLimit = 60
-                    }
-                    2 -> {
-                        selectedTimerMode = TimerMode.WITH_TIMER
-                        selectedTimeLimit = 90
-                    }
-                    3 -> {
-                        selectedTimerMode = TimerMode.WITH_TIMER
-                        selectedTimeLimit = 120
-                    }
+            .create()
+        
+        // Обработчик кнопки "Создать"
+        dialogView.findViewById<android.widget.Button>(R.id.btnCreate).setOnClickListener {
+            val selectedLevelIndex = spinnerLevel.selectedItemPosition
+            val selectedTimerIndex = spinnerTimer.selectedItemPosition
+            
+            selectedLevel = selectedLevelIndex + 1
+            
+            when (selectedTimerIndex) {
+                0 -> {
+                    selectedTimerMode = TimerMode.WITHOUT_TIMER
+                    selectedTimeLimit = null
                 }
-                
-                createRoom()
+                1 -> {
+                    selectedTimerMode = TimerMode.WITH_TIMER
+                    selectedTimeLimit = 60
+                }
+                2 -> {
+                    selectedTimerMode = TimerMode.WITH_TIMER
+                    selectedTimeLimit = 90
+                }
+                3 -> {
+                    selectedTimerMode = TimerMode.WITH_TIMER
+                    selectedTimeLimit = 120
+                }
             }
-            .setNegativeButton("Отмена", null)
-            .show()
+            
+            dialog.dismiss()
+            createRoom()
+        }
+        
+        // Обработчик кнопки "Отмена"
+        dialogView.findViewById<android.widget.Button>(R.id.btnCancel).setOnClickListener {
+            dialog.dismiss()
+        }
+        
+        dialog.show()
     }
 
     private fun createRoom() {
