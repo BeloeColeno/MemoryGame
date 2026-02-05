@@ -9,9 +9,9 @@
               <option name="connection">
                 <ConnectionSetting>
                   <option name="appId" value="com.petrov.memory" />
-                  <option name="mobileSdkAppId" value="1:123456789000:android:abcdef123456" />
-                  <option name="projectId" value="memorygame-temp" />
-                  <option name="projectNumber" value="123456789000" />
+                  <option name="mobileSdkAppId" value="1:159025507805:android:6ac2c361d2c9a980c4da34" />
+                  <option name="projectId" value="memorygame-f92f8" />
+                  <option name="projectNumber" value="159025507805" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

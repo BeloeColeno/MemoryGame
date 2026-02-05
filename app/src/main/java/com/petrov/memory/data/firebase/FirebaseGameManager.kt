@@ -24,13 +24,18 @@ class FirebaseGameManager {
      * Получить ID текущего игрока (анонимная аутентификация)
      */
     suspend fun getCurrentPlayerId(): String {
+        android.util.Log.d("FirebaseManager", "getCurrentPlayerId: Starting...")
+        
         val currentUser = auth.currentUser
         return if (currentUser != null) {
+            android.util.Log.d("FirebaseManager", "getCurrentPlayerId: User already signed in: ${currentUser.uid}")
             currentUser.uid
         } else {
-            // Анонимная аутентификация
+            android.util.Log.d("FirebaseManager", "getCurrentPlayerId: Signing in anonymously...")
             val result = auth.signInAnonymously().await()
-            result.user?.uid ?: throw IllegalStateException("Failed to authenticate")
+            val uid = result.user?.uid ?: throw IllegalStateException("Failed to authenticate")
+            android.util.Log.d("FirebaseManager", "getCurrentPlayerId: Signed in successfully: $uid")
+            uid
         }
     }
     
@@ -38,8 +43,16 @@ class FirebaseGameManager {
      * Создать новую игровую комнату
      */
     suspend fun createRoom(level: Int, timerMode: TimerMode, timeLimit: Int?): String {
+        android.util.Log.d("FirebaseManager", "createRoom: Starting...")
+        
         val playerId = getCurrentPlayerId()
+        android.util.Log.d("FirebaseManager", "createRoom: Player ID = $playerId")
+        
         val roomId = roomsRef.push().key ?: throw IllegalStateException("Failed to create room")
+        android.util.Log.d("FirebaseManager", "createRoom: Room ID = $roomId")
+        
+        val cards = generateCards(level)
+        android.util.Log.d("FirebaseManager", "createRoom: Generated ${cards.size} cards")
         
         val room = OnlineGameRoom(
             roomId = roomId,
@@ -48,10 +61,13 @@ class FirebaseGameManager {
             timerMode = timerMode.name,
             timeLimit = timeLimit,
             currentPlayerId = playerId,
-            cards = generateCards(level)
+            cards = cards
         )
         
+        android.util.Log.d("FirebaseManager", "createRoom: Saving to Firebase...")
         roomsRef.child(roomId).setValue(room.toMap()).await()
+        android.util.Log.d("FirebaseManager", "createRoom: Saved successfully!")
+        
         return roomId
     }
     
