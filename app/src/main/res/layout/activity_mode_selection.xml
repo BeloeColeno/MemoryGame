@@ -57,6 +57,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btnSinglePlayer" />
 
+    <!-- Кнопка "Онлайн игра" -->
+    <Button
+        android:id="@+id/btnOnline"
+        android:layout_width="280dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="24dp"
+        android:backgroundTint="#2196F3"
+        android:text="ОНЛАЙН ИГРА"
+        android:textColor="#FFFFFF"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        app:cornerRadius="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnCooperative" />
+
     <!-- Кнопка "Назад" -->
     <Button
         android:id="@+id/btnBack"

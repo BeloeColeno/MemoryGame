@@ -37,6 +37,12 @@ class ModeSelectionActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        // Онлайн игра → лобби
+        binding.btnOnline.setOnClickListener {
+            val intent = Intent(this, com.petrov.memory.ui.online.OnlineLobbyActivity::class.java)
+            startActivity(intent)
+        }
+
         // Назад
         binding.btnBack.setOnClickListener {
             finish()
