@@ -6,5 +6,6 @@ package com.petrov.memory.domain.model
  */
 enum class GameMode {
     SINGLE_PLAYER,   // Одиночная игра
-    COOPERATIVE      // Совместный режим (на одном экране)
+    COOPERATIVE,     // Совместный режим (на одном экране)
+    ONLINE           // Онлайн режим (два устройства через Firebase)
 }
