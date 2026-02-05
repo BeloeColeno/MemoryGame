@@ -14,7 +14,9 @@ import kotlinx.coroutines.tasks.await
  */
 class FirebaseGameManager {
 
-    private val database: DatabaseReference = FirebaseDatabase.getInstance().reference
+    private val database: DatabaseReference = FirebaseDatabase.getInstance(
+        "https://memorygame-f92f8-default-rtdb.europe-west1.firebasedatabase.app"
+    ).reference
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     
     private val roomsRef = database.child("rooms")
