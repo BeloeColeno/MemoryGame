@@ -409,8 +409,9 @@ class GameActivity : AppCompatActivity() {
         val timeSeconds = ((endTime - startTime) / 1000).toInt()
         val stars = calculateStars(moves, timeSeconds)
         
-        // СОХРАНЯЕМ СТАТИСТИКУ
+        // СОХРАНЯЕМ СТАТИСТИКУ (офлайн режим)
         statsManager.saveGameResult(
+            mode = StatsManager.MODE_OFFLINE,
             levelId = levelId,
             won = true,
             time = timeSeconds,

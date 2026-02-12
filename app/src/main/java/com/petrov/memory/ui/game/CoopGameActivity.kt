@@ -15,6 +15,7 @@ import com.petrov.memory.R
 import com.petrov.memory.databinding.ActivityCoopGameBinding
 import com.petrov.memory.domain.model.*
 import com.petrov.memory.data.preferences.SettingsManager
+import com.petrov.memory.data.preferences.StatsManager
 import com.petrov.memory.util.SoundManager
 import com.petrov.memory.util.VibrationManager
 import java.util.*
@@ -29,6 +30,7 @@ class CoopGameActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCoopGameBinding
     private lateinit var adapter: CardsAdapter
     private lateinit var settingsManager: SettingsManager
+    private lateinit var statsManager: StatsManager
     private lateinit var soundManager: SoundManager
     private lateinit var vibrationManager: VibrationManager
     private lateinit var coopGameState: CoopGameState
@@ -49,6 +51,7 @@ class CoopGameActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         settingsManager = SettingsManager(this)
+        statsManager = StatsManager(this)
         soundManager = SoundManager(this)
         vibrationManager = VibrationManager(this)
         
@@ -302,20 +305,40 @@ class CoopGameActivity : AppCompatActivity() {
     }
 
     private fun onCardClicked(card: Card) {
-        if (isChecking || card.isRevealed || card.isMatched || card.isPlaceholder) return
+        // КРИТИЧНО: Блокируем любые клики если идёт проверка
+        if (isChecking) {
+            android.util.Log.w("CoopGameActivity", "Checking in progress, blocking click")
+            return
+        }
+        
+        // Блокируем клик на уже открытые, найденные или заглушки
+        if (card.isRevealed || card.isMatched || card.isPlaceholder) {
+            android.util.Log.w("CoopGameActivity", "Card already revealed/matched/placeholder")
+            return
+        }
+        
+        // КРИТИЧНО: Проверяем количество уже перевёрнутых карт СТРОГО
+        if (firstRevealedCard != null && secondRevealedCard != null) {
+            android.util.Log.w("CoopGameActivity", "Already 2 cards revealed, blocking click")
+            return
+        }
 
         vibrationManager.vibrate(VibrationManager.VibrationType.LIGHT)
         
         card.isRevealed = true
         adapter.notifyItemChanged(cardsWithPlaceholders.indexOf(card))
+        
+        android.util.Log.d("CoopGameActivity", "Card revealed: id=${card.id}, pairId=${card.pairId}")
 
         when {
             firstRevealedCard == null -> {
                 firstRevealedCard = card
+                android.util.Log.d("CoopGameActivity", "First card set")
             }
             secondRevealedCard == null -> {
                 secondRevealedCard = card
                 isChecking = true
+                android.util.Log.d("CoopGameActivity", "Second card set, checking in 600ms")
                 handler.postDelayed({ checkForMatch() }, 600)
             }
         }
@@ -331,6 +354,7 @@ class CoopGameActivity : AppCompatActivity() {
         }
 
         val currentPlayer = coopGameState.getCurrentPlayer()
+        android.util.Log.d("CoopGameActivity", "Checking match: first.pairId=${first.pairId}, second.pairId=${second.pairId}, currentPlayer=${coopGameState.currentPlayerId}")
 
         if (first.pairId == second.pairId) {
             // Найдена пара!
@@ -344,38 +368,55 @@ class CoopGameActivity : AppCompatActivity() {
             currentPlayer.pairsFound++
             currentPlayer.totalScore += score
             
-            // Обновляем состояние
+            // Обновляем состояние и ВСЕГДА меняем игрока (строгая очередность)
+            val nextPlayerId = if (coopGameState.currentPlayerId == 1) 2 else 1
             coopGameState = coopGameState.copy(
                 matchedPairs = coopGameState.matchedPairs + 1,
-                totalMoves = coopGameState.totalMoves + 1
+                totalMoves = coopGameState.totalMoves + 1,
+                currentPlayerId = nextPlayerId
             )
             
-            // Если пара найдена, ход продолжается (не меняем игрока)
+            android.util.Log.d("CoopGameActivity", "Match found! Next player: $nextPlayerId")
+            
+            adapter.notifyDataSetChanged()
+            updateUI()
+
+            firstRevealedCard = null
+            secondRevealedCard = null
+            isChecking = false
+
+            // Проверяем окончание игры
+            if (coopGameState.matchedPairs == coopGameState.totalPairs) {
+                handler.postDelayed({ showGameComplete() }, 500)
+            }
             
         } else {
-            // Не совпали - переворачиваем обратно
-            first.isRevealed = false
-            second.isRevealed = false
-            
+            // Не совпали - показываем 1.5 секунды, затем переворачиваем
             vibrationManager.vibrate(VibrationManager.VibrationType.ERROR)
             
-            // Обновляем состояние и МЕНЯЕМ игрока
-            coopGameState = coopGameState.copy(
-                currentPlayerId = if (coopGameState.currentPlayerId == 1) 2 else 1,
-                totalMoves = coopGameState.totalMoves + 1
-            )
-        }
+            android.util.Log.d("CoopGameActivity", "No match, hiding cards in 1500ms")
+            
+            // ВАЖНО: Задержка перед закрытием карт и сменой игрока
+            handler.postDelayed({
+                first.isRevealed = false
+                second.isRevealed = false
+                
+                // Обновляем состояние и МЕНЯЕМ игрока
+                val nextPlayerId = if (coopGameState.currentPlayerId == 1) 2 else 1
+                coopGameState = coopGameState.copy(
+                    currentPlayerId = nextPlayerId,
+                    totalMoves = coopGameState.totalMoves + 1
+                )
+                
+                android.util.Log.d("CoopGameActivity", "Cards hidden, next player: $nextPlayerId")
+                
+                adapter.notifyDataSetChanged()
+                updateUI()
 
-        adapter.notifyDataSetChanged()
-        updateUI()
-
-        firstRevealedCard = null
-        secondRevealedCard = null
-        isChecking = false
-
-        // Проверяем окончание игры
-        if (coopGameState.matchedPairs == coopGameState.totalPairs) {
-            handler.postDelayed({ showGameComplete() }, 500)
+                firstRevealedCard = null
+                secondRevealedCard = null
+                isChecking = false
+            }, 1500)
         }
     }
 
@@ -468,6 +509,29 @@ class CoopGameActivity : AppCompatActivity() {
             isGameFinished = true,
             winner = winner
         )
+        
+        // Сохраняем статистику (только для победителя)
+        val levelId = when (coopGameState.totalPairs) {
+            4 -> 1
+            6 -> 2
+            9 -> 3
+            else -> 1
+        }
+        
+        val timeSeconds = (coopGameState.elapsedTime / 1000).toInt()
+        
+        winner?.let {
+            // Звезды для кооперативного режима: 3 звезды за победу
+            val stars = 3
+            statsManager.saveGameResult(
+                mode = StatsManager.MODE_COOP,
+                levelId = levelId,
+                won = true,
+                time = timeSeconds,
+                moves = coopGameState.totalMoves,
+                stars = stars
+            )
+        }
         
         val dialog = Dialog(this)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
