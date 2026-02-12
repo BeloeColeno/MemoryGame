@@ -2,84 +2,168 @@ package com.petrov.memory.ui.statistics
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.petrov.memory.databinding.ActivityStatisticsBinding
+import com.petrov.memory.R
 import com.petrov.memory.data.preferences.StatsManager
 import com.petrov.memory.domain.model.LevelStats
+import com.petrov.memory.domain.model.ModeStats
+import android.widget.Button
+import android.widget.TextView
+import android.widget.LinearLayout
 
 /**
- * Экран статистики
- * Отображает статистику по всем уровням
+ * Экран статистики с вкладками по режимам
+ * Отображает статистику по офлайн, онлайн и кооперативному режимам
  */
 class StatisticsActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityStatisticsBinding
     private lateinit var statsManager: StatsManager
+    private var currentMode = StatsManager.MODE_OFFLINE
+
+    // Views
+    private lateinit var btnOfflineTab: Button
+    private lateinit var btnOnlineTab: Button
+    private lateinit var btnCoopTab: Button
+    private lateinit var tvTotalGames: TextView
+    private lateinit var tvTotalWins: TextView
+    private lateinit var tvTotalStars: TextView
+    private lateinit var tvTotalTime: TextView
+    private lateinit var layoutLevel1: LinearLayout
+    private lateinit var layoutLevel2: LinearLayout
+    private lateinit var layoutLevel3: LinearLayout
+    private lateinit var btnReset: Button
+    private lateinit var btnBack: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityStatisticsBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setContentView(R.layout.activity_statistics_tabs)
 
         statsManager = StatsManager(this)
         
+        initViews()
         setupUI()
         loadStats()
     }
 
+    private fun initViews() {
+        btnOfflineTab = findViewById(R.id.btnOfflineTab)
+        btnOnlineTab = findViewById(R.id.btnOnlineTab)
+        btnCoopTab = findViewById(R.id.btnCoopTab)
+        tvTotalGames = findViewById(R.id.tvTotalGames)
+        tvTotalWins = findViewById(R.id.tvTotalWins)
+        tvTotalStars = findViewById(R.id.tvTotalStars)
+        tvTotalTime = findViewById(R.id.tvTotalTime)
+        layoutLevel1 = findViewById(R.id.layoutLevel1)
+        layoutLevel2 = findViewById(R.id.layoutLevel2)
+        layoutLevel3 = findViewById(R.id.layoutLevel3)
+        btnReset = findViewById(R.id.btnReset)
+        btnBack = findViewById(R.id.btnBack)
+    }
+
     private fun setupUI() {
+        // Вкладки режимов
+        btnOfflineTab.setOnClickListener {
+            switchTab(StatsManager.MODE_OFFLINE)
+        }
+        
+        btnOnlineTab.setOnClickListener {
+            switchTab(StatsManager.MODE_ONLINE)
+        }
+        
+        btnCoopTab.setOnClickListener {
+            switchTab(StatsManager.MODE_COOP)
+        }
+        
         // Кнопка "Назад"
-        binding.btnBack.setOnClickListener {
+        btnBack.setOnClickListener {
             finish()
         }
         
         // Кнопка "Сброс статистики"
-        binding.btnReset.setOnClickListener {
+        btnReset.setOnClickListener {
             resetStats()
         }
     }
 
-    private fun loadStats() {
-        val stats = statsManager.getGameStats()
+    private fun switchTab(mode: String) {
+        currentMode = mode
         
-        // Общая статистика
-        binding.tvTotalGames.text = stats.totalGamesPlayed.toString()
-        binding.tvTotalWins.text = stats.totalGamesWon.toString()
-        binding.tvTotalStars.text = stats.totalStars.toString()
-        binding.tvTotalTime.text = formatTime(stats.totalTime)
+        // Обновляем стиль вкладок
+        val purpleActive = 0xFF9C27B0.toInt()
+        val purpleLight = 0xFFE1BEE7.toInt()
+        val white = 0xFFFFFFFF.toInt()
         
-        // Статистика по уровням
-        // Уровень 1
-        binding.layoutLevel1.tvLevelName.text = "Легкий (4 пары)"
-        loadLevelStats(stats.level1, 
-            binding.layoutLevel1.tvLevel1Games, 
-            binding.layoutLevel1.tvLevel1BestTime, 
-            binding.layoutLevel1.tvLevel1BestMoves, 
-            binding.layoutLevel1.tvLevel1Stars)
+        btnOfflineTab.apply {
+            if (mode == StatsManager.MODE_OFFLINE) {
+                setBackgroundResource(R.drawable.rounded_background)
+                backgroundTintList = android.content.res.ColorStateList.valueOf(purpleActive)
+                setTextColor(white)
+            } else {
+                setBackgroundResource(R.drawable.rounded_background)
+                backgroundTintList = android.content.res.ColorStateList.valueOf(purpleLight)
+                setTextColor(purpleActive)
+            }
+        }
         
-        // Уровень 2
-        binding.layoutLevel2.tvLevelName.text = "Средний (6 пар)"
-        loadLevelStats(stats.level2, 
-            binding.layoutLevel2.tvLevel1Games, 
-            binding.layoutLevel2.tvLevel1BestTime, 
-            binding.layoutLevel2.tvLevel1BestMoves, 
-            binding.layoutLevel2.tvLevel1Stars)
+        btnOnlineTab.apply {
+            if (mode == StatsManager.MODE_ONLINE) {
+                setBackgroundResource(R.drawable.rounded_background)
+                backgroundTintList = android.content.res.ColorStateList.valueOf(purpleActive)
+                setTextColor(white)
+            } else {
+                setBackgroundResource(R.drawable.rounded_background)
+                backgroundTintList = android.content.res.ColorStateList.valueOf(purpleLight)
+                setTextColor(purpleActive)
+            }
+        }
         
-        // Уровень 3
-        binding.layoutLevel3.tvLevelName.text = "Сложный (9 пар)"
-        loadLevelStats(stats.level3, 
-            binding.layoutLevel3.tvLevel1Games, 
-            binding.layoutLevel3.tvLevel1BestTime, 
-            binding.layoutLevel3.tvLevel1BestMoves, 
-            binding.layoutLevel3.tvLevel1Stars)
+        btnCoopTab.apply {
+            if (mode == StatsManager.MODE_COOP) {
+                setBackgroundResource(R.drawable.rounded_background)
+                backgroundTintList = android.content.res.ColorStateList.valueOf(purpleActive)
+                setTextColor(white)
+            } else {
+                setBackgroundResource(R.drawable.rounded_background)
+                backgroundTintList = android.content.res.ColorStateList.valueOf(purpleLight)
+                setTextColor(purpleActive)
+            }
+        }
+        
+        loadStats()
     }
 
-    private fun loadLevelStats(
-        levelStats: LevelStats,
-        tvGames: android.widget.TextView,
-        tvTime: android.widget.TextView,
-        tvMoves: android.widget.TextView,
-        tvStars: android.widget.TextView
-    ) {
+    private fun loadStats() {
+        val stats = statsManager.getModeStats(currentMode)
+        
+        // Общая статистика
+        tvTotalGames.text = stats.gamesPlayed.toString()
+        tvTotalWins.text = stats.gamesWon.toString()
+        
+        // Для онлайн режима не показываем звезды
+        if (currentMode == StatsManager.MODE_ONLINE) {
+            tvTotalStars.visibility = android.view.View.GONE
+            findViewById<TextView>(R.id.tvStarsLabel)?.visibility = android.view.View.GONE
+        } else {
+            tvTotalStars.visibility = android.view.View.VISIBLE
+            findViewById<TextView>(R.id.tvStarsLabel)?.visibility = android.view.View.VISIBLE
+            tvTotalStars.text = stats.totalStars.toString()
+        }
+        
+        tvTotalTime.text = formatTime(stats.totalTime)
+        
+        // Статистика по уровням
+        loadLevelStats(stats.level1, layoutLevel1, "Легкий (4 пары)")
+        loadLevelStats(stats.level2, layoutLevel2, "Средний (6 пар)")
+        loadLevelStats(stats.level3, layoutLevel3, "Сложный (9 пар)")
+    }
+
+    private fun loadLevelStats(levelStats: LevelStats, layout: LinearLayout, levelName: String) {
+        layout.findViewById<TextView>(R.id.tvLevelName).text = levelName
+        
+        val tvGames = layout.findViewById<TextView>(R.id.tvLevel1Games)
+        val tvTime = layout.findViewById<TextView>(R.id.tvLevel1BestTime)
+        val tvMoves = layout.findViewById<TextView>(R.id.tvLevel1BestMoves)
+        val tvStars = layout.findViewById<TextView>(R.id.tvLevel1Stars)
+        
         tvGames.text = "${levelStats.gamesWon} / ${levelStats.gamesPlayed}"
         
         if (levelStats.bestTime != Int.MAX_VALUE) {
@@ -94,7 +178,13 @@ class StatisticsActivity : AppCompatActivity() {
             tvMoves.text = "-"
         }
         
-        tvStars.text = "${levelStats.bestStars} ★"
+        // Для онлайн режима не показываем звезды
+        if (currentMode == StatsManager.MODE_ONLINE) {
+            tvStars.visibility = android.view.View.GONE
+        } else {
+            tvStars.visibility = android.view.View.VISIBLE
+            tvStars.text = "${levelStats.bestStars} ★"
+        }
     }
 
     private fun formatTime(seconds: Int): String {
@@ -104,13 +194,24 @@ class StatisticsActivity : AppCompatActivity() {
     }
 
     private fun resetStats() {
+        val modeName = when (currentMode) {
+            StatsManager.MODE_OFFLINE -> "офлайн режима"
+            StatsManager.MODE_ONLINE -> "онлайн режима"
+            StatsManager.MODE_COOP -> "кооперативного режима"
+            else -> "текущего режима"
+        }
+        
         androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle("Сброс статистики")
-            .setMessage("Вы уверены, что хотите сбросить всю статистику?")
+            .setMessage("Вы уверены, что хотите сбросить статистику $modeName?")
             .setPositiveButton("Да") { _, _ ->
-                statsManager.resetStats()
+                statsManager.resetModeStats(currentMode)
                 loadStats()
-                android.widget.Toast.makeText(this, "Статистика сброшена", android.widget.Toast.LENGTH_SHORT).show()
+                android.widget.Toast.makeText(
+                    this,
+                    "Статистика $modeName сброшена",
+                    android.widget.Toast.LENGTH_SHORT
+                ).show()
             }
             .setNegativeButton("Отмена", null)
             .show()
