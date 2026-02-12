@@ -2,23 +2,29 @@ package com.petrov.memory.domain.model
 
 /**
  * Модель игровой комнаты для онлайн-режима
+ * ВАЖНО: Все поля var для корректной десериализации Firebase!
  */
 data class OnlineGameRoom(
-    val roomId: String = "",
-    val hostPlayerId: String = "",
-    val guestPlayerId: String? = null,
-    val level: Int = 1,
-    val timerMode: String = TimerMode.WITHOUT_TIMER.name,
-    val timeLimit: Int? = null,
-    val gameStarted: Boolean = false,
-    val gameFinished: Boolean = false,
-    val currentPlayerId: String = "",
-    val cards: List<OnlineCard> = emptyList(),
-    val hostScore: Int = 0,
-    val guestScore: Int = 0,
-    val hostPairs: Int = 0,
-    val guestPairs: Int = 0,
-    val timestamp: Long = System.currentTimeMillis()
+    var roomId: String = "",
+    var hostPlayerId: String = "",
+    var guestPlayerId: String? = null,
+    var level: Int = 1,
+    var timerMode: String = TimerMode.WITHOUT_TIMER.name,
+    var timeLimit: Int? = null,
+    var gameStarted: Boolean = false,
+    var gameFinished: Boolean = false,
+    var currentPlayerId: String = "",
+    var cards: List<OnlineCard> = emptyList(),
+    var hostScore: Int = 0,
+    var guestScore: Int = 0,
+    var hostPairs: Int = 0,
+    var guestPairs: Int = 0,
+    var timestamp: Long = System.currentTimeMillis(),
+    // Поля для отслеживания открытых карточек
+    var firstFlippedCardId: Int? = null,
+    var secondFlippedCardId: Int? = null,
+    var checkingMatch: Boolean = false,
+    var lastMovePlayerId: String? = null  // ID игрока, который сделал последний ход
 ) {
     fun toMap(): Map<String, Any?> {
         return mapOf(
@@ -36,29 +42,34 @@ data class OnlineGameRoom(
             "guestScore" to guestScore,
             "hostPairs" to hostPairs,
             "guestPairs" to guestPairs,
-            "timestamp" to timestamp
+            "timestamp" to timestamp,
+            "firstFlippedCardId" to firstFlippedCardId,
+            "secondFlippedCardId" to secondFlippedCardId,
+            "checkingMatch" to checkingMatch,
+            "lastMovePlayerId" to lastMovePlayerId
         )
     }
 }
 
 /**
  * Карточка в онлайн-игре
+ * ВАЖНО: Все поля var для корректной десериализации Firebase!
  */
 data class OnlineCard(
-    val id: Int = 0,
-    val imageResId: Int = 0,
-    val pairId: Int = 0,
-    val isFlipped: Boolean = false,
-    val isMatched: Boolean = false,
-    val matchedBy: String? = null
+    var id: Int = 0,
+    var imageResId: Int = 0,
+    var pairId: Int = 0,
+    var flipped: Boolean = false,
+    var matched: Boolean = false,
+    var matchedBy: String? = null
 ) {
     fun toMap(): Map<String, Any?> {
         return mapOf(
             "id" to id,
             "imageResId" to imageResId,
             "pairId" to pairId,
-            "isFlipped" to isFlipped,
-            "isMatched" to isMatched,
+            "flipped" to flipped,
+            "matched" to matched,
             "matchedBy" to matchedBy
         )
     }

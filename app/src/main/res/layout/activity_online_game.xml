@@ -6,27 +6,86 @@
     android:layout_height="match_parent"
     android:background="@drawable/menuscreen">
 
-    <!-- Индикатор хода -->
-    <View
-        android:id="@+id/viewTurnIndicator"
+    <!-- Верхняя панель: кнопка + индикация хода + таймер матча -->
+    <LinearLayout
+        android:id="@+id/layoutTopPanel"
         android:layout_width="0dp"
-        android:layout_height="4dp"
-        android:background="@color/player_turn_active"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="8dp"
+        android:background="#80000000"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <!-- Панель счета -->
+        <!-- Кнопка выхода -->
+        <ImageButton
+            android:id="@+id/btnExit"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_revert"
+            android:contentDescription="Назад"
+            android:tint="#FFFFFF"
+            android:scaleType="fitCenter" />
+
+        <!-- "Ваш ход" -->
+        <TextView
+            android:id="@+id/tvYourTurn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Ваш ход"
+            android:textColor="#80FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:gravity="start"
+            android:paddingStart="8dp"
+            android:paddingEnd="4dp" />
+
+        <!-- Таймер матча по центру -->
+        <TextView
+            android:id="@+id/tvTimer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="⏱ 01:30"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:background="@drawable/bg_timer"
+            android:padding="6dp"
+            android:visibility="gone"
+            android:gravity="center" />
+
+        <!-- "Ход противника" справа -->
+        <TextView
+            android:id="@+id/tvOpponentTurn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Ход противника"
+            android:textColor="#80FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:gravity="end"
+            android:paddingStart="4dp"
+            android:paddingEnd="8dp" />
+
+    </LinearLayout>
+
+    <!-- Панель счета + таймер хода (на одном уровне) -->
     <LinearLayout
         android:id="@+id/layoutScore"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="16dp"
-        android:background="#80000000"
+        android:padding="8dp"
+        android:gravity="center_vertical"
+        android:background="#60000000"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/viewTurnIndicator">
+        app:layout_constraintTop_toBottomOf="@id/layoutTopPanel">
 
         <!-- Счет игрока 1 -->
         <TextView
@@ -40,16 +99,19 @@
             android:textStyle="bold"
             android:gravity="start" />
 
-        <!-- Индикатор хода -->
+        <!-- Таймер хода по центру -->
         <TextView
-            android:id="@+id/tvTurnIndicator"
+            android:id="@+id/tvTurnTimer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ваш ход"
+            android:text="⏰ 10"
             android:textColor="#FFFFFF"
             android:textSize="14sp"
             android:textStyle="bold"
-            android:layout_marginHorizontal="8dp" />
+            android:background="@drawable/bg_timer"
+            android:padding="4dp"
+            android:layout_marginHorizontal="8dp"
+            android:gravity="center" />
 
         <!-- Счет игрока 2 -->
         <TextView
