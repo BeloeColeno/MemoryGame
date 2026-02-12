@@ -7,6 +7,9 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 /**
  * Менеджер Firebase для онлайн-игры
@@ -114,63 +117,109 @@ class FirebaseGameManager {
     }
     
     /**
-     * Сделать ход
+     * Сделать ход (открыть карточку)
+     * КРИТИЧНО: Использует Firebase Transaction для атомарного обновления
      */
-    suspend fun makeMove(roomId: String, cardId: Int): Boolean {
+    suspend fun makeMove(roomId: String, cardId: Int): Boolean = suspendCoroutine { continuation ->
         android.util.Log.d("FirebaseManager", "makeMove: roomId=$roomId, cardId=$cardId")
         
-        val playerId = getCurrentPlayerId()
-        val snapshot = roomsRef.child(roomId).get().await()
-        
-        if (!snapshot.exists()) {
-            android.util.Log.e("FirebaseManager", "makeMove: Room not found")
-            return false
+        val playerId = try {
+            auth.currentUser?.uid ?: throw IllegalStateException("Not authenticated")
+        } catch (e: Exception) {
+            continuation.resumeWithException(e)
+            return@suspendCoroutine
         }
         
-        val room = snapshot.getValue(OnlineGameRoom::class.java)
-        if (room == null) {
-            android.util.Log.e("FirebaseManager", "makeMove: Failed to parse room")
-            return false
-        }
+        // КРИТИЧНО: Используем runTransaction для атомарного обновления
+        var success = false
         
-        // Проверка, что сейчас ход этого игрока
-        if (room.currentPlayerId != playerId) {
-            android.util.Log.w("FirebaseManager", "makeMove: Not your turn. Current: ${room.currentPlayerId}, You: $playerId")
-            return false
-        }
-        
-        // Проверка, что игра начата и не завершена
-        if (!room.gameStarted || room.gameFinished) {
-            android.util.Log.w("FirebaseManager", "makeMove: Game not started or finished")
-            return false
-        }
-        
-        // Найти индекс карточки по ID
-        val cardIndex = room.cards.indexOfFirst { it.id == cardId }
-        if (cardIndex == -1) {
-            android.util.Log.e("FirebaseManager", "makeMove: Card not found with id=$cardId")
-            return false
-        }
-        
-        val card = room.cards[cardIndex]
-        
-        if (card.isMatched || card.isFlipped) {
-            android.util.Log.w("FirebaseManager", "makeMove: Card already flipped or matched")
-            return false
-        }
-        
-        android.util.Log.d("FirebaseManager", "makeMove: Flipping card at index $cardIndex")
-        
-        // Сохраняем ход
-        val move = OnlineMove(playerId, cardId)
-        movesRef.child(roomId).push().setValue(move.toMap()).await()
-        
-        // Обновляем состояние карточки
-        roomsRef.child(roomId).child("cards").child(cardIndex.toString())
-            .child("isFlipped").setValue(true).await()
-        
-        android.util.Log.d("FirebaseManager", "makeMove: Card flipped successfully")
-        return true
+        roomsRef.child(roomId).runTransaction(object : Transaction.Handler {
+            override fun doTransaction(currentData: MutableData): Transaction.Result {
+                val room = currentData.getValue(OnlineGameRoom::class.java)
+                    ?: return Transaction.abort()
+                
+                // Проверка, что сейчас ход этого игрока
+                if (room.currentPlayerId != playerId) {
+                    android.util.Log.w("FirebaseManager", "makeMove(txn): Not your turn")
+                    return Transaction.abort()
+                }
+                
+                // Проверка, что игра начата и не завершена
+                if (!room.gameStarted || room.gameFinished) {
+                    android.util.Log.w("FirebaseManager", "makeMove(txn): Game not active")
+                    return Transaction.abort()
+                }
+                
+                // Проверка, что не идет проверка совпадения
+                if (room.checkingMatch) {
+                    android.util.Log.w("FirebaseManager", "makeMove(txn): Match check in progress")
+                    return Transaction.abort()
+                }
+                
+                // КРИТИЧНО: Атомарная проверка что не открыто уже 2 карточки
+                if (room.firstFlippedCardId != null && room.secondFlippedCardId != null) {
+                    android.util.Log.w("FirebaseManager", "makeMove(txn): Already 2 cards flipped")
+                    return Transaction.abort()
+                }
+                
+                // Найти индекс карточки по ID
+                val cardIndex = room.cards.indexOfFirst { it.id == cardId }
+                if (cardIndex == -1) {
+                    android.util.Log.e("FirebaseManager", "makeMove(txn): Card not found")
+                    return Transaction.abort()
+                }
+                
+                val card = room.cards[cardIndex]
+                
+                if (card.matched || card.flipped) {
+                    android.util.Log.w("FirebaseManager", "makeMove(txn): Card already flipped")
+                    return Transaction.abort()
+                }
+                
+                // АТОМАРНОЕ ОБНОВЛЕНИЕ: переворачиваем карточку
+                val updatedCards = room.cards.toMutableList()
+                updatedCards[cardIndex] = card.copy(flipped = true)
+                currentData.child("cards").value = updatedCards.map { it.toMap() }
+                
+                // АТОМАРНОЕ ОБНОВЛЕНИЕ: устанавливаем firstFlippedCardId или secondFlippedCardId
+                if (room.firstFlippedCardId == null) {
+                    android.util.Log.d("FirebaseManager", "makeMove(txn): Setting firstFlippedCardId = $cardId")
+                    currentData.child("firstFlippedCardId").value = cardId
+                } else if (room.secondFlippedCardId == null) {
+                    android.util.Log.d("FirebaseManager", "makeMove(txn): Setting secondFlippedCardId = $cardId")
+                    currentData.child("secondFlippedCardId").value = cardId
+                    currentData.child("checkingMatch").value = true
+                    currentData.child("lastMovePlayerId").value = playerId
+                }
+                
+                success = true
+                return Transaction.success(currentData)
+            }
+            
+            override fun onComplete(
+                error: DatabaseError?,
+                committed: Boolean,
+                currentData: DataSnapshot?
+            ) {
+                if (error != null) {
+                    android.util.Log.e("FirebaseManager", "makeMove(txn): Error - ${error.message}")
+                    continuation.resume(false)
+                } else if (!committed) {
+                    android.util.Log.w("FirebaseManager", "makeMove(txn): Transaction aborted")
+                    continuation.resume(false)
+                } else {
+                    android.util.Log.d("FirebaseManager", "makeMove(txn): Transaction committed successfully")
+                    
+                    // Сохраняем ход в историю (не критично, делаем асинхронно)
+                    if (success) {
+                        val move = OnlineMove(playerId, cardId)
+                        movesRef.child(roomId).push().setValue(move.toMap())
+                    }
+                    
+                    continuation.resume(success)
+                }
+            }
+        })
     }
     
     /**
@@ -179,12 +228,14 @@ class FirebaseGameManager {
     suspend fun checkMatch(roomId: String, card1Id: Int, card2Id: Int) {
         android.util.Log.d("FirebaseManager", "checkMatch: card1=$card1Id, card2=$card2Id")
         
-        val playerId = getCurrentPlayerId()
         val snapshot = roomsRef.child(roomId).get().await()
         
         if (!snapshot.exists()) return
         
         val room = snapshot.getValue(OnlineGameRoom::class.java) ?: return
+        
+        // Используем currentPlayerId из комнаты (игрок который ДЕЛАЕТ ход)
+        val playerId = room.currentPlayerId
         
         val card1Index = room.cards.indexOfFirst { it.id == card1Id }
         val card2Index = room.cards.indexOfFirst { it.id == card2Id }
@@ -199,20 +250,20 @@ class FirebaseGameManager {
         
         val isMatch = card1.pairId == card2.pairId
         
-        android.util.Log.d("FirebaseManager", "checkMatch: isMatch=$isMatch, pairId1=${card1.pairId}, pairId2=${card2.pairId}")
+        android.util.Log.d("FirebaseManager", "checkMatch: isMatch=$isMatch, pairId1=${card1.pairId}, pairId2=${card2.pairId}, currentPlayer=$playerId")
         
         if (isMatch) {
             // Найдена пара - обновляем карточки и счет
             roomsRef.child(roomId).child("cards").child(card1Index.toString()).updateChildren(
                 mapOf(
-                    "isMatched" to true,
+                    "matched" to true,
                     "matchedBy" to playerId
                 )
             ).await()
             
             roomsRef.child(roomId).child("cards").child(card2Index.toString()).updateChildren(
                 mapOf(
-                    "isMatched" to true,
+                    "matched" to true,
                     "matchedBy" to playerId
                 )
             ).await()
@@ -224,10 +275,10 @@ class FirebaseGameManager {
             
             roomsRef.child(roomId).child(scoreField).setValue(currentPairs + 1).await()
             
-            android.util.Log.d("FirebaseManager", "checkMatch: Match found! Updated score")
+            android.util.Log.d("FirebaseManager", "checkMatch: Match found! Updated score for $playerId")
             
             // Проверяем, не закончилась ли игра
-            val totalMatched = room.cards.count { it.isMatched } + 2
+            val totalMatched = room.cards.count { it.matched } + 2
             if (totalMatched == room.cards.size) {
                 roomsRef.child(roomId).child("gameFinished").setValue(true).await()
             }
@@ -237,19 +288,33 @@ class FirebaseGameManager {
             android.util.Log.d("FirebaseManager", "checkMatch: No match, flipping cards back")
             
             roomsRef.child(roomId).child("cards").child(card1Index.toString())
-                .child("isFlipped").setValue(false).await()
+                .child("flipped").setValue(false).await()
             
             roomsRef.child(roomId).child("cards").child(card2Index.toString())
-                .child("isFlipped").setValue(false).await()
-            
-            // Передаем ход другому игроку
-            val nextPlayer = if (playerId == room.hostPlayerId) 
-                room.guestPlayerId else room.hostPlayerId
-            
-            roomsRef.child(roomId).child("currentPlayerId").setValue(nextPlayer).await()
-            
-            android.util.Log.d("FirebaseManager", "checkMatch: Turn passed to $nextPlayer")
+                .child("flipped").setValue(false).await()
         }
+        
+        // ВСЕГДА передаем ход другому игроку после проверки пары (правило игры)
+        val nextPlayer = if (playerId == room.hostPlayerId) 
+            room.guestPlayerId else room.hostPlayerId
+        
+        // Проверяем что nextPlayer не null перед передачей хода
+        if (nextPlayer != null) {
+            roomsRef.child(roomId).child("currentPlayerId").setValue(nextPlayer).await()
+            android.util.Log.d("FirebaseManager", "checkMatch: Turn passed from $playerId to $nextPlayer (strict turn order)")
+        } else {
+            android.util.Log.e("FirebaseManager", "checkMatch: Cannot pass turn - nextPlayer is null!")
+        }
+        
+        // Сбрасываем поля отслеживания открытых карт
+        roomsRef.child(roomId).updateChildren(mapOf(
+            "firstFlippedCardId" to null,
+            "secondFlippedCardId" to null,
+            "checkingMatch" to false,
+            "lastMovePlayerId" to null
+        )).await()
+        
+        android.util.Log.d("FirebaseManager", "checkMatch: Reset flipped card tracking")
     }
     
     /**
@@ -347,12 +412,13 @@ class FirebaseGameManager {
         var cardId = 0
         
         for (pairId in 0 until pairsCount) {
-            // Создаём две карточки с одинаковым imageResId
-            val imageResId = pairId // Здесь будет реальный ресурс
-            cards.add(OnlineCard(cardId++, imageResId, pairId))
-            cards.add(OnlineCard(cardId++, imageResId, pairId))
+            // Создаём две карточки с одинаковым pairId
+            cards.add(OnlineCard(cardId++, pairId, pairId))
+            cards.add(OnlineCard(cardId++, pairId, pairId))
         }
         
+        // Перемешиваем ОДИН РАЗ при создании комнаты
+        // Порядок сохраняется в Firebase и будет одинаковым на обоих устройствах
         return cards.shuffled()
     }
     
