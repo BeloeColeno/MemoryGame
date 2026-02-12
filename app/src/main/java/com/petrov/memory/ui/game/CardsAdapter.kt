@@ -91,9 +91,46 @@ class CardsAdapter(
     override fun getItemCount(): Int = cards.size
 
     fun updateCards(newCards: List<Card>) {
+        android.util.Log.d("CardsAdapter", "updateCards: Received ${newCards.size} cards")
+        newCards.take(3).forEachIndexed { index, card ->
+            android.util.Log.d("CardsAdapter", "AdapterCard[$index]: id=${card.id}, isRevealed=${card.isRevealed}, isMatched=${card.isMatched}")
+        }
+        
         cards = newCards
         cachedCardSize = 0 // Сбрасываем кеш для пересчета
         notifyDataSetChanged()
+        
+        android.util.Log.d("CardsAdapter", "updateCards: notifyDataSetChanged() called")
+    }
+    
+    /**
+     * Обновить карточки с анимацией переворота для изменившихся
+     * Используется в онлайн-режиме
+     */
+    fun updateCardsWithAnimation(newCards: List<Card>) {
+        android.util.Log.d("CardsAdapter", "updateCardsWithAnimation: Received ${newCards.size} cards")
+        
+        // Если размер изменился, обновляем полностью
+        if (cards.size != newCards.size) {
+            cards = newCards
+            cachedCardSize = 0
+            notifyDataSetChanged()
+            return
+        }
+        
+        // Сравниваем старые и новые карточки
+        newCards.forEachIndexed { index, newCard ->
+            val oldCard = cards[index]
+            // Если состояние карточки изменилось (переворот)
+            if (oldCard.isRevealed != newCard.isRevealed || oldCard.isMatched != newCard.isMatched) {
+                android.util.Log.d("CardsAdapter", "Card[$index] changed: old(revealed=${oldCard.isRevealed}, matched=${oldCard.isMatched}) -> new(revealed=${newCard.isRevealed}, matched=${newCard.isMatched})")
+                // Обновляем с анимацией
+                updateCardWithFlip(index)
+            }
+        }
+        
+        // Обновляем список после анимаций
+        cards = newCards
     }
 
     /**
@@ -112,6 +149,8 @@ class CardsAdapter(
         }
 
         fun bind(card: Card, position: Int, payload: Any?) {
+            android.util.Log.d("CardsAdapter", "bind: pos=$position, isRevealed=${card.isRevealed}, isMatched=${card.isMatched}, imageRes=${card.imageResId}, payload=$payload")
+            
             // Скрываем карточки-заглушки
             if (card.isPlaceholder) {
                 binding.root.visibility = android.view.View.INVISIBLE
@@ -131,6 +170,8 @@ class CardsAdapter(
             } else {
                 R.drawable.cover
             }
+            
+            android.util.Log.d("CardsAdapter", "bind: pos=$position, showing imageRes=$imageRes (${if (imageRes == R.drawable.cover) "COVER" else "CARD"})")
 
             // Если есть payload "flip" - делаем анимацию
             if (payload == "flip") {
