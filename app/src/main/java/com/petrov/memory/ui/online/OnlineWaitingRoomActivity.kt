@@ -64,24 +64,30 @@ class OnlineWaitingRoomActivity : AppCompatActivity() {
             firebaseManager.observeRoom(roomId).collect { room ->
                 if (room == null) {
                     // Комната удалена
-                    Toast.makeText(
-                        this@OnlineWaitingRoomActivity,
-                        "Комната закрыта",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    finish()
+                    runOnUiThread {
+                        Toast.makeText(
+                            this@OnlineWaitingRoomActivity,
+                            "Комната закрыта",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        finish()
+                    }
                     return@collect
                 }
                 
                 // Проверяем, присоединился ли второй игрок
                 if (isHost && room.guestPlayerId != null) {
-                    binding.tvStatus.text = "Второй игрок присоединился!"
-                    binding.btnStart.isEnabled = true
+                    runOnUiThread {
+                        binding.tvStatus.text = "Второй игрок присоединился!"
+                        binding.btnStart.isEnabled = true
+                    }
                 }
                 
                 // Проверяем, началась ли игра
                 if (room.gameStarted) {
-                    startOnlineGame()
+                    runOnUiThread {
+                        startOnlineGame()
+                    }
                 }
             }
         }
@@ -132,6 +138,8 @@ class OnlineWaitingRoomActivity : AppCompatActivity() {
         }
     }
 
+    @Suppress("DEPRECATION")
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         leaveRoom()
     }
