@@ -141,10 +141,8 @@ class StatisticsActivity : AppCompatActivity() {
         // Для онлайн режима не показываем звезды
         if (currentMode == StatsManager.MODE_ONLINE) {
             tvTotalStars.visibility = android.view.View.GONE
-            findViewById<TextView>(R.id.tvStarsLabel)?.visibility = android.view.View.GONE
         } else {
             tvTotalStars.visibility = android.view.View.VISIBLE
-            findViewById<TextView>(R.id.tvStarsLabel)?.visibility = android.view.View.VISIBLE
             tvTotalStars.text = stats.totalStars.toString()
         }
         
