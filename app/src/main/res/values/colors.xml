@@ -4,6 +4,7 @@
     <color name="white">#FFFFFFFF</color>
     
     <!-- Онлайн игра - индикаторы хода -->
-    <color name="player_turn_active">#4CAF50</color>
+    <color name="player_turn_active">#2196F3</color>
     <color name="player_turn_inactive">#9E9E9E</color>
+    <color name="player_opponent_turn">#F44336</color>
 </resources>

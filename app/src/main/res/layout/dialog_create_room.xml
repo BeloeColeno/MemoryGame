@@ -1,108 +1,202 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout 
+<androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="500dp"
+    android:layout_width="600dp"
     android:layout_height="wrap_content"
-    android:background="@drawable/rounded_background"
-    android:padding="24dp">
+    app:cardBackgroundColor="#DD9C27B0"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="12dp">
 
-    <!-- Заголовок -->
-    <TextView
-        android:id="@+id/tvTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="СОЗДАТЬ КОМНАТУ"
-        android:textColor="#9C27B0"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <!-- Уровень -->
-    <TextView
-        android:id="@+id/tvLevelLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Выберите уровень:"
-        android:textColor="#424242"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvTitle" />
-
-    <Spinner
-        android:id="@+id/spinnerLevel"
-        android:layout_width="0dp"
-        android:layout_height="48dp"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/rounded_background"
-        android:padding="12dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvLevelLabel" />
-
-    <!-- Таймер -->
-    <TextView
-        android:id="@+id/tvTimerLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Режим таймера:"
-        android:textColor="#424242"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/spinnerLevel" />
-
-    <Spinner
-        android:id="@+id/spinnerTimer"
-        android:layout_width="0dp"
-        android:layout_height="48dp"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/rounded_background"
-        android:padding="12dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvTimerLabel" />
-
-    <!-- Кнопки -->
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:orientation="horizontal"
-        android:gravity="center"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/spinnerTimer">
+        android:orientation="vertical"
+        android:padding="32dp">
 
-        <Button
-            android:id="@+id/btnCancel"
-            android:layout_width="120dp"
-            android:layout_height="50dp"
-            android:layout_margin="8dp"
-            android:backgroundTint="#7B1FA2"
-            android:text="ОТМЕНА"
+        <!-- Заголовок -->
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="СОЗДАТЬ КОМНАТУ"
             android:textColor="#FFFFFF"
-            android:textSize="14sp"
+            android:textSize="28sp"
             android:textStyle="bold"
-            app:cornerRadius="10dp" />
+            android:shadowColor="#000000"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="4" />
 
-        <Button
-            android:id="@+id/btnCreate"
-            android:layout_width="120dp"
-            android:layout_height="50dp"
-            android:layout_margin="8dp"
-            android:backgroundTint="#4CAF50"
-            android:text="СОЗДАТЬ"
+        <!-- Выбор уровня -->
+        <TextView
+            android:id="@+id/tvLevelLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:layout_gravity="center_horizontal"
+            android:text="Выберите уровень:"
             android:textColor="#FFFFFF"
-            android:textSize="14sp"
+            android:textSize="22sp"
             android:textStyle="bold"
-            app:cornerRadius="10dp" />
+            android:shadowColor="#000000"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="2" />
+
+        <RadioGroup
+            android:id="@+id/rgLevel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal"
+            android:layout_gravity="center_horizontal">
+
+            <RadioButton
+                android:id="@+id/rbLevel1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:text="4 пары"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:checked="true"
+                android:buttonTint="#FFFFFF" />
+
+            <RadioButton
+                android:id="@+id/rbLevel2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:text="6 пар"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:buttonTint="#FFFFFF" />
+
+            <RadioButton
+                android:id="@+id/rbLevel3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="9 пар"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:buttonTint="#FFFFFF" />
+
+        </RadioGroup>
+
+        <!-- Выбор таймера -->
+        <TextView
+            android:id="@+id/tvTimerLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:layout_gravity="center_horizontal"
+            android:text="Режим таймера:"
+            android:textColor="#FFFFFF"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:shadowColor="#000000"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="2" />
+
+        <RadioGroup
+            android:id="@+id/rgTimer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="vertical"
+            android:layout_gravity="center_horizontal">
+
+            <RadioButton
+                android:id="@+id/rbNoTimer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="Без таймера"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:checked="true"
+                android:buttonTint="#FFFFFF" />
+
+            <RadioButton
+                android:id="@+id/rbTimer60"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="С таймером (60 сек)"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:buttonTint="#FFFFFF" />
+
+            <RadioButton
+                android:id="@+id/rbTimer90"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="С таймером (90 сек)"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:buttonTint="#FFFFFF" />
+
+            <RadioButton
+                android:id="@+id/rbTimer120"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="С таймером (120 сек)"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:buttonTint="#FFFFFF" />
+
+        </RadioGroup>
+
+        <!-- Кнопки -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/btnCancel"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:backgroundTint="#E53935"
+                android:text="ОТМЕНА"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:shadowColor="#000000"
+                android:shadowDx="1"
+                android:shadowDy="1"
+                android:shadowRadius="2"
+                app:cornerRadius="12dp"
+                app:elevation="6dp" />
+
+            <Button
+                android:id="@+id/btnCreate"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:backgroundTint="#4CAF50"
+                android:text="СОЗДАТЬ"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:shadowColor="#000000"
+                android:shadowDx="1"
+                android:shadowDy="1"
+                android:shadowRadius="2"
+                app:cornerRadius="12dp"
+                app:elevation="6dp" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

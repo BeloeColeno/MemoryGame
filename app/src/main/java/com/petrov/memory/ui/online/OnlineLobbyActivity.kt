@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.petrov.memory.R
 import com.petrov.memory.data.firebase.FirebaseGameManager
 import com.petrov.memory.databinding.ActivityOnlineLobbyBinding
+import com.petrov.memory.domain.model.OnlineGameRoom
 import com.petrov.memory.domain.model.TimerMode
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
@@ -41,7 +42,7 @@ class OnlineLobbyActivity : AppCompatActivity() {
 
     private fun setupRecyclerView() {
         roomsAdapter = RoomsAdapter { room ->
-            joinRoom(room.roomId)
+            joinRoom(room)  // Передаем весь объект комнаты
         }
         
         binding.recyclerRooms.apply {
@@ -65,50 +66,49 @@ class OnlineLobbyActivity : AppCompatActivity() {
     }
 
     private fun showCreateRoomDialog() {
-        val levels = arrayOf("Уровень 1 (4 пары)", "Уровень 2 (6 пар)", "Уровень 3 (9 пар)")
-        val timerModes = arrayOf("Без таймера", "С таймером (60 сек)", "С таймером (90 сек)", "С таймером (120 сек)")
-        
         val dialogView = layoutInflater.inflate(R.layout.dialog_create_room, null)
         
-        // Настраиваем Spinners
-        val spinnerLevel = dialogView.findViewById<android.widget.Spinner>(R.id.spinnerLevel)
-        val spinnerTimer = dialogView.findViewById<android.widget.Spinner>(R.id.spinnerTimer)
-        
-        val levelAdapter = android.widget.ArrayAdapter(this, android.R.layout.simple_spinner_item, levels)
-        levelAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerLevel.adapter = levelAdapter
-        
-        val timerAdapter = android.widget.ArrayAdapter(this, android.R.layout.simple_spinner_item, timerModes)
-        timerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerTimer.adapter = timerAdapter
+        // Получаем RadioGroups
+        val rgLevel = dialogView.findViewById<android.widget.RadioGroup>(R.id.rgLevel)
+        val rgTimer = dialogView.findViewById<android.widget.RadioGroup>(R.id.rgTimer)
         
         val dialog = AlertDialog.Builder(this)
             .setView(dialogView)
             .create()
         
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        
         // Обработчик кнопки "Создать"
         dialogView.findViewById<android.widget.Button>(R.id.btnCreate).setOnClickListener {
-            val selectedLevelIndex = spinnerLevel.selectedItemPosition
-            val selectedTimerIndex = spinnerTimer.selectedItemPosition
+            // Определяем уровень по выбранной радио-кнопке
+            selectedLevel = when (rgLevel.checkedRadioButtonId) {
+                R.id.rbLevel1 -> 1
+                R.id.rbLevel2 -> 2
+                R.id.rbLevel3 -> 3
+                else -> 1
+            }
             
-            selectedLevel = selectedLevelIndex + 1
-            
-            when (selectedTimerIndex) {
-                0 -> {
+            // Определяем таймер по выбранной радио-кнопке
+            when (rgTimer.checkedRadioButtonId) {
+                R.id.rbNoTimer -> {
                     selectedTimerMode = TimerMode.WITHOUT_TIMER
                     selectedTimeLimit = null
                 }
-                1 -> {
+                R.id.rbTimer60 -> {
                     selectedTimerMode = TimerMode.WITH_TIMER
                     selectedTimeLimit = 60
                 }
-                2 -> {
+                R.id.rbTimer90 -> {
                     selectedTimerMode = TimerMode.WITH_TIMER
                     selectedTimeLimit = 90
                 }
-                3 -> {
+                R.id.rbTimer120 -> {
                     selectedTimerMode = TimerMode.WITH_TIMER
                     selectedTimeLimit = 120
+                }
+                else -> {
+                    selectedTimerMode = TimerMode.WITHOUT_TIMER
+                    selectedTimeLimit = null
                 }
             }
             
@@ -169,18 +169,21 @@ class OnlineLobbyActivity : AppCompatActivity() {
         }
     }
 
-    private fun joinRoom(roomId: String) {
+    private fun joinRoom(room: OnlineGameRoom) {
         binding.progressBar.visibility = View.VISIBLE
         
         lifecycleScope.launch {
             try {
-                val success = firebaseManager.joinRoom(roomId)
+                val success = firebaseManager.joinRoom(room.roomId)
                 
                 if (success) {
+                    android.util.Log.d("OnlineLobbyActivity", "Joining room: id=${room.roomId}, level=${room.level}")
+                    
                     // Переходим в комнату ожидания
                     val intent = Intent(this@OnlineLobbyActivity, OnlineWaitingRoomActivity::class.java)
-                    intent.putExtra(EXTRA_ROOM_ID, roomId)
+                    intent.putExtra(EXTRA_ROOM_ID, room.roomId)
                     intent.putExtra(EXTRA_IS_HOST, false)
+                    intent.putExtra(EXTRA_LEVEL, room.level)  // КРИТИЧНО: Передаем уровень из комнаты!
                     startActivity(intent)
                     finish()
                 } else {

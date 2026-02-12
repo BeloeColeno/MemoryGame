@@ -36,7 +36,12 @@
         android:textColor="#FFFFFF"
         android:textSize="18sp"
         android:textStyle="bold"
+        android:shadowColor="#000000"
+        android:shadowDx="2"
+        android:shadowDy="2"
+        android:shadowRadius="4"
         app:cornerRadius="12dp"
+        app:elevation="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvTitle" />
@@ -71,15 +76,15 @@
         app:layout_constraintTop_toBottomOf="@id/divider" />
 
     <!-- Кнопка обновления -->
-    <Button
+    <ImageButton
         android:id="@+id/btnRefresh"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:backgroundTint="#9C27B0"
-        android:text="↻"
-        android:textSize="22sp"
-        android:textColor="#FFFFFF"
-        app:cornerRadius="10dp"
+        android:src="@android:drawable/ic_menu_rotate"
+        android:tint="#FFFFFF"
+        android:scaleType="center"
+        android:contentDescription="Обновить список"
         app:layout_constraintEnd_toEndOf="@id/divider"
         app:layout_constraintTop_toTopOf="@id/tvRoomsTitle"
         app:layout_constraintBottom_toBottomOf="@id/tvRoomsTitle" />
