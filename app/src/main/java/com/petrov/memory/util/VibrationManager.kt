@@ -45,7 +45,6 @@ class VibrationManager(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val effect = when (type) {
                 VibrationType.SUCCESS -> {
-                    // Двойная вибрация для успеха
                     VibrationEffect.createWaveform(
                         longArrayOf(0, 50, 50, 50),
                         intArrayOf(0, 255, 0, 255),
@@ -53,7 +52,6 @@ class VibrationManager(context: Context) {
                     )
                 }
                 VibrationType.ERROR -> {
-                    // Одна короткая для ошибки
                     VibrationEffect.createOneShot(duration, VibrationEffect.DEFAULT_AMPLITUDE)
                 }
                 else -> {

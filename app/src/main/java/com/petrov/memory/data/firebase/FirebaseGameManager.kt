@@ -86,11 +86,9 @@ class FirebaseGameManager {
         if (!snapshot.exists()) return false
         
         val room = snapshot.getValue(OnlineGameRoom::class.java) ?: return false
-        
-        // Проверка, что комната не заполнена
+
         if (room.guestPlayerId != null) return false
-        
-        // Присоединяемся к комнате
+
         roomsRef.child(roomId).child("guestPlayerId").setValue(playerId).await()
         return true
     }
@@ -105,11 +103,9 @@ class FirebaseGameManager {
         if (!snapshot.exists()) return false
         
         val room = snapshot.getValue(OnlineGameRoom::class.java) ?: return false
-        
-        // Проверка, что вызывающий - хост
+
         if (room.hostPlayerId != playerId) return false
-        
-        // Проверка, что оба игрока присоединились
+
         if (room.guestPlayerId == null) return false
         
         roomsRef.child(roomId).child("gameStarted").setValue(true).await()
@@ -118,7 +114,6 @@ class FirebaseGameManager {
     
     /**
      * Сделать ход (открыть карточку)
-     * КРИТИЧНО: Использует Firebase Transaction для атомарного обновления
      */
     suspend fun makeMove(roomId: String, cardId: Int): Boolean = suspendCoroutine { continuation ->
         android.util.Log.d("FirebaseManager", "makeMove: roomId=$roomId, cardId=$cardId")
@@ -129,40 +124,34 @@ class FirebaseGameManager {
             continuation.resumeWithException(e)
             return@suspendCoroutine
         }
-        
-        // КРИТИЧНО: Используем runTransaction для атомарного обновления
+
         var success = false
         
         roomsRef.child(roomId).runTransaction(object : Transaction.Handler {
             override fun doTransaction(currentData: MutableData): Transaction.Result {
                 val room = currentData.getValue(OnlineGameRoom::class.java)
                     ?: return Transaction.abort()
-                
-                // Проверка, что сейчас ход этого игрока
+
                 if (room.currentPlayerId != playerId) {
                     android.util.Log.w("FirebaseManager", "makeMove(txn): Not your turn")
                     return Transaction.abort()
                 }
-                
-                // Проверка, что игра начата и не завершена
+
                 if (!room.gameStarted || room.gameFinished) {
                     android.util.Log.w("FirebaseManager", "makeMove(txn): Game not active")
                     return Transaction.abort()
                 }
-                
-                // Проверка, что не идет проверка совпадения
+
                 if (room.checkingMatch) {
                     android.util.Log.w("FirebaseManager", "makeMove(txn): Match check in progress")
                     return Transaction.abort()
                 }
-                
-                // КРИТИЧНО: Атомарная проверка что не открыто уже 2 карточки
+
                 if (room.firstFlippedCardId != null && room.secondFlippedCardId != null) {
                     android.util.Log.w("FirebaseManager", "makeMove(txn): Already 2 cards flipped")
                     return Transaction.abort()
                 }
-                
-                // Найти индекс карточки по ID
+
                 val cardIndex = room.cards.indexOfFirst { it.id == cardId }
                 if (cardIndex == -1) {
                     android.util.Log.e("FirebaseManager", "makeMove(txn): Card not found")
@@ -175,13 +164,11 @@ class FirebaseGameManager {
                     android.util.Log.w("FirebaseManager", "makeMove(txn): Card already flipped")
                     return Transaction.abort()
                 }
-                
-                // АТОМАРНОЕ ОБНОВЛЕНИЕ: переворачиваем карточку
+
                 val updatedCards = room.cards.toMutableList()
                 updatedCards[cardIndex] = card.copy(flipped = true)
                 currentData.child("cards").value = updatedCards.map { it.toMap() }
-                
-                // АТОМАРНОЕ ОБНОВЛЕНИЕ: устанавливаем firstFlippedCardId или secondFlippedCardId
+
                 if (room.firstFlippedCardId == null) {
                     android.util.Log.d("FirebaseManager", "makeMove(txn): Setting firstFlippedCardId = $cardId")
                     currentData.child("firstFlippedCardId").value = cardId
@@ -209,8 +196,7 @@ class FirebaseGameManager {
                     continuation.resume(false)
                 } else {
                     android.util.Log.d("FirebaseManager", "makeMove(txn): Transaction committed successfully")
-                    
-                    // Сохраняем ход в историю (не критично, делаем асинхронно)
+
                     if (success) {
                         val move = OnlineMove(playerId, cardId)
                         movesRef.child(roomId).push().setValue(move.toMap())
@@ -233,7 +219,7 @@ class FirebaseGameManager {
         if (!snapshot.exists()) return
         
         val room = snapshot.getValue(OnlineGameRoom::class.java) ?: return
-        
+
         // Используем currentPlayerId из комнаты (игрок который ДЕЛАЕТ ход)
         val playerId = room.currentPlayerId
         
@@ -267,7 +253,7 @@ class FirebaseGameManager {
                     "matchedBy" to playerId
                 )
             ).await()
-            
+
             // Обновляем счет
             val isHost = room.hostPlayerId == playerId
             val scoreField = if (isHost) "hostPairs" else "guestPairs"
@@ -276,7 +262,7 @@ class FirebaseGameManager {
             roomsRef.child(roomId).child(scoreField).setValue(currentPairs + 1).await()
             
             android.util.Log.d("FirebaseManager", "checkMatch: Match found! Updated score for $playerId")
-            
+
             // Проверяем, не закончилась ли игра
             val totalMatched = room.cards.count { it.matched } + 2
             if (totalMatched == room.cards.size) {
@@ -356,7 +342,6 @@ class FirebaseGameManager {
         snapshot.children.forEach { child ->
             try {
                 val room = child.getValue(OnlineGameRoom::class.java)
-                // Показываем только незаполненные комнаты где игра не началась
                 if (room != null && room.guestPlayerId == null && !room.gameStarted) {
                     rooms.add(room)
                     android.util.Log.d("FirebaseManager", "findAvailableRooms: Found room ${room.roomId}")
@@ -383,14 +368,11 @@ class FirebaseGameManager {
         
         when (playerId) {
             room.hostPlayerId -> {
-                // Хост покидает - удаляем комнату
                 roomsRef.child(roomId).removeValue().await()
             }
             room.guestPlayerId -> {
-                // Гость покидает - освобождаем место
                 roomsRef.child(roomId).child("guestPlayerId").removeValue().await()
                 if (room.gameStarted) {
-                    // Если игра началась - завершаем её
                     roomsRef.child(roomId).child("gameFinished").setValue(true).await()
                 }
             }
@@ -416,9 +398,7 @@ class FirebaseGameManager {
             cards.add(OnlineCard(cardId++, pairId, pairId))
             cards.add(OnlineCard(cardId++, pairId, pairId))
         }
-        
-        // Перемешиваем ОДИН РАЗ при создании комнаты
-        // Порядок сохраняется в Firebase и будет одинаковым на обоих устройствах
+
         return cards.shuffled()
     }
     

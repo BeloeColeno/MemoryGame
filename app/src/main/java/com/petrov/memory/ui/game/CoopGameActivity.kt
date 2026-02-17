@@ -22,8 +22,6 @@ import java.util.*
 
 /**
  * Экран кооперативной игры
- * Из ЛР №3: Игровой процесс на двоих с чередованием ходов
- * Из ЛР №4: Подсчет очков, таймер, смена игроков
  */
 class CoopGameActivity : AppCompatActivity() {
 
@@ -59,14 +57,12 @@ class CoopGameActivity : AppCompatActivity() {
         soundManager.setEnabled(isSoundEnabled)
         vibrationManager.setEnabled(settingsManager.isVibrationEnabled)
 
-        // Получаем параметры игры
         val pairsCount = intent.getIntExtra("pairs_count", 4)
         val timerModeName = intent.getStringExtra("timer_mode") ?: TimerMode.WITHOUT_TIMER.name
         val timerLimit = intent.getIntExtra("timer_limit", 0)
         
         val timerMode = TimerMode.valueOf(timerModeName)
 
-        // Инициализируем состояние игры
         coopGameState = CoopGameState(
             player1 = Player.createPlayer1(),
             player2 = Player.createPlayer2(),
@@ -83,45 +79,36 @@ class CoopGameActivity : AppCompatActivity() {
 
     private fun setupGame() {
         cards = generateCards()
-        
-        // ВАЖНО: Вычисляем оптимальную сетку ДО создания адаптера (копия логики из GameActivity)
+
         val displayMetrics = resources.displayMetrics
         val screenWidth = displayMetrics.widthPixels
         val screenHeight = displayMetrics.heightPixels
         val density = displayMetrics.density
-        
-        // RecyclerView имеет margin="8dp" в layout XML
+
         val rvMargin = (density * 8).toInt()
-        
-        // Резервируем место для верхней компактной панели (вместо 140dp как в одиночной)
-        val topReserved = (density * 64).toInt()  // Компактная верхняя панель
-        val bottomReserved = (density * 8).toInt()  // Небольшой отступ снизу
-        val sideMargins = (density * 32).toInt()  // Как в одиночной игре
-        
-        // Padding в item_card.xml - 2dp с каждой стороны = 4dp между карточками
+
+        val topReserved = (density * 64).toInt()
+        val bottomReserved = (density * 8).toInt()
+        val sideMargins = (density * 32).toInt()
+
         val cardPadding = (density * 2).toInt()
-        val effectiveGap = cardPadding * 2  // 4dp эффективный зазор
-        
-        // Доступное пространство с учетом RecyclerView margin
-        val availableWidth = screenWidth - sideMargins - (rvMargin * 2)  // Учитываем margin слева и справа
-        val availableHeight = screenHeight - topReserved - bottomReserved - (rvMargin * 2)  // Учитываем margin сверху и снизу
+        val effectiveGap = cardPadding * 2
+
+        val availableWidth = screenWidth - sideMargins - (rvMargin * 2)
+        val availableHeight = screenHeight - topReserved - bottomReserved - (rvMargin * 2)
         
         android.util.Log.d("CoopGameActivity", "Screen: ${screenWidth}x${screenHeight}, Available: ${availableWidth}x${availableHeight}, topReserved=$topReserved")
         
         val optimalColumns = calculateOptimalColumns(cards.size, availableWidth, availableHeight, effectiveGap)
-        
-        // Добавляем невидимые карточки для симметричного размещения
+
         cardsWithPlaceholders = addPlaceholdersForSymmetry(cards, optimalColumns).toMutableList()
-        
-        // Устанавливаем spanCount ДО создания адаптера!
+
         binding.rvCards.layoutManager = GridLayoutManager(this, optimalColumns)
-        
-        // Добавляем декоратор для центрирования с учетом эффективного зазора
+
         if (binding.rvCards.itemDecorationCount == 0) {
             binding.rvCards.addItemDecoration(CenteredGridDecoration(effectiveGap, optimalColumns, cardsWithPlaceholders.size))
         }
-        
-        // Отключаем скролл полностью
+
         binding.rvCards.isNestedScrollingEnabled = false
         binding.rvCards.overScrollMode = View.OVER_SCROLL_NEVER
         
@@ -132,8 +119,7 @@ class CoopGameActivity : AppCompatActivity() {
             onCardClicked(card)
         }
         binding.rvCards.adapter = adapter
-        
-        // Центрируем сетку через padding после того как адаптер установлен
+
         binding.rvCards.post {
             centerGrid(optimalColumns, effectiveGap)
         }
@@ -143,27 +129,23 @@ class CoopGameActivity : AppCompatActivity() {
 
     private fun generateCards(): MutableList<Card> {
         val cardsList = mutableListOf<Card>()
-        
-        // Все доступные карточки
+
         val allCardResources = listOf(
             R.drawable.card1, R.drawable.card2, R.drawable.card3, R.drawable.card4,
             R.drawable.card5, R.drawable.card6, R.drawable.card7, R.drawable.card8,
             R.drawable.card9, R.drawable.card10, R.drawable.card11, R.drawable.card12,
             R.drawable.card13, R.drawable.card14
         )
-        
-        // Выбираем случайные карточки для текущей игры
+
         val selectedCards = allCardResources.shuffled().take(coopGameState.totalPairs)
 
-        // Создаем пары карточек
         var cardId = 0
         for (pairId in 0 until coopGameState.totalPairs) {
             val imageRes = selectedCards[pairId]
             cardsList.add(Card(cardId++, imageRes, pairId))
             cardsList.add(Card(cardId++, imageRes, pairId))
         }
-        
-        // Fisher-Yates shuffle
+
         for (i in cardsList.size - 1 downTo 1) {
             val j = (0..i).random()
             val temp = cardsList[i]
@@ -218,8 +200,7 @@ class CoopGameActivity : AppCompatActivity() {
             if (cardWidth <= 0 || cardHeight <= 0) continue
             
             val cardSize = minOf(cardWidth, cardHeight)
-            
-            // КРИТИЧНО: Проверяем, что вся сетка поместится в доступное пространство
+
             val totalGridWidth = cardSize * cols + gap * (cols - 1)
             val totalGridHeight = cardSize * rows + gap * (rows - 1)
             
@@ -305,19 +286,16 @@ class CoopGameActivity : AppCompatActivity() {
     }
 
     private fun onCardClicked(card: Card) {
-        // КРИТИЧНО: Блокируем любые клики если идёт проверка
         if (isChecking) {
             android.util.Log.w("CoopGameActivity", "Checking in progress, blocking click")
             return
         }
-        
-        // Блокируем клик на уже открытые, найденные или заглушки
+
         if (card.isRevealed || card.isMatched || card.isPlaceholder) {
             android.util.Log.w("CoopGameActivity", "Card already revealed/matched/placeholder")
             return
         }
-        
-        // КРИТИЧНО: Проверяем количество уже перевёрнутых карт СТРОГО
+
         if (firstRevealedCard != null && secondRevealedCard != null) {
             android.util.Log.w("CoopGameActivity", "Already 2 cards revealed, blocking click")
             return
@@ -357,18 +335,17 @@ class CoopGameActivity : AppCompatActivity() {
         android.util.Log.d("CoopGameActivity", "Checking match: first.pairId=${first.pairId}, second.pairId=${second.pairId}, currentPlayer=${coopGameState.currentPlayerId}")
 
         if (first.pairId == second.pairId) {
-            // Найдена пара!
             first.isMatched = true
             second.isMatched = true
             
             vibrationManager.vibrate(VibrationManager.VibrationType.SUCCESS)
-            
+
             // Начисляем очки
             val score = coopGameState.calculatePairScore()
             currentPlayer.pairsFound++
             currentPlayer.totalScore += score
             
-            // Обновляем состояние и ВСЕГДА меняем игрока (строгая очередность)
+            // Обновляем состояние
             val nextPlayerId = if (coopGameState.currentPlayerId == 1) 2 else 1
             coopGameState = coopGameState.copy(
                 matchedPairs = coopGameState.matchedPairs + 1,
@@ -385,7 +362,6 @@ class CoopGameActivity : AppCompatActivity() {
             secondRevealedCard = null
             isChecking = false
 
-            // Проверяем окончание игры
             if (coopGameState.matchedPairs == coopGameState.totalPairs) {
                 handler.postDelayed({ showGameComplete() }, 500)
             }
@@ -395,12 +371,11 @@ class CoopGameActivity : AppCompatActivity() {
             vibrationManager.vibrate(VibrationManager.VibrationType.ERROR)
             
             android.util.Log.d("CoopGameActivity", "No match, hiding cards in 1500ms")
-            
-            // ВАЖНО: Задержка перед закрытием карт и сменой игрока
+
             handler.postDelayed({
                 first.isRevealed = false
                 second.isRevealed = false
-                
+
                 // Обновляем состояние и МЕНЯЕМ игрока
                 val nextPlayerId = if (coopGameState.currentPlayerId == 1) 2 else 1
                 coopGameState = coopGameState.copy(
@@ -421,7 +396,7 @@ class CoopGameActivity : AppCompatActivity() {
     }
 
     private fun updateUI() {
-        // Обновляем информацию игроков (новый компактный формат)
+        // Обновляем информацию игроков
         binding.tvPlayer1Score.text = "${coopGameState.player1.totalScore} • ${coopGameState.player1.pairsFound} пар"
         binding.tvPlayer2Score.text = "${coopGameState.player2.totalScore} • ${coopGameState.player2.pairsFound} пар"
         
@@ -447,8 +422,7 @@ class CoopGameActivity : AppCompatActivity() {
                 )
                 
                 updateTimerDisplay()
-                
-                // Проверка истечения времени
+
                 if (coopGameState.isTimeExpired()) {
                     showTimeExpired()
                     return
@@ -497,8 +471,7 @@ class CoopGameActivity : AppCompatActivity() {
 
     private fun showGameComplete() {
         timerRunnable?.let { handler.removeCallbacks(it) }
-        
-        // Определяем победителя
+
         val winner = when {
             coopGameState.player1.totalScore > coopGameState.player2.totalScore -> coopGameState.player1
             coopGameState.player2.totalScore > coopGameState.player1.totalScore -> coopGameState.player2
@@ -521,7 +494,6 @@ class CoopGameActivity : AppCompatActivity() {
         val timeSeconds = (coopGameState.elapsedTime / 1000).toInt()
         
         winner?.let {
-            // Звезды для кооперативного режима: 3 звезды за победу
             val stars = 3
             statsManager.saveGameResult(
                 mode = StatsManager.MODE_COOP,

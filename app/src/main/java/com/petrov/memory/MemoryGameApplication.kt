@@ -15,8 +15,7 @@ class MemoryGameApplication : Application() {
         // Инициализируем Firebase
         try {
             FirebaseApp.initializeApp(this)
-            
-            // Включаем offline persistence для лучшей работы
+
             FirebaseDatabase.getInstance().setPersistenceEnabled(true)
             
             android.util.Log.d("MemoryGameApp", "Firebase initialized successfully")

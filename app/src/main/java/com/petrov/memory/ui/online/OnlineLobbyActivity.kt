@@ -41,8 +41,7 @@ class OnlineLobbyActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView() {
-        roomsAdapter = RoomsAdapter { room ->
-            joinRoom(room)  // Передаем весь объект комнаты
+        roomsAdapter = RoomsAdapter { room -> joinRoom(room)
         }
         
         binding.recyclerRooms.apply {
@@ -67,8 +66,7 @@ class OnlineLobbyActivity : AppCompatActivity() {
 
     private fun showCreateRoomDialog() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_create_room, null)
-        
-        // Получаем RadioGroups
+
         val rgLevel = dialogView.findViewById<android.widget.RadioGroup>(R.id.rgLevel)
         val rgTimer = dialogView.findViewById<android.widget.RadioGroup>(R.id.rgTimer)
         
@@ -80,15 +78,13 @@ class OnlineLobbyActivity : AppCompatActivity() {
         
         // Обработчик кнопки "Создать"
         dialogView.findViewById<android.widget.Button>(R.id.btnCreate).setOnClickListener {
-            // Определяем уровень по выбранной радио-кнопке
             selectedLevel = when (rgLevel.checkedRadioButtonId) {
                 R.id.rbLevel1 -> 1
                 R.id.rbLevel2 -> 2
                 R.id.rbLevel3 -> 3
                 else -> 1
             }
-            
-            // Определяем таймер по выбранной радио-кнопке
+
             when (rgTimer.checkedRadioButtonId) {
                 R.id.rbNoTimer -> {
                     selectedTimerMode = TimerMode.WITHOUT_TIMER
@@ -140,8 +136,7 @@ class OnlineLobbyActivity : AppCompatActivity() {
                 }
                 
                 android.util.Log.d("OnlineLobby", "Room created: $roomId")
-                
-                // Переходим в комнату ожидания
+
                 val intent = Intent(this@OnlineLobbyActivity, OnlineWaitingRoomActivity::class.java)
                 intent.putExtra(EXTRA_ROOM_ID, roomId)
                 intent.putExtra(EXTRA_IS_HOST, true)
@@ -178,8 +173,7 @@ class OnlineLobbyActivity : AppCompatActivity() {
                 
                 if (success) {
                     android.util.Log.d("OnlineLobbyActivity", "Joining room: id=${room.roomId}, level=${room.level}")
-                    
-                    // Переходим в комнату ожидания
+
                     val intent = Intent(this@OnlineLobbyActivity, OnlineWaitingRoomActivity::class.java)
                     intent.putExtra(EXTRA_ROOM_ID, room.roomId)
                     intent.putExtra(EXTRA_IS_HOST, false)

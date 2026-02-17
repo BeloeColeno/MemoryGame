@@ -2,7 +2,6 @@ package com.petrov.memory.domain.model
 
 /**
  * Модель игровой комнаты для онлайн-режима
- * ВАЖНО: Все поля var для корректной десериализации Firebase!
  */
 data class OnlineGameRoom(
     var roomId: String = "",
@@ -20,11 +19,10 @@ data class OnlineGameRoom(
     var hostPairs: Int = 0,
     var guestPairs: Int = 0,
     var timestamp: Long = System.currentTimeMillis(),
-    // Поля для отслеживания открытых карточек
     var firstFlippedCardId: Int? = null,
     var secondFlippedCardId: Int? = null,
     var checkingMatch: Boolean = false,
-    var lastMovePlayerId: String? = null  // ID игрока, который сделал последний ход
+    var lastMovePlayerId: String? = null
 ) {
     fun toMap(): Map<String, Any?> {
         return mapOf(
@@ -53,7 +51,6 @@ data class OnlineGameRoom(
 
 /**
  * Карточка в онлайн-игре
- * ВАЖНО: Все поля var для корректной десериализации Firebase!
  */
 data class OnlineCard(
     var id: Int = 0,

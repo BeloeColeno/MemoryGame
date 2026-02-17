@@ -19,8 +19,6 @@ import com.petrov.memory.util.VibrationManager
 
 /**
  * Экран игры Memory
- * Из ТЗ раздел 4.1.1.1 - Подсистема игровой логики
- * Из ТЗ раздел 4.2.2 - Временной регламент (≤0.1с реакция, ≤0.2с проверка)
  */
 class GameActivity : AppCompatActivity() {
 
@@ -36,7 +34,6 @@ class GameActivity : AppCompatActivity() {
     private var matchedPairs = 0
     private var totalPairs = 4 // По умолчанию легкий
     private var levelId = 1 // 1-легкий, 2-средний, 3-сложный
-    private var gridColumns = 4 // Количество колонок в сетке
     private var startTime = 0L // Время старта игры
 
     private var firstRevealedCard: Card? = null
@@ -79,12 +76,12 @@ class GameActivity : AppCompatActivity() {
 
     /**
      * Инициализация игры
-     * Генерация карточек + Fisher-Yates shuffle (из ТЗ 4.3.1)
+     * Генерация карточек + Fisher-Yates shuffle
      */
     private fun setupGame() {
         cards = generateCards()
         
-        // ВАЖНО: Вычисляем оптимальную сетку ДО создания адаптера
+        // Вычисляем оптимальную сетку ДО создания адаптера
         val displayMetrics = resources.displayMetrics
         val screenWidth = displayMetrics.widthPixels
         val screenHeight = displayMetrics.heightPixels
@@ -113,17 +110,15 @@ class GameActivity : AppCompatActivity() {
             binding.rvCards.addItemDecoration(CenteredGridDecoration(effectiveGap, optimalColumns, cardsWithPlaceholders.size))
         }
         
-        // Отключаем скролл полностью
+        // Отключаем скролл
         binding.rvCards.isNestedScrollingEnabled = false
         binding.rvCards.overScrollMode = View.OVER_SCROLL_NEVER
         
         android.util.Log.d("GameActivity", "Setting spanCount=$optimalColumns for ${cards.size} cards (${cardsWithPlaceholders.size} with placeholders)")
         
         adapter = CardsAdapter(cardsWithPlaceholders, availableWidth, availableHeight, effectiveGap, optimalColumns) { position ->
-            // Получаем карточку из списка с заглушками
             val clickedCard = cardsWithPlaceholders[position]
             if (!clickedCard.isPlaceholder) {
-                // Находим индекс этой карточки в настоящем списке
                 val realPosition = cards.indexOf(clickedCard)
                 if (realPosition >= 0) {
                     onCardClick(realPosition)
@@ -216,7 +211,6 @@ class GameActivity : AppCompatActivity() {
     
     /**
      * Вычисляет оптимальное количество колонок для сетки
-     * Предпочитает симметричные варианты (где последняя строка заполнена или близка к центру)
      */
     private fun calculateOptimalColumns(totalCards: Int, width: Int, height: Int, gap: Int): Int {
         var bestColumns = 1
@@ -234,7 +228,7 @@ class GameActivity : AppCompatActivity() {
             
             val cardSize = minOf(cardWidth, cardHeight)
             
-            // КРИТИЧНО: Проверяем, что вся сетка поместится в доступное пространство
+            // Проверяем, что вся сетка поместится в доступное пространство
             val totalGridWidth = cardSize * cols + gap * (cols - 1)
             val totalGridHeight = cardSize * rows + gap * (rows - 1)
             
@@ -266,7 +260,6 @@ class GameActivity : AppCompatActivity() {
 
     /**
      * Генерация карточек по алгоритму Fisher-Yates
-     * Из ТЗ раздел 4.3.1 - Требования к математическому обеспечению
      */
     private fun generateCards(): MutableList<Card> {
         val cardsList = mutableListOf<Card>()
@@ -304,7 +297,6 @@ class GameActivity : AppCompatActivity() {
 
     /**
      * Обработка клика по карточке
-     * Требование производительности: ≤0.1с (из ТЗ 4.2.2)
      */
     private fun onCardClick(position: Int) {
         if (isChecking) return
@@ -312,13 +304,10 @@ class GameActivity : AppCompatActivity() {
         val card = cards[position]
         if (card.isRevealed || card.isMatched) return
 
-        // Звук и вибрация при перевороте карточки
         vibrationManager.vibrate(VibrationManager.VibrationType.LIGHT)
-        
-        // Открываем карточку с анимацией
+
         card.isRevealed = true
-        
-        // Находим позицию этой карточки в списке с заглушками
+
         val adapterPosition = cardsWithPlaceholders.indexOf(card)
         if (adapterPosition >= 0) {
             adapter.updateCardWithFlip(adapterPosition)
@@ -326,16 +315,13 @@ class GameActivity : AppCompatActivity() {
 
         when {
             firstRevealedCard == null -> {
-                // Первая карточка в ходе
                 firstRevealedCard = card
             }
             secondRevealedCard == null -> {
-                // Вторая карточка в ходе
                 secondRevealedCard = card
                 moves++
                 updateUI()
 
-                // Проверяем совпадение (≤0.2с из ТЗ 4.2.2)
                 checkMatch()
             }
         }
@@ -343,7 +329,6 @@ class GameActivity : AppCompatActivity() {
 
     /**
      * Проверка совпадения пары карточек
-     * Требование производительности: ≤0.2с (из ТЗ 4.2.2)
      */
     private fun checkMatch() {
         isChecking = true
@@ -354,30 +339,25 @@ class GameActivity : AppCompatActivity() {
 
             if (first != null && second != null) {
                 if (first.pairId == second.pairId) {
-                    // Совпадение!
                     first.isMatched = true
                     second.isMatched = true
                     matchedPairs++
-                    
-                    // Звук и вибрация успеха
+
                     vibrationManager.vibrate(VibrationManager.VibrationType.SUCCESS)
                     
                     adapter.updateCards(cardsWithPlaceholders) // Обновляем для эффекта прозрачности
                     
                     Toast.makeText(this, "Пара найдена!", Toast.LENGTH_SHORT).show()
 
-                    // Проверяем, закончилась ли игра
                     if (matchedPairs == totalPairs) {
                         handler.postDelayed({
                             showLevelCompleteDialog()
                         }, 500)
                     }
                 } else {
-                    // Не совпало - закрываем карточки с анимацией
                     first.isRevealed = false
                     second.isRevealed = false
-                    
-                    // Звук и вибрация ошибки
+
                     vibrationManager.vibrate(VibrationManager.VibrationType.ERROR)
                     
                     val firstIndex = cardsWithPlaceholders.indexOf(first)
@@ -391,7 +371,7 @@ class GameActivity : AppCompatActivity() {
             firstRevealedCard = null
             secondRevealedCard = null
             isChecking = false
-        }, 800) // Даем время посмотреть на карточки
+        }, 800)
     }
 
     /**
@@ -408,8 +388,7 @@ class GameActivity : AppCompatActivity() {
         val endTime = System.currentTimeMillis()
         val timeSeconds = ((endTime - startTime) / 1000).toInt()
         val stars = calculateStars(moves, timeSeconds)
-        
-        // СОХРАНЯЕМ СТАТИСТИКУ (офлайн режим)
+
         statsManager.saveGameResult(
             mode = StatsManager.MODE_OFFLINE,
             levelId = levelId,
@@ -425,7 +404,6 @@ class GameActivity : AppCompatActivity() {
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
         dialog.setCancelable(false)
 
-        // Настраиваем звезды
         val star1 = dialog.findViewById<android.widget.ImageView>(R.id.ivStar1)
         val star2 = dialog.findViewById<android.widget.ImageView>(R.id.ivStar2)
         val star3 = dialog.findViewById<android.widget.ImageView>(R.id.ivStar3)
@@ -499,8 +477,7 @@ class GameActivity : AppCompatActivity() {
         isChecking = false
         startTime = System.currentTimeMillis()
         cards = generateCards()
-        
-        // Пересоздаем список с заглушками
+
         val gridLayoutManager = binding.rvCards.layoutManager as? androidx.recyclerview.widget.GridLayoutManager
         val columns = gridLayoutManager?.spanCount ?: 4
         cardsWithPlaceholders = addPlaceholdersForSymmetry(cards, columns).toMutableList()

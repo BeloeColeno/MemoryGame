@@ -2,7 +2,6 @@ package com.petrov.memory.domain.model
 
 /**
  * Состояние кооперативной игры
- * Из ЛР №3: Ключевое требование 4.1.1 - кооп на 2 игроков с соревнованием
  */
 data class CoopGameState(
     val player1: Player,                    // Игрок 1

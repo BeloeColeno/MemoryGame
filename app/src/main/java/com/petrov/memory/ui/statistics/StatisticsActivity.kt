@@ -86,8 +86,7 @@ class StatisticsActivity : AppCompatActivity() {
 
     private fun switchTab(mode: String) {
         currentMode = mode
-        
-        // Обновляем стиль вкладок
+
         val purpleActive = 0xFF9C27B0.toInt()
         val purpleLight = 0xFFE1BEE7.toInt()
         val white = 0xFFFFFFFF.toInt()
@@ -133,12 +132,10 @@ class StatisticsActivity : AppCompatActivity() {
 
     private fun loadStats() {
         val stats = statsManager.getModeStats(currentMode)
-        
-        // Общая статистика
+
         tvTotalGames.text = stats.gamesPlayed.toString()
         tvTotalWins.text = stats.gamesWon.toString()
-        
-        // Для онлайн режима не показываем звезды
+
         if (currentMode == StatsManager.MODE_ONLINE) {
             tvTotalStars.visibility = android.view.View.GONE
         } else {
@@ -147,8 +144,7 @@ class StatisticsActivity : AppCompatActivity() {
         }
         
         tvTotalTime.text = formatTime(stats.totalTime)
-        
-        // Статистика по уровням
+
         loadLevelStats(stats.level1, layoutLevel1, "Легкий (4 пары)")
         loadLevelStats(stats.level2, layoutLevel2, "Средний (6 пар)")
         loadLevelStats(stats.level3, layoutLevel3, "Сложный (9 пар)")
@@ -175,8 +171,7 @@ class StatisticsActivity : AppCompatActivity() {
         } else {
             tvMoves.text = "-"
         }
-        
-        // Для онлайн режима не показываем звезды
+
         if (currentMode == StatsManager.MODE_ONLINE) {
             tvStars.visibility = android.view.View.GONE
         } else {

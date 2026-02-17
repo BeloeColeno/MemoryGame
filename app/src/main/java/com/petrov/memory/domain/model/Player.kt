@@ -4,7 +4,6 @@ import android.graphics.Color
 
 /**
  * Игрок в кооперативном режиме
- * Из ЛР №4: Совместный режим - два игрока с чередованием ходов
  */
 data class Player(
     val id: Int,                    // ID игрока (1 или 2)
@@ -14,7 +13,6 @@ data class Player(
     var totalScore: Int = 0         // Общее количество очков
 ) {
     companion object {
-        // Цвета игроков: синий и красный (из требований)
         val PLAYER1_COLOR = Color.parseColor("#2196F3") // Синий
         val PLAYER2_COLOR = Color.parseColor("#F44336") // Красный
         

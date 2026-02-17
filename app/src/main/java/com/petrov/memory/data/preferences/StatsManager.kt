@@ -8,7 +8,6 @@ import com.petrov.memory.domain.model.ModeStats
 
 /**
  * Менеджер для работы со статистикой через SharedPreferences
- * Из ТЗ раздел 4.1.1.3 - Подсистема сохранения данных
  */
 class StatsManager(context: Context) {
     
@@ -143,30 +142,26 @@ class StatsManager(context: Context) {
      */
     fun saveGameResult(mode: String, levelId: Int, won: Boolean, time: Int, moves: Int, stars: Int) {
         prefs.edit().apply {
-            // Обновляем статистику режима
             putInt(keyModeGames(mode), prefs.getInt(keyModeGames(mode), 0) + 1)
             if (won) {
                 putInt(keyModeWins(mode), prefs.getInt(keyModeWins(mode), 0) + 1)
             }
             putInt(keyModeStars(mode), prefs.getInt(keyModeStars(mode), 0) + stars)
             putInt(keyModeTime(mode), prefs.getInt(keyModeTime(mode), 0) + time)
-            
-            // Обновляем общую статистику
+
             putInt(KEY_TOTAL_GAMES, prefs.getInt(KEY_TOTAL_GAMES, 0) + 1)
             if (won) {
                 putInt(KEY_TOTAL_WINS, prefs.getInt(KEY_TOTAL_WINS, 0) + 1)
             }
             putInt(KEY_TOTAL_STARS, prefs.getInt(KEY_TOTAL_STARS, 0) + stars)
             putInt(KEY_TOTAL_TIME, prefs.getInt(KEY_TOTAL_TIME, 0) + time)
-            
-            // Обновляем статистику уровня
+
             putInt(keyGamesPlayed(mode, levelId), prefs.getInt(keyGamesPlayed(mode, levelId), 0) + 1)
             if (won) {
                 putInt(keyGamesWon(mode, levelId), prefs.getInt(keyGamesWon(mode, levelId), 0) + 1)
             }
             putInt(keyTotalStars(mode, levelId), prefs.getInt(keyTotalStars(mode, levelId), 0) + stars)
-            
-            // Обновляем рекорды (только если выиграл)
+
             if (won) {
                 val currentBestTime = prefs.getInt(keyBestTime(mode, levelId), Int.MAX_VALUE)
                 if (time < currentBestTime) {

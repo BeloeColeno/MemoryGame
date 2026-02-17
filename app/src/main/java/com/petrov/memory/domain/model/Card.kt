@@ -2,7 +2,6 @@ package com.petrov.memory.domain.model
 
 /**
  * Модель карточки Memory
- * Из ТЗ раздел 4.1.1.1 - Подсистема игровой логики
  */
 data class Card(
     val id: Int,                    // Уникальный ID карточки
