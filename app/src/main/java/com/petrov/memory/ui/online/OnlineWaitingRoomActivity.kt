@@ -63,7 +63,6 @@ class OnlineWaitingRoomActivity : AppCompatActivity() {
         lifecycleScope.launch {
             firebaseManager.observeRoom(roomId).collect { room ->
                 if (room == null) {
-                    // Комната удалена
                     runOnUiThread {
                         Toast.makeText(
                             this@OnlineWaitingRoomActivity,

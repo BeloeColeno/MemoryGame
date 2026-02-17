@@ -7,7 +7,6 @@ import android.os.Build
 
 /**
  * Менеджер звуковых эффектов
- * Из ЛР №2: Нефункциональные требования - Настройки звука
  */
 class SoundManager(private val context: Context) {
     

@@ -23,7 +23,7 @@ class MenuActivity : AppCompatActivity() {
     }
 
     private fun setupButtons() {
-        // Кнопка "Играть" - открывает выбор режима
+        // Кнопка "Играть"
         binding.btnPlay.setOnClickListener {
             startActivity(Intent(this, com.petrov.memory.ui.mode.ModeSelectionActivity::class.java))
         }

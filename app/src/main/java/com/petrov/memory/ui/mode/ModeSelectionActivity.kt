@@ -9,7 +9,6 @@ import com.petrov.memory.ui.levels.LevelSelectActivity
 
 /**
  * Экран выбора режима игры
- * Из ЛР №4: Форма "Выбор режима" - Одиночный / Совместный
  */
 class ModeSelectionActivity : AppCompatActivity() {
 

@@ -2,7 +2,6 @@ package com.petrov.memory.domain.model
 
 /**
  * Результат кооперативной игры для сохранения в статистику
- * Из ЛР №4: Требование отдельной статистики для кооперативного режима
  */
 data class CoopGameResult(
     val timestamp: Long,            // Время игры

@@ -11,14 +11,13 @@ import com.petrov.memory.domain.model.Card
 
 /**
  * Адаптер для отображения карточек в RecyclerView
- * Из ТЗ раздел 4.1.1.2 - Подсистема пользовательского интерфейса
  */
 class CardsAdapter(
     private var cards: List<Card>,
     private val availableWidth: Int,
     private val availableHeight: Int,
     private val gap: Int,
-    private val columns: Int,  // Добавлен параметр колонок
+    private val columns: Int,
     private val onCardClick: (Int) -> Unit
 ) : RecyclerView.Adapter<CardsAdapter.CardViewHolder>() {
 
@@ -30,15 +29,13 @@ class CardsAdapter(
             parent,
             false
         )
-        
-        // Вычисляем размер карточки ТОЛЬКО ОДИН РАЗ
+
         if (cachedCardSize == 0) {
             cachedCardSize = calculateCardSize(itemCount, availableWidth, availableHeight, gap, columns)
             
             android.util.Log.d("CardsAdapter", "Columns: $columns, CardSize: ${cachedCardSize}px")
         }
-        
-        // Устанавливаем ФИКСИРОВАННЫЙ размер карточки (не растягивается)
+
         val layoutParams = RecyclerView.LayoutParams(cachedCardSize, cachedCardSize)
         layoutParams.width = cachedCardSize
         layoutParams.height = cachedCardSize
@@ -52,23 +49,21 @@ class CardsAdapter(
      */
     private fun calculateCardSize(totalCards: Int, width: Int, height: Int, gap: Int, cols: Int): Int {
         android.util.Log.d("CardsAdapter", "calculateCardSize: totalCards=$totalCards, width=$width, height=$height, gap=$gap, cols=$cols")
-        
-        // Защита от некорректных данных
+
         if (totalCards <= 0 || width <= 0 || height <= 0 || cols <= 0) {
             android.util.Log.e("CardsAdapter", "Invalid input! Using fallback")
-            return 100 // Минимальное значение по умолчанию
+            return 100
         }
         
-        val rows = (totalCards + cols - 1) / cols // Округление вверх
+        val rows = (totalCards + cols - 1) / cols
         
-        // Вычисляем размер карточки
+
         val totalGapWidth = (cols - 1) * gap
         val totalGapHeight = (rows - 1) * gap
         
         val cardWidth = (width - totalGapWidth) / cols
         val cardHeight = (height - totalGapHeight) / rows
-        
-        // Карточки квадратные - берем минимальный размер
+
         val cardSize = minOf(cardWidth, cardHeight)
         
         android.util.Log.d("CardsAdapter", "Calculated: ${cols}×${rows}, cardSize=$cardSize (width=$cardWidth, height=$cardHeight)")
@@ -97,7 +92,7 @@ class CardsAdapter(
         }
         
         cards = newCards
-        cachedCardSize = 0 // Сбрасываем кеш для пересчета
+        cachedCardSize = 0
         notifyDataSetChanged()
         
         android.util.Log.d("CardsAdapter", "updateCards: notifyDataSetChanged() called")
@@ -105,31 +100,25 @@ class CardsAdapter(
     
     /**
      * Обновить карточки с анимацией переворота для изменившихся
-     * Используется в онлайн-режиме
      */
     fun updateCardsWithAnimation(newCards: List<Card>) {
         android.util.Log.d("CardsAdapter", "updateCardsWithAnimation: Received ${newCards.size} cards")
-        
-        // Если размер изменился, обновляем полностью
+
         if (cards.size != newCards.size) {
             cards = newCards
             cachedCardSize = 0
             notifyDataSetChanged()
             return
         }
-        
-        // Сравниваем старые и новые карточки
+
         newCards.forEachIndexed { index, newCard ->
             val oldCard = cards[index]
-            // Если состояние карточки изменилось (переворот)
             if (oldCard.isRevealed != newCard.isRevealed || oldCard.isMatched != newCard.isMatched) {
                 android.util.Log.d("CardsAdapter", "Card[$index] changed: old(revealed=${oldCard.isRevealed}, matched=${oldCard.isMatched}) -> new(revealed=${newCard.isRevealed}, matched=${newCard.isMatched})")
-                // Обновляем с анимацией
                 updateCardWithFlip(index)
             }
         }
-        
-        // Обновляем список после анимаций
+
         cards = newCards
     }
 
@@ -150,16 +139,14 @@ class CardsAdapter(
 
         fun bind(card: Card, position: Int, payload: Any?) {
             android.util.Log.d("CardsAdapter", "bind: pos=$position, isRevealed=${card.isRevealed}, isMatched=${card.isMatched}, imageRes=${card.imageResId}, payload=$payload")
-            
-            // Скрываем карточки-заглушки
+
             if (card.isPlaceholder) {
                 binding.root.visibility = android.view.View.INVISIBLE
                 return
             }
             
             binding.root.visibility = android.view.View.VISIBLE
-            
-            // ВАЖНО: Сбрасываем все трансформации перед bind
+
             binding.cardView.alpha = 1f
             binding.cardView.scaleX = 1f
             binding.cardView.scaleY = 1f
@@ -173,22 +160,18 @@ class CardsAdapter(
             
             android.util.Log.d("CardsAdapter", "bind: pos=$position, showing imageRes=$imageRes (${if (imageRes == R.drawable.cover) "COVER" else "CARD"})")
 
-            // Если есть payload "flip" - делаем анимацию
             if (payload == "flip") {
                 animateFlip {
                     binding.ivCard.setImageResource(imageRes)
                 }
             } else {
-                // Без анимации
                 binding.ivCard.setImageResource(imageRes)
             }
 
-            // Прозрачность для найденных пар
             if (card.isMatched) {
                 animateMatch()
             }
 
-            // Обработчик клика (только для реальных карточек)
             binding.cardView.setOnClickListener {
                 if (!card.isRevealed && !card.isMatched && !card.isPlaceholder) {
                     onCardClick(position)

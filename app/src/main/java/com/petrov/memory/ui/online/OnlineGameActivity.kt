@@ -36,43 +36,34 @@ class OnlineGameActivity : AppCompatActivity() {
     private var level: Int = 1
     private var myPlayerId: String = ""
     
-    private var cardsAdapter: CardsAdapter? = null  // Nullable - создается при получении карточек
+    private var cardsAdapter: CardsAdapter? = null
     private val cards = mutableListOf<Card>()
-    
-    // Параметры для создания адаптера (сохраняем в setupGame)
+
     private var adapterParams: AdapterParams? = null
     
     private lateinit var soundManager: SoundManager
     private lateinit var vibrationManager: VibrationManager
-    
-    // Диалоги, которые нужно закрыть при уничтожении Activity
+
     private var currentDialog: AlertDialog? = null
-    
-    // Флаг для предотвращения множественных проверок совпадения
+
     private var isCheckingMatch = false
-    
-    // Флаг для предотвращения множественных показов диалога результата
+
     private var resultDialogShown = false
-    
-    // КРИТИЧНО: Отслеживание карточек текущего хода для предотвращения открытия 3+ карт
+
     private var firstCardThisTurn: Int? = null
     private var secondCardThisTurn: Int? = null
-    
-    // КРИТИЧНО: Set обрабатываемых кликов для предотвращения race conditions
+
     private val pendingClicks = mutableSetOf<Int>()
-    
-    // Таймеры
+
     private val handler = Handler(Looper.getMainLooper())
     private var gameStartTime: Long = 0L
     private var turnStartTime: Long = 0L
     private var timerRunnable: Runnable? = null
     private var turnTimerRunnable: Runnable? = null
-    private val TURN_TIME_LIMIT = 10 // 10 секунд на ход
-    
-    // Отслеживание предыдущего игрока для определения смены хода
+    private val TURN_TIME_LIMIT = 10
+
     private var previousCurrentPlayerId: String? = null
-    
-    // Вспомогательный класс для хранения параметров адаптера
+
     private data class AdapterParams(
         val availableWidth: Int,
         val availableHeight: Int,
@@ -98,7 +89,6 @@ class OnlineGameActivity : AppCompatActivity() {
         vibrationManager = VibrationManager(this)
         statsManager = StatsManager(this)
 
-        // Обработчик кнопки выхода
         binding.btnExit.setOnClickListener {
             showExitConfirmDialog()
         }
@@ -122,7 +112,6 @@ class OnlineGameActivity : AppCompatActivity() {
     }
 
     private fun startGameTimer(room: OnlineGameRoom) {
-        // Показываем таймер матча если режим с таймером
         if (room.timerMode != "WITHOUT_TIMER" && room.timeLimit != null) {
             binding.tvTimer.visibility = android.view.View.VISIBLE
             gameStartTime = System.currentTimeMillis()
@@ -130,7 +119,7 @@ class OnlineGameActivity : AppCompatActivity() {
             timerRunnable = object : Runnable {
                 override fun run() {
                     val elapsed = (System.currentTimeMillis() - gameStartTime) / 1000
-                    val remaining = room.timeLimit!! - elapsed  // БЕЗ умножения - уже в секундах!
+                    val remaining = room.timeLimit!! - elapsed
                     
                     if (remaining > 0) {
                         val minutes = remaining / 60
@@ -159,7 +148,6 @@ class OnlineGameActivity : AppCompatActivity() {
     }
     
     private fun startTurnTimer() {
-        // Сбрасываем предыдущий таймер хода
         turnTimerRunnable?.let { handler.removeCallbacks(it) }
         
         turnStartTime = System.currentTimeMillis()
@@ -171,7 +159,6 @@ class OnlineGameActivity : AppCompatActivity() {
                 
                 if (remaining > 0) {
                     binding.tvTurnTimer.text = "⏰ $remaining"
-                    // Белый по умолчанию, красный при <=3 сек
                     binding.tvTurnTimer.setTextColor(
                         if (remaining <= 3) 0xFFF44336.toInt() else 0xFFFFFFFF.toInt()
                     )
@@ -183,7 +170,7 @@ class OnlineGameActivity : AppCompatActivity() {
                     lifecycleScope.launch {
                         try {
                             val room = firebaseManager.observeRoom(roomId).first()
-                            if (room != null && !room.gameFinished) {  // КРИТИЧНО: проверяем что игра не завершена
+                            if (room != null && !room.gameFinished) {
                                 val newPlayerId = if (room.currentPlayerId == room.hostPlayerId) {
                                     room.guestPlayerId ?: room.hostPlayerId
                                 } else {
@@ -249,34 +236,29 @@ class OnlineGameActivity : AppCompatActivity() {
 
     private fun setupGame() {
         val (columns, rows) = getGridSize(level)
-        val totalCards = columns * rows  // Количество карт = пары * 2
+        val totalCards = columns * rows
         
         // Вычисляем доступное пространство для карточек
         val displayMetrics = resources.displayMetrics
         val screenWidth = displayMetrics.widthPixels
         val screenHeight = displayMetrics.heightPixels
         val density = displayMetrics.density
-        
-        // RecyclerView имеет padding="8dp" в layout XML
+
         val rvPadding = (density * 8).toInt()
-        
-        // ПРАВИЛЬНЫЙ РАСЧЕТ: измеряем UI элементы сверху
-        // layoutTopPanel (~48dp с кнопкой) + layoutScore (~40dp компактный, все на одном уровне)
-        val topReserved = (density * 96).toInt()  // Компактный размер - все элементы на двух уровнях
-        val bottomReserved = (density * 8).toInt()  // Небольшой отступ снизу
-        val sideMargins = (density * 32).toInt()  // Как в других режимах
-        
-        // Padding в item_card.xml - 2dp с каждой стороны = 4dp между карточками
+
+        val topReserved = (density * 96).toInt()
+        val bottomReserved = (density * 8).toInt()
+        val sideMargins = (density * 32).toInt()
+
         val cardPadding = (density * 2).toInt()
-        val effectiveGap = cardPadding * 2  // 4dp эффективный зазор
-        
-        // Доступное пространство с учетом RecyclerView padding
+        val effectiveGap = cardPadding * 2
+
         val availableWidth = screenWidth - sideMargins - (rvPadding * 2)
         val availableHeight = screenHeight - topReserved - bottomReserved - (rvPadding * 2)
         
         android.util.Log.d("OnlineGameActivity", "setupGame: Screen=${screenWidth}x${screenHeight}, Available=${availableWidth}x${availableHeight}, topReserved=$topReserved, level=$level, columns=$columns, totalCards=$totalCards")
         
-        // ВАЖНО: Сохраняем параметры для последующего создания адаптера
+        // Сохраняем параметры для последующего создания адаптера
         adapterParams = AdapterParams(
             availableWidth = availableWidth,
             availableHeight = availableHeight,
@@ -285,7 +267,7 @@ class OnlineGameActivity : AppCompatActivity() {
             totalCards = totalCards
         )
         
-        // Настраиваем RecyclerView (БЕЗ адаптера - он будет создан в updateUI)
+        // Настраиваем RecyclerView
         binding.recyclerCards.apply {
             layoutManager = GridLayoutManager(this@OnlineGameActivity, columns)
             
@@ -293,8 +275,7 @@ class OnlineGameActivity : AppCompatActivity() {
             if (itemDecorationCount == 0) {
                 addItemDecoration(CenteredGridDecoration(effectiveGap, columns, totalCards))
             }
-            
-            // Отключаем скролл
+
             isNestedScrollingEnabled = false
             overScrollMode = android.view.View.OVER_SCROLL_NEVER
         }
@@ -324,7 +305,7 @@ class OnlineGameActivity : AppCompatActivity() {
                     val opponentDisconnected = if (myPlayerId == room.hostPlayerId) {
                         room.guestPlayerId == null
                     } else {
-                        false // Если гость отключился, хост удалит комнату
+                        false
                     }
                     
                     if (opponentDisconnected) {
@@ -375,7 +356,7 @@ class OnlineGameActivity : AppCompatActivity() {
         cards.clear()
         cards.addAll(newCards)
         
-        // КРИТИЧНО: Создаем адаптер при первом получении карточек (как в CoopGameActivity)
+        // Создаем адаптер при первом получении карточек
         if (cardsAdapter == null && newCards.isNotEmpty()) {
             val params = adapterParams
             if (params != null) {
@@ -383,7 +364,7 @@ class OnlineGameActivity : AppCompatActivity() {
                 
                 runOnUiThread {
                     cardsAdapter = CardsAdapter(
-                        cards = newCards,  // РЕАЛЬНЫЕ карточки вместо emptyList!
+                        cards = newCards,
                         availableWidth = params.availableWidth,
                         availableHeight = params.availableHeight,
                         gap = params.gap,
@@ -402,7 +383,6 @@ class OnlineGameActivity : AppCompatActivity() {
                 android.util.Log.e("OnlineGameActivity", "updateUI: AdapterParams is null!")
             }
         } else if (cardsAdapter != null) {
-            // Адаптер уже существует - обновляем с анимацией
             runOnUiThread {
                 cardsAdapter?.updateCardsWithAnimation(cards.toList())
                 android.util.Log.d("OnlineGameActivity", "updateUI: Adapter updated with ${cards.size} cards")
@@ -415,25 +395,20 @@ class OnlineGameActivity : AppCompatActivity() {
         runOnUiThread {
             binding.tvHostScore.text = "Игрок 1: ${room.hostPairs} пар"
             binding.tvGuestScore.text = "Игрок 2: ${room.guestPairs} пар"
-            
-            // Индикатор хода - новая логика с цветами
+
             val isMyTurn = room.currentPlayerId == myPlayerId
             
             if (isMyTurn) {
-                // Мой ход - "Ваш ход" светится синим
-                binding.tvYourTurn.setTextColor(getColor(R.color.player_turn_active))  // Синий
-                binding.tvOpponentTurn.setTextColor(0x80FFFFFF.toInt())  // Белый полупрозрачный
-                
-                // Запускаем таймер хода ТОЛЬКО при смене хода
+                binding.tvYourTurn.setTextColor(getColor(R.color.player_turn_active))
+                binding.tvOpponentTurn.setTextColor(0x80FFFFFF.toInt())
+
                 if (turnChanged) {
                     startTurnTimer()
                 }
             } else {
-                // Ход противника - "Ход противника" светится красным
-                binding.tvYourTurn.setTextColor(0x80FFFFFF.toInt())  // Белый полупрозрачный
-                binding.tvOpponentTurn.setTextColor(getColor(R.color.player_opponent_turn))  // Красный
-                
-                // Останавливаем таймер хода
+                binding.tvYourTurn.setTextColor(0x80FFFFFF.toInt())
+                binding.tvOpponentTurn.setTextColor(getColor(R.color.player_opponent_turn))
+
                 stopTurnTimer()
             }
             
@@ -447,7 +422,6 @@ class OnlineGameActivity : AppCompatActivity() {
         }
         
         // АВТОМАТИЧЕСКАЯ ПРОВЕРКА СОВПАДЕНИЙ
-        // Только игрок, который СДЕЛАЛ ПОСЛЕДНИЙ ХОД, запускает проверку
         android.util.Log.d("OnlineGameActivity", "updateUI: checkingMatch=${room.checkingMatch}, " +
             "first=${room.firstFlippedCardId}, second=${room.secondFlippedCardId}, " +
             "currentPlayer=${room.currentPlayerId}, lastMovePlayer=${room.lastMovePlayerId}, myId=$myPlayerId, isCheckingMatch=$isCheckingMatch")
@@ -455,11 +429,11 @@ class OnlineGameActivity : AppCompatActivity() {
         if (room.checkingMatch && 
             room.firstFlippedCardId != null && 
             room.secondFlippedCardId != null &&
-            room.lastMovePlayerId == myPlayerId &&  // КРИТИЧНО! Только игрок который сделал последний ход
-            !isCheckingMatch) {  // ВАЖНО! Проверяем, что еще не запущена проверка
+            room.lastMovePlayerId == myPlayerId &&
+            !isCheckingMatch) {
             
             android.util.Log.d("OnlineGameActivity", "updateUI: Starting match check (I made last move)")
-            isCheckingMatch = true  // Устанавливаем флаг
+            isCheckingMatch = true
             
             // Запускаем проверку с задержкой для просмотра карточек
             Handler(Looper.getMainLooper()).postDelayed({
@@ -475,20 +449,20 @@ class OnlineGameActivity : AppCompatActivity() {
                     } catch (e: Exception) {
                         android.util.Log.e("OnlineGameActivity", "Error checking match", e)
                     } finally {
-                        isCheckingMatch = false  // Сбрасываем флаг после завершения
+                        isCheckingMatch = false
                         android.util.Log.d("OnlineGameActivity", "updateUI: isCheckingMatch reset to false")
                     }
                 }
-            }, 1000) // Задержка 1 секунда для просмотра
+            }, 1000)
         }
         
-        // Сбрасываем флаги, если проверка завершена (checkingMatch == false)
+        // Сбрасываем флаги, если проверка завершена
         if (!room.checkingMatch) {
             synchronized(this) {
                 isCheckingMatch = false
-                pendingClicks.clear()  // КРИТИЧНО: Очищаем список ожидающих кликов
-                firstCardThisTurn = null  // Сбрасываем первую карту хода
-                secondCardThisTurn = null  // Сбрасываем вторую карту хода
+                pendingClicks.clear()
+                firstCardThisTurn = null
+                secondCardThisTurn = null
             }
             android.util.Log.d("OnlineGameActivity", "updateUI: isCheckingMatch, pendingClicks and turn cards reset")
         }
@@ -504,7 +478,6 @@ class OnlineGameActivity : AppCompatActivity() {
     }
 
     private fun onCardClick(card: Card) {
-        // КРИТИЧНО: Проверяем все условия ДО отправки на сервер
         if (card.isMatched || card.isRevealed) {
             android.util.Log.d("OnlineGameActivity", "onCardClick: Card already revealed or matched")
             return
@@ -516,13 +489,13 @@ class OnlineGameActivity : AppCompatActivity() {
             return
         }
         
-        // КРИТИЧНО: Проверяем что этот клик еще не обрабатывается
+        // Проверяем что этот клик еще не обрабатывается
         if (pendingClicks.contains(card.id)) {
             android.util.Log.d("OnlineGameActivity", "onCardClick: Card ${card.id} click already pending, ignoring")
             return
         }
         
-        // КРИТИЧНО: АТОМАРНАЯ проверка и заполнение слота
+        // АТОМАРНАЯ проверка и заполнение слота
         val slotAssigned = synchronized(this) {
             when {
                 firstCardThisTurn == null -> {
@@ -559,7 +532,7 @@ class OnlineGameActivity : AppCompatActivity() {
                 } else {
                     android.util.Log.d("OnlineGameActivity", "Move rejected by server for card ${card.id}")
                     
-                    // КРИТИЧНО: Откатываем слот если сервер отклонил ход
+                    // Откатываем слот если сервер отклонил ход
                     synchronized(this@OnlineGameActivity) {
                         if (secondCardThisTurn == card.id) {
                             secondCardThisTurn = null
@@ -575,7 +548,7 @@ class OnlineGameActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 android.util.Log.e("OnlineGameActivity", "Error making move for card ${card.id}", e)
                 
-                // КРИТИЧНО: Откатываем слот при ошибке
+                // Откатываем слот при ошибке
                 synchronized(this@OnlineGameActivity) {
                     if (secondCardThisTurn == card.id) {
                         secondCardThisTurn = null
@@ -596,7 +569,7 @@ class OnlineGameActivity : AppCompatActivity() {
 
     private fun getImageResource(pairId: Int): Int {
         // Маппинг pairId на реальные drawable ресурсы
-        return when (pairId % 14) {  // У нас есть card1-card14
+        return when (pairId % 14) {
             0 -> R.drawable.card1
             1 -> R.drawable.card2
             2 -> R.drawable.card3
@@ -631,18 +604,16 @@ class OnlineGameActivity : AppCompatActivity() {
         
         val isDraw = room.hostPairs == room.guestPairs
         
-        // Сохраняем статистику (только для победителя)
+        // Сохраняем статистику
         if (isMyWin) {
-            // Для онлайн режима используем простую статистику
-            // так как у нас нет общего таймера и количества ходов на игрока
             val stars = 3
             
             statsManager.saveGameResult(
                 mode = StatsManager.MODE_ONLINE,
                 levelId = level,
                 won = true,
-                time = 0, // В онлайн режиме время не отслеживается централизованно
-                moves = 0, // В онлайн режиме ходы не отслеживаются централизованно
+                time = 0,
+                moves = 0,
                 stars = stars
             )
         }
@@ -744,7 +715,6 @@ class OnlineGameActivity : AppCompatActivity() {
             try {
                 firebaseManager.leaveRoom(roomId)
             } catch (e: Exception) {
-                // Игнорируем ошибки при выходе
             }
         }
     }

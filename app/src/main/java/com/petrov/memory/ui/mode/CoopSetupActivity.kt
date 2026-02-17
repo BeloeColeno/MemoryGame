@@ -11,7 +11,6 @@ import com.petrov.memory.ui.game.CoopGameActivity
 
 /**
  * Экран настройки кооперативной игры
- * Из ЛР №4: Форма "Настройка уровня" - выбор таймера и лимита времени
  */
 class CoopSetupActivity : AppCompatActivity() {
 
