@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "159025507805",
+    "firebase_url": "https://memorygame-f92f8-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "memorygame-f92f8",
+    "storage_bucket": "memorygame-f92f8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:159025507805:android:6ac2c361d2c9a980c4da34",
+        "android_client_info": {
+          "package_name": "com.petrov.memory"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLD4ryGU7rlfpKSqTvmUAa7gMFlAHz_mc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
