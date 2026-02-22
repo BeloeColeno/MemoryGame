@@ -72,7 +72,7 @@ graph TB
 - Онлайн-синхронизация: Firebase Realtime Database, Firebase Authentication
 - Система сборки: Gradle 8.2+
 
-Исходный код доступен по ссылке: [GitHub Repository](https://github.com/BeloeColenoMemoryGame)
+Исходный код доступен по ссылке: [GitHub Repository](https://github.com/BeloeColeno/MemoryGame)
 
 ---
 
