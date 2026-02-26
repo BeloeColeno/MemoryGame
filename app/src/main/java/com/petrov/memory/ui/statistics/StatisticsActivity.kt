@@ -2,8 +2,13 @@ package com.petrov.memory.ui.statistics
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.petrov.memory.R
 import com.petrov.memory.data.preferences.StatsManager
+import com.petrov.memory.data.Achievement
+import com.petrov.memory.data.AchievementManager
+import com.petrov.memory.ui.AchievementsAdapter
 import com.petrov.memory.domain.model.LevelStats
 import com.petrov.memory.domain.model.ModeStats
 import android.widget.Button
@@ -30,6 +35,8 @@ class StatisticsActivity : AppCompatActivity() {
     private lateinit var layoutLevel1: LinearLayout
     private lateinit var layoutLevel2: LinearLayout
     private lateinit var layoutLevel3: LinearLayout
+    private lateinit var rvAchievements: RecyclerView
+    private lateinit var achievementsAdapter: AchievementsAdapter
     private lateinit var btnReset: Button
     private lateinit var btnBack: Button
 
@@ -55,8 +62,70 @@ class StatisticsActivity : AppCompatActivity() {
         layoutLevel1 = findViewById(R.id.layoutLevel1)
         layoutLevel2 = findViewById(R.id.layoutLevel2)
         layoutLevel3 = findViewById(R.id.layoutLevel3)
+        rvAchievements = findViewById(R.id.rvAchievements)
         btnReset = findViewById(R.id.btnReset)
         btnBack = findViewById(R.id.btnBack)
+        
+        setupAchievements()
+    }
+    
+    private fun setupAchievements() {
+        val achievements = AchievementManager.getAllAchievements()
+        val unlockedAchievements = checkUnlockedAchievements(achievements)
+        
+        achievementsAdapter = AchievementsAdapter(unlockedAchievements)
+        rvAchievements.apply {
+            layoutManager = LinearLayoutManager(this@StatisticsActivity)
+            adapter = achievementsAdapter
+        }
+    }
+    
+    private fun checkUnlockedAchievements(achievements: List<Achievement>): List<Achievement> {
+        val allStats = listOf(
+            statsManager.getModeStats(StatsManager.MODE_OFFLINE),
+            statsManager.getModeStats(StatsManager.MODE_ONLINE),
+            statsManager.getModeStats(StatsManager.MODE_COOP)
+        )
+        
+        return achievements.map { achievement ->
+            val isUnlocked = when (achievement.id) {
+                AchievementManager.ACHIEVEMENT_FIRST_WIN -> 
+                    allStats.any { it.gamesWon >= 1 }
+                AchievementManager.ACHIEVEMENT_SPEED_DEMON -> 
+                    allStats.any { 
+                        it.level1.bestTime <= 30 || 
+                        it.level2.bestTime <= 30 || 
+                        it.level3.bestTime <= 30 
+                    }
+                AchievementManager.ACHIEVEMENT_PERFECT_MEMORY -> 
+                    allStats.any { 
+                        it.level1.bestMoves <= 8 || 
+                        it.level2.bestMoves <= 12 || 
+                        it.level3.bestMoves <= 18 
+                    }
+                AchievementManager.ACHIEVEMENT_PERSISTENT -> 
+                    allStats.any { it.gamesPlayed >= 10 }
+                AchievementManager.ACHIEVEMENT_LEVEL_MASTER -> 
+                    allStats.any { 
+                        it.level1.gamesWon >= 1 && 
+                        it.level2.gamesWon >= 1 && 
+                        it.level3.gamesWon >= 1 
+                    }
+                AchievementManager.ACHIEVEMENT_COOP_CHAMPION -> 
+                    statsManager.getModeStats(StatsManager.MODE_COOP).gamesWon >= 5
+                AchievementManager.ACHIEVEMENT_NIGHT_OWL -> 
+                    false // Требует проверки времени игры
+                AchievementManager.ACHIEVEMENT_COLLECTOR -> 
+                    false // Требует отслеживания открытых карточек
+                AchievementManager.ACHIEVEMENT_FLAWLESS -> 
+                    false // Требует отслеживания серий
+                AchievementManager.ACHIEVEMENT_MARATHON -> 
+                    allStats.sumOf { it.totalTime } >= 3600
+                else -> false
+            }
+            
+            achievement.copy(isUnlocked = isUnlocked)
+        }
     }
 
     private fun setupUI() {

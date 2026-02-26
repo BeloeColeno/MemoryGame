@@ -185,6 +185,29 @@
             android:layout_marginTop="8dp"
             app:layout_constraintTop_toBottomOf="@id/layoutLevel2" />
 
+        <!-- Достижения -->
+        <TextView
+            android:id="@+id/tvAchievementsTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Достижения"
+            android:textColor="#9C27B0"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/layoutLevel3" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvAchievements"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="12dp"
+            android:nestedScrollingEnabled="false"
+            app:layout_constraintTop_toBottomOf="@id/tvAchievementsTitle" />
+
         <!-- Кнопки -->
         <Button
             android:id="@+id/btnReset"
@@ -199,7 +222,7 @@
             app:layout_constraintEnd_toStartOf="@id/btnBack"
             app:layout_constraintHorizontal_chainStyle="packed"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/layoutLevel3" />
+            app:layout_constraintTop_toBottomOf="@id/rvAchievements" />
 
         <Button
             android:id="@+id/btnBack"
@@ -214,7 +237,7 @@
             app:cornerRadius="12dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/btnReset"
-            app:layout_constraintTop_toBottomOf="@id/layoutLevel3" />
+            app:layout_constraintTop_toBottomOf="@id/rvAchievements" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
