@@ -18,7 +18,9 @@
         android:theme="@style/Theme.MemoryGame">
         <activity
             android:name=".MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:screenOrientation="sensorLandscape"
+            android:configChanges="orientation|screenSize|keyboardHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -30,74 +32,86 @@
         <activity
             android:name=".ui.splash.SplashActivity"
             android:exported="false"
-            android:screenOrientation="landscape"
+            android:screenOrientation="sensorLandscape"
+            android:configChanges="orientation|screenSize|keyboardHidden"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
         
         <!-- Главное меню -->
         <activity
             android:name=".ui.menu.MenuActivity"
             android:exported="false"
-            android:screenOrientation="landscape" />
+            android:screenOrientation="sensorLandscape"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
         
         <!-- Выбор режима -->
         <activity
             android:name=".ui.mode.ModeSelectionActivity"
             android:exported="false"
-            android:screenOrientation="landscape" />
+            android:screenOrientation="sensorLandscape"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
         
         <!-- Настройка кооперативной игры -->
         <activity
             android:name=".ui.mode.CoopSetupActivity"
             android:exported="false"
-            android:screenOrientation="landscape" />
+            android:screenOrientation="sensorLandscape"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
         
         <!-- Выбор уровня -->
         <activity
             android:name=".ui.levels.LevelSelectActivity"
             android:exported="false"
-            android:screenOrientation="landscape" />
+            android:screenOrientation="sensorLandscape"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
         
         <!-- Настройки -->
         <activity
             android:name=".ui.settings.SettingsActivity"
             android:exported="false"
-            android:screenOrientation="landscape" />
+            android:screenOrientation="sensorLandscape"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
         
         <!-- Статистика -->
         <activity
             android:name=".ui.statistics.StatisticsActivity"
             android:exported="false"
-            android:screenOrientation="landscape" />
+            android:screenOrientation="sensorLandscape"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
         
         <!-- Игровой экран -->
         <activity
             android:name=".ui.game.GameActivity"
             android:exported="false"
-            android:screenOrientation="landscape" />
+            android:screenOrientation="fullSensor"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
         
         <!-- Кооперативный игровой экран -->
         <activity
             android:name=".ui.game.CoopGameActivity"
             android:exported="false"
-            android:screenOrientation="landscape" />
+            android:screenOrientation="fullSensor"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
         
         <!-- Онлайн лобби -->
         <activity
             android:name=".ui.online.OnlineLobbyActivity"
             android:exported="false"
-            android:screenOrientation="landscape" />
+            android:screenOrientation="sensorLandscape"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
         
         <!-- Комната ожидания -->
         <activity
             android:name=".ui.online.OnlineWaitingRoomActivity"
             android:exported="false"
-            android:screenOrientation="landscape" />
+            android:screenOrientation="sensorLandscape"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
         
         <!-- Онлайн игра -->
         <activity
             android:name=".ui.online.OnlineGameActivity"
             android:exported="false"
-            android:screenOrientation="landscape" />
+            android:screenOrientation="sensorLandscape"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
     </application>
 
 </manifest>
