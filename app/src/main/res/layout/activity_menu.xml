@@ -1,103 +1,152 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout 
+<FrameLayout 
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/menuscreen">
+    android:layout_height="match_parent">
 
-    <!-- Логотип вверху -->
+    <!-- Фон -->
     <ImageView
-        android:id="@+id/ivLogoMenu"
-        android:layout_width="250dp"
-        android:layout_height="150dp"
-        android:layout_marginTop="48dp"
-        android:src="@drawable/logols"
-        android:scaleType="fitCenter"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:contentDescription="Memory Game" />
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/menuscreen"
+        android:scaleType="centerCrop"
+        android:contentDescription="Background" />
 
-    <!-- Кнопка "Играть" -->
-    <Button
-        android:id="@+id/btnPlay"
-        android:layout_width="220dp"
-        android:layout_height="60dp"
-        android:backgroundTint="#9C27B0"
-        android:text="ИГРАТЬ"
-        android:textColor="#FFFFFF"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:cornerRadius="12dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/ivLogoMenu"
-        app:layout_constraintVertical_bias="0.35" />
+    <!-- Прокручиваемый контент -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
-    <!-- Кнопка "Статистика" -->
-    <Button
-        android:id="@+id/btnStatistics"
-        android:layout_width="220dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="16dp"
-        android:backgroundTint="#9C27B0"
-        android:text="СТАТИСТИКА"
-        android:textColor="#FFFFFF"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:cornerRadius="12dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnPlay" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="24dp"
+            android:paddingBottom="24dp">
 
-    <!-- Кнопка "Достижения" -->
-    <Button
-        android:id="@+id/btnAchievements"
-        android:layout_width="220dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="16dp"
-        android:backgroundTint="#9C27B0"
-        android:text="ДОСТИЖЕНИЯ"
-        android:textColor="#FFFFFF"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:cornerRadius="12dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnStatistics" />
+            <!-- Логотип вверху -->
+            <ImageView
+                android:id="@+id/ivLogoMenu"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="32dp"
+                android:layout_marginEnd="32dp"
+                android:layout_marginTop="16dp"
+                android:src="@drawable/logols"
+                android:scaleType="fitCenter"
+                app:layout_constraintDimensionRatio="5:3"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_max="250dp"
+                android:contentDescription="Memory Game" />
 
-    <!-- Кнопка "Настройки" -->
-    <Button
-        android:id="@+id/btnSettings"
-        android:layout_width="220dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="16dp"
-        android:backgroundTint="#9C27B0"
-        android:text="НАСТРОЙКИ"
-        android:textColor="#FFFFFF"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:cornerRadius="12dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnStatistics" />
+            <!-- Кнопка "Играть" -->
+            <Button
+                android:id="@+id/btnPlay"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="48dp"
+                android:layout_marginEnd="48dp"
+                android:layout_marginTop="24dp"
+                android:minHeight="50dp"
+                android:paddingVertical="12dp"
+                android:backgroundTint="#9C27B0"
+                android:text="ИГРАТЬ"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:cornerRadius="12dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/ivLogoMenu"
+                app:layout_constraintWidth_max="220dp" />
 
-    <!-- Кнопка "Выход" -->
-    <Button
-        android:id="@+id/btnExit"
-        android:layout_width="220dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="16dp"
-        android:backgroundTint="#7B1FA2"
-        android:text="ВЫХОД"
-        android:textColor="#FFFFFF"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:cornerRadius="12dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnAchievements" />
+            <!-- Кнопка "Статистика" -->
+            <Button
+                android:id="@+id/btnStatistics"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="48dp"
+                android:layout_marginEnd="48dp"
+                android:layout_marginTop="12dp"
+                android:minHeight="50dp"
+                android:paddingVertical="12dp"
+                android:backgroundTint="#9C27B0"
+                android:text="СТАТИСТИКА"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:cornerRadius="12dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/btnPlay"
+                app:layout_constraintWidth_max="220dp" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <!-- Кнопка "Достижения" -->
+            <Button
+                android:id="@+id/btnAchievements"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="48dp"
+                android:layout_marginEnd="48dp"
+                android:layout_marginTop="12dp"
+                android:minHeight="50dp"
+                android:paddingVertical="12dp"
+                android:backgroundTint="#9C27B0"
+                android:text="ДОСТИЖЕНИЯ"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:cornerRadius="12dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/btnStatistics"
+                app:layout_constraintWidth_max="220dp" />
+
+            <!-- Кнопка "Настройки" -->
+            <Button
+                android:id="@+id/btnSettings"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="48dp"
+                android:layout_marginEnd="48dp"
+                android:layout_marginTop="12dp"
+                android:minHeight="50dp"
+                android:paddingVertical="12dp"
+                android:backgroundTint="#9C27B0"
+                android:text="НАСТРОЙКИ"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:cornerRadius="12dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/btnAchievements"
+                app:layout_constraintWidth_max="220dp" />
+
+            <!-- Кнопка "Выход" -->
+            <Button
+                android:id="@+id/btnExit"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="48dp"
+                android:layout_marginEnd="48dp"
+                android:layout_marginTop="12dp"
+                android:minHeight="50dp"
+                android:paddingVertical="12dp"
+                android:backgroundTint="#7B1FA2"
+                android:text="ВЫХОД"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:cornerRadius="12dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/btnSettings"
+                app:layout_constraintWidth_max="220dp" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+</FrameLayout>

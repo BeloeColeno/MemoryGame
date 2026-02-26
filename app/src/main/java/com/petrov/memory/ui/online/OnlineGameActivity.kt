@@ -605,6 +605,14 @@ class OnlineGameActivity : AppCompatActivity() {
         val isDraw = room.hostPairs == room.guestPairs
         
         // Сохраняем статистику
+        val elapsedTime = if (gameStartTime > 0) {
+            ((System.currentTimeMillis() - gameStartTime) / 1000).toInt()
+        } else {
+            0
+        }
+        
+        val totalMoves = room.hostPairs + room.guestPairs
+        
         if (isMyWin) {
             val stars = 3
             
@@ -612,9 +620,19 @@ class OnlineGameActivity : AppCompatActivity() {
                 mode = StatsManager.MODE_ONLINE,
                 levelId = level,
                 won = true,
-                time = 0,
-                moves = 0,
+                time = elapsedTime,
+                moves = totalMoves,
                 stars = stars
+            )
+        } else if (!isDraw) {
+            // Сохраняем статистику и для проигрыша
+            statsManager.saveGameResult(
+                mode = StatsManager.MODE_ONLINE,
+                levelId = level,
+                won = false,
+                time = elapsedTime,
+                moves = totalMoves,
+                stars = 0
             )
         }
         

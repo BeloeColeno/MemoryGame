@@ -1,87 +1,128 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout 
+<FrameLayout 
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/background1">
+    android:layout_height="match_parent">
 
-    <!-- Заголовок -->
-    <TextView
-        android:id="@+id/tvTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
-        android:text="ВЫБОР УРОВНЯ"
-        android:textColor="#9C27B0"
-        android:textSize="32sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <!-- Фон -->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/background1"
+        android:scaleType="centerCrop"
+        android:contentDescription="Background" />
 
-    <!-- Уровень ЛЕГКИЙ (активен) -->
-    <Button
-        android:id="@+id/btnEasy"
-        android:layout_width="250dp"
-        android:layout_height="70dp"
-        android:backgroundTint="#9C27B0"
-        android:text="ЛЕГКИЙ\n(4 пары)"
-        android:textColor="#FFFFFF"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:cornerRadius="12dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvTitle"
-        app:layout_constraintVertical_bias="0.3" />
+    <!-- Прокручиваемый контент -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
-    <!-- Уровень СРЕДНИЙ (активен) -->
-    <Button
-        android:id="@+id/btnMedium"
-        android:layout_width="250dp"
-        android:layout_height="70dp"
-        android:layout_marginTop="16dp"
-        android:backgroundTint="#9C27B0"
-        android:text="СРЕДНИЙ\n(6 пар)"
-        android:textColor="#FFFFFF"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:cornerRadius="12dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnEasy" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="24dp"
+            android:paddingBottom="24dp">
 
-    <!-- Уровень СЛОЖНЫЙ (активен) -->
-    <Button
-        android:id="@+id/btnHard"
-        android:layout_width="250dp"
-        android:layout_height="70dp"
-        android:layout_marginTop="16dp"
-        android:backgroundTint="#9C27B0"
-        android:text="СЛОЖНЫЙ\n(9 пар)"
-        android:textColor="#FFFFFF"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:cornerRadius="12dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnMedium" />
+            <!-- Заголовок -->
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginEnd="24dp"
+                android:layout_marginTop="24dp"
+                android:text="ВЫБОР УРОВНЯ"
+                android:textAlignment="center"
+                android:textColor="#9C27B0"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Кнопка Назад -->
-    <Button
-        android:id="@+id/btnBack"
-        android:layout_width="150dp"
-        android:layout_height="50dp"
-        android:layout_marginBottom="32dp"
-        android:backgroundTint="#7B1FA2"
-        android:text="НАЗАД"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        app:cornerRadius="12dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+            <!-- Уровень ЛЕГКИЙ (активен) -->
+            <Button
+                android:id="@+id/btnEasy"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="48dp"
+                android:layout_marginEnd="48dp"
+                android:layout_marginTop="32dp"
+                android:minHeight="60dp"
+                android:paddingVertical="12dp"
+                android:backgroundTint="#9C27B0"
+                android:text="ЛЕГКИЙ\n(4 пары)"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:cornerRadius="12dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvTitle"
+                app:layout_constraintWidth_max="250dp" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <!-- Уровень СРЕДНИЙ (активен) -->
+            <Button
+                android:id="@+id/btnMedium"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="48dp"
+                android:layout_marginEnd="48dp"
+                android:layout_marginTop="12dp"
+                android:minHeight="60dp"
+                android:paddingVertical="12dp"
+                android:backgroundTint="#9C27B0"
+                android:text="СРЕДНИЙ\n(6 пар)"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:cornerRadius="12dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/btnEasy"
+                app:layout_constraintWidth_max="250dp" />
+
+            <!-- Уровень СЛОЖНЫЙ (активен) -->
+            <Button
+                android:id="@+id/btnHard"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="48dp"
+                android:layout_marginEnd="48dp"
+                android:layout_marginTop="12dp"
+                android:minHeight="60dp"
+                android:paddingVertical="12dp"
+                android:backgroundTint="#9C27B0"
+                android:text="СЛОЖНЫЙ\n(9 пар)"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:cornerRadius="12dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/btnMedium"
+                app:layout_constraintWidth_max="250dp" />
+
+            <!-- Кнопка Назад -->
+            <Button
+                android:id="@+id/btnBack"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:minWidth="120dp"
+                android:paddingHorizontal="32dp"
+                android:paddingVertical="12dp"
+                android:backgroundTint="#7B1FA2"
+                android:text="НАЗАД"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                app:cornerRadius="12dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/btnHard" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+</FrameLayout>
