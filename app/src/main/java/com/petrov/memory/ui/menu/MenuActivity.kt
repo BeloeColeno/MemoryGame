@@ -38,6 +38,11 @@ class MenuActivity : AppCompatActivity() {
             startActivity(Intent(this, com.petrov.memory.ui.statistics.StatisticsActivity::class.java))
         }
 
+        // Кнопка "Достижения"
+        binding.btnAchievements.setOnClickListener {
+            startActivity(Intent(this, com.petrov.memory.ui.AchievementsActivity::class.java))
+        }
+
         // Кнопка "Выход"
         binding.btnExit.setOnClickListener {
             finish()

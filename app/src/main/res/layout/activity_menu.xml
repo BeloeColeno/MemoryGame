@@ -52,6 +52,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btnPlay" />
 
+    <!-- Кнопка "Достижения" -->
+    <Button
+        android:id="@+id/btnAchievements"
+        android:layout_width="220dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="#9C27B0"
+        android:text="ДОСТИЖЕНИЯ"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:cornerRadius="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnStatistics" />
+
     <!-- Кнопка "Настройки" -->
     <Button
         android:id="@+id/btnSettings"
@@ -82,6 +98,6 @@
         app:cornerRadius="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnSettings" />
+        app:layout_constraintTop_toBottomOf="@id/btnAchievements" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

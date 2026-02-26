@@ -15,6 +15,8 @@ import com.petrov.memory.databinding.ActivityGameBinding
 import com.petrov.memory.domain.model.Card
 import com.petrov.memory.data.preferences.StatsManager
 import com.petrov.memory.data.preferences.SettingsManager
+import com.petrov.memory.data.preferences.AchievementPreferences
+import com.petrov.memory.data.AchievementManager
 import com.petrov.memory.util.SoundManager
 import com.petrov.memory.util.VibrationManager
 
@@ -27,6 +29,7 @@ class GameActivity : AppCompatActivity() {
     private lateinit var adapter: CardsAdapter
     private lateinit var statsManager: StatsManager  // Менеджер статистики
     private lateinit var settingsManager: SettingsManager  // Менеджер настроек
+    private lateinit var achievementPrefs: AchievementPreferences  // Менеджер достижений
     private lateinit var soundManager: SoundManager  // Менеджер звуков
     private lateinit var vibrationManager: VibrationManager  // Менеджер вибрации
     private var cards = mutableListOf<Card>()
@@ -58,6 +61,7 @@ class GameActivity : AppCompatActivity() {
         // Инициализируем менеджеры
         statsManager = StatsManager(this)
         settingsManager = SettingsManager(this)
+        achievementPrefs = AchievementPreferences(this)
         soundManager = SoundManager(this)
         vibrationManager = VibrationManager(this)
         
@@ -409,6 +413,9 @@ class GameActivity : AppCompatActivity() {
             stars = stars
         )
         
+        // Проверяем достижения
+        checkAchievements(timeSeconds, moves, stars)
+        
         val dialog = Dialog(this)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.setContentView(R.layout.dialog_level_complete)
@@ -604,6 +611,73 @@ class GameActivity : AppCompatActivity() {
         if (cards.isNotEmpty()) {
             setupGameUI()
         }
+    }
+    
+    /**
+     * Проверка достижений после завершения игры
+     */
+    private fun checkAchievements(timeSeconds: Int, moves: Int, stars: Int) {
+        val currentHour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
+        
+        // 1. Первая победа
+        achievementPrefs.checkAndUnlockAchievement(
+            AchievementManager.ACHIEVEMENT_FIRST_WIN,
+            true
+        )
+        
+        // 2. Молниеносная память - завершить уровень менее чем за 30 секунд
+        achievementPrefs.checkAndUnlockAchievement(
+            AchievementManager.ACHIEVEMENT_SPEED_DEMON,
+            timeSeconds < 30
+        )
+        
+        // 3. Идеальная память - завершить без ошибок (минимум ходов = количество пар)
+        achievementPrefs.checkAndUnlockAchievement(
+            AchievementManager.ACHIEVEMENT_PERFECT_MEMORY,
+            moves == totalPairs
+        )
+        
+        // 4. Полуночник - сыграть после полуночи
+        achievementPrefs.checkAndUnlockAchievement(
+            AchievementManager.ACHIEVEMENT_NIGHT_OWL,
+            currentHour >= 0 && currentHour < 6
+        )
+        
+        // Увеличиваем счетчики
+        achievementPrefs.incrementGamesPlayed()
+        
+        if (moves == totalPairs) {
+            achievementPrefs.incrementPerfectGames()
+        } else {
+            achievementPrefs.resetPerfectStreak()
+        }
+        
+        achievementPrefs.setLevelCompleted(levelId)
+        achievementPrefs.addPlayTime(timeSeconds.toLong())
+        
+        // 5. Настойчивый - сыграть 10 игр
+        achievementPrefs.checkAndUnlockAchievement(
+            AchievementManager.ACHIEVEMENT_PERSISTENT,
+            achievementPrefs.getGamesPlayed() >= 10
+        )
+        
+        // 6. Мастер уровней - пройти все 5 уровней
+        achievementPrefs.checkAndUnlockAchievement(
+            AchievementManager.ACHIEVEMENT_LEVEL_MASTER,
+            achievementPrefs.areAllLevelsCompleted()
+        )
+        
+        // 7. Безупречный - 3 уровня подряд без ошибок
+        achievementPrefs.checkAndUnlockAchievement(
+            AchievementManager.ACHIEVEMENT_FLAWLESS,
+            achievementPrefs.getPerfectGames() >= 3
+        )
+        
+        // 8. Марафонец - более 1 часа игры (3600 секунд)
+        achievementPrefs.checkAndUnlockAchievement(
+            AchievementManager.ACHIEVEMENT_MARATHON,
+            achievementPrefs.getTotalPlayTime() >= 3600
+        )
     }
 
     override fun onDestroy() {

@@ -17,6 +17,8 @@ import com.petrov.memory.databinding.ActivityCoopGameBinding
 import com.petrov.memory.domain.model.*
 import com.petrov.memory.data.preferences.SettingsManager
 import com.petrov.memory.data.preferences.StatsManager
+import com.petrov.memory.data.preferences.AchievementPreferences
+import com.petrov.memory.data.AchievementManager
 import com.petrov.memory.util.SoundManager
 import com.petrov.memory.util.VibrationManager
 import java.util.*
@@ -30,6 +32,7 @@ class CoopGameActivity : AppCompatActivity() {
     private lateinit var adapter: CardsAdapter
     private lateinit var settingsManager: SettingsManager
     private lateinit var statsManager: StatsManager
+    private lateinit var achievementPrefs: AchievementPreferences
     private lateinit var soundManager: SoundManager
     private lateinit var vibrationManager: VibrationManager
     private lateinit var coopGameState: CoopGameState
@@ -51,6 +54,7 @@ class CoopGameActivity : AppCompatActivity() {
 
         settingsManager = SettingsManager(this)
         statsManager = StatsManager(this)
+        achievementPrefs = AchievementPreferences(this)
         soundManager = SoundManager(this)
         vibrationManager = VibrationManager(this)
         
@@ -513,6 +517,13 @@ class CoopGameActivity : AppCompatActivity() {
                 time = timeSeconds,
                 moves = coopGameState.totalMoves,
                 stars = stars
+            )
+            
+            // Проверка достижений для кооперативного режима
+            achievementPrefs.incrementCoopWins()
+            achievementPrefs.checkAndUnlockAchievement(
+                AchievementManager.ACHIEVEMENT_COOP_CHAMPION,
+                achievementPrefs.getCoopWins() >= 5
             )
         }
         

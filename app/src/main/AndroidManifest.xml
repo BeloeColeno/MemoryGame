@@ -78,6 +78,13 @@
             android:screenOrientation="sensorLandscape"
             android:configChanges="orientation|screenSize|keyboardHidden" />
         
+        <!-- Достижения -->
+        <activity
+            android:name=".ui.AchievementsActivity"
+            android:exported="false"
+            android:screenOrientation="sensorLandscape"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        
         <!-- Игровой экран -->
         <activity
             android:name=".ui.game.GameActivity"
