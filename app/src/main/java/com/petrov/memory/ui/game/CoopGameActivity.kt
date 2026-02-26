@@ -1,6 +1,7 @@
 package com.petrov.memory.ui.game
 
 import android.app.Dialog
+import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
@@ -57,29 +58,39 @@ class CoopGameActivity : AppCompatActivity() {
         soundManager.setEnabled(isSoundEnabled)
         vibrationManager.setEnabled(settingsManager.isVibrationEnabled)
 
-        val pairsCount = intent.getIntExtra("pairs_count", 4)
-        val timerModeName = intent.getStringExtra("timer_mode") ?: TimerMode.WITHOUT_TIMER.name
-        val timerLimit = intent.getIntExtra("timer_limit", 0)
-        
-        val timerMode = TimerMode.valueOf(timerModeName)
+        if (savedInstanceState != null) {
+            // Восстанавливаем состояние после переворота
+            restoreGameState(savedInstanceState)
+        } else {
+            // Новая игра
+            val pairsCount = intent.getIntExtra("pairs_count", 4)
+            val timerModeName = intent.getStringExtra("timer_mode") ?: TimerMode.WITHOUT_TIMER.name
+            val timerLimit = intent.getIntExtra("timer_limit", 0)
+            
+            val timerMode = TimerMode.valueOf(timerModeName)
 
-        coopGameState = CoopGameState(
-            player1 = Player.createPlayer1(),
-            player2 = Player.createPlayer2(),
-            currentPlayerId = 1,
-            timerMode = timerMode,
-            timerLimit = timerLimit,
-            totalPairs = pairsCount
-        )
+            coopGameState = CoopGameState(
+                player1 = Player.createPlayer1(),
+                player2 = Player.createPlayer2(),
+                currentPlayerId = 1,
+                timerMode = timerMode,
+                timerLimit = timerLimit,
+                totalPairs = pairsCount
+            )
 
-        setupGame()
+            setupGame()
+        }
+
         setupListeners()
         startTimer()
     }
 
     private fun setupGame() {
         cards = generateCards()
-
+        setupGameUI()
+    }
+    
+    private fun setupGameUI() {
         val displayMetrics = resources.displayMetrics
         val screenWidth = displayMetrics.widthPixels
         val screenHeight = displayMetrics.heightPixels
@@ -534,6 +545,130 @@ class CoopGameActivity : AppCompatActivity() {
         dialog.show()
         
         // TODO: Сохранить результат в статистику
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        
+        // Сохраняем состояние игры
+        outState.putInt("currentPlayerId", coopGameState.currentPlayerId)
+        outState.putString("timerMode", coopGameState.timerMode.name)
+        outState.putInt("timerLimit", coopGameState.timerLimit)
+        outState.putLong("startTime", coopGameState.startTime)
+        outState.putLong("elapsedTime", coopGameState.elapsedTime)
+        outState.putInt("totalMoves", coopGameState.totalMoves)
+        outState.putInt("matchedPairs", coopGameState.matchedPairs)
+        outState.putInt("totalPairs", coopGameState.totalPairs)
+        outState.putBoolean("isGameFinished", coopGameState.isGameFinished)
+        
+        // Сохраняем игроков
+        outState.putInt("player1_pairsFound", coopGameState.player1.pairsFound)
+        outState.putInt("player1_totalScore", coopGameState.player1.totalScore)
+        outState.putInt("player2_pairsFound", coopGameState.player2.pairsFound)
+        outState.putInt("player2_totalScore", coopGameState.player2.totalScore)
+        
+        // Сохраняем карточки
+        val cardIds = cards.map { it.id }.toIntArray()
+        val cardImageRes = cards.map { it.imageResId }.toIntArray()
+        val cardPairIds = cards.map { it.pairId }.toIntArray()
+        val cardIsRevealed = cards.map { it.isRevealed }.toBooleanArray()
+        val cardIsMatched = cards.map { it.isMatched }.toBooleanArray()
+        
+        outState.putIntArray("cardIds", cardIds)
+        outState.putIntArray("cardImageRes", cardImageRes)
+        outState.putIntArray("cardPairIds", cardPairIds)
+        outState.putBooleanArray("cardIsRevealed", cardIsRevealed)
+        outState.putBooleanArray("cardIsMatched", cardIsMatched)
+        
+        // Сохраняем открытые карточки
+        outState.putInt("firstRevealedCardId", firstRevealedCard?.id ?: -1)
+        outState.putInt("secondRevealedCardId", secondRevealedCard?.id ?: -1)
+        outState.putBoolean("isChecking", isChecking)
+    }
+    
+    private fun restoreGameState(savedState: Bundle) {
+        // Восстанавливаем базовые параметры
+        val currentPlayerId = savedState.getInt("currentPlayerId", 1)
+        val timerModeName = savedState.getString("timerMode") ?: TimerMode.WITHOUT_TIMER.name
+        val timerLimit = savedState.getInt("timerLimit", 0)
+        val startTime = savedState.getLong("startTime", System.currentTimeMillis())
+        val elapsedTime = savedState.getLong("elapsedTime", 0L)
+        val totalMoves = savedState.getInt("totalMoves", 0)
+        val matchedPairs = savedState.getInt("matchedPairs", 0)
+        val totalPairs = savedState.getInt("totalPairs", 4)
+        val isGameFinished = savedState.getBoolean("isGameFinished", false)
+        
+        // Восстанавливаем игроков
+        val player1 = Player.createPlayer1().copy(
+            pairsFound = savedState.getInt("player1_pairsFound", 0),
+            totalScore = savedState.getInt("player1_totalScore", 0)
+        )
+        val player2 = Player.createPlayer2().copy(
+            pairsFound = savedState.getInt("player2_pairsFound", 0),
+            totalScore = savedState.getInt("player2_totalScore", 0)
+        )
+        
+        // Восстанавливаем состояние игры
+        coopGameState = CoopGameState(
+            player1 = player1,
+            player2 = player2,
+            currentPlayerId = currentPlayerId,
+            timerMode = TimerMode.valueOf(timerModeName),
+            timerLimit = timerLimit,
+            startTime = startTime,
+            elapsedTime = elapsedTime,
+            totalMoves = totalMoves,
+            matchedPairs = matchedPairs,
+            totalPairs = totalPairs,
+            isGameFinished = isGameFinished
+        )
+        
+        // Восстанавливаем карточки
+        val cardIds = savedState.getIntArray("cardIds") ?: intArrayOf()
+        val cardImageRes = savedState.getIntArray("cardImageRes") ?: intArrayOf()
+        val cardPairIds = savedState.getIntArray("cardPairIds") ?: intArrayOf()
+        val cardIsRevealed = savedState.getBooleanArray("cardIsRevealed") ?: booleanArrayOf()
+        val cardIsMatched = savedState.getBooleanArray("cardIsMatched") ?: booleanArrayOf()
+        
+        cards.clear()
+        for (i in cardIds.indices) {
+            cards.add(
+                Card(
+                    id = cardIds[i],
+                    imageResId = cardImageRes[i],
+                    pairId = cardPairIds[i],
+                    isRevealed = cardIsRevealed[i],
+                    isMatched = cardIsMatched[i]
+                )
+            )
+        }
+        
+        // Восстанавливаем открытые карточки
+        val firstRevealedCardId = savedState.getInt("firstRevealedCardId", -1)
+        val secondRevealedCardId = savedState.getInt("secondRevealedCardId", -1)
+        isChecking = savedState.getBoolean("isChecking", false)
+        
+        firstRevealedCard = if (firstRevealedCardId >= 0) {
+            cards.find { it.id == firstRevealedCardId }
+        } else null
+        
+        secondRevealedCard = if (secondRevealedCardId >= 0) {
+            cards.find { it.id == secondRevealedCardId }
+        } else null
+        
+        // Восстанавливаем UI БЕЗ пересоздания карточек!
+        setupGameUI()
+        
+        // Обновляем отображение игроков и счётчиков
+        updateUI()
+    }
+    
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        // При изменении ориентации пересчитываем UI с сохранением карточек
+        if (cards.isNotEmpty()) {
+            setupGameUI()
+        }
     }
 
     override fun onDestroy() {
