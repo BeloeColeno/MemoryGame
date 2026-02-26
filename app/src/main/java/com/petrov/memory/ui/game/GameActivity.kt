@@ -1,6 +1,7 @@
 package com.petrov.memory.ui.game
 
 import android.app.Dialog
+import android.content.res.Configuration
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -65,12 +66,19 @@ class GameActivity : AppCompatActivity() {
         soundManager.setEnabled(isSoundEnabled)
         vibrationManager.setEnabled(settingsManager.isVibrationEnabled)
 
-        // Получаем параметры уровня из Intent
-        levelId = intent.getIntExtra(EXTRA_LEVEL_ID, 1)
-        totalPairs = intent.getIntExtra(EXTRA_TOTAL_PAIRS, 4)
+        if (savedInstanceState != null) {
+            // Восстанавливаем состояние после переворота
+            restoreGameState(savedInstanceState)
+        } else {
+            // Новая игра
+            // Получаем параметры уровня из Intent
+            levelId = intent.getIntExtra(EXTRA_LEVEL_ID, 1)
+            totalPairs = intent.getIntExtra(EXTRA_TOTAL_PAIRS, 4)
 
-        startTime = System.currentTimeMillis()
-        setupGame()
+            startTime = System.currentTimeMillis()
+            setupGame()
+        }
+
         setupListeners()
     }
 
@@ -80,7 +88,10 @@ class GameActivity : AppCompatActivity() {
      */
     private fun setupGame() {
         cards = generateCards()
-        
+        setupGameUI()
+    }
+    
+    private fun setupGameUI() {
         // Вычисляем оптимальную сетку ДО создания адаптера
         val displayMetrics = resources.displayMetrics
         val screenWidth = displayMetrics.widthPixels
@@ -510,6 +521,88 @@ class GameActivity : AppCompatActivity() {
                 if (isSoundEnabled) "Звук включен" else "Звук выключен",
                 Toast.LENGTH_SHORT
             ).show()
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        
+        // Сохраняем состояние игры
+        outState.putInt("moves", moves)
+        outState.putInt("matchedPairs", matchedPairs)
+        outState.putInt("totalPairs", totalPairs)
+        outState.putInt("levelId", levelId)
+        outState.putLong("startTime", startTime)
+        
+        // Сохраняем карточки
+        val cardIds = cards.map { it.id }.toIntArray()
+        val cardImageRes = cards.map { it.imageResId }.toIntArray()
+        val cardPairIds = cards.map { it.pairId }.toIntArray()
+        val cardIsRevealed = cards.map { it.isRevealed }.toBooleanArray()
+        val cardIsMatched = cards.map { it.isMatched }.toBooleanArray()
+        
+        outState.putIntArray("cardIds", cardIds)
+        outState.putIntArray("cardImageRes", cardImageRes)
+        outState.putIntArray("cardPairIds", cardPairIds)
+        outState.putBooleanArray("cardIsRevealed", cardIsRevealed)
+        outState.putBooleanArray("cardIsMatched", cardIsMatched)
+        
+        // Сохраняем открытые карточки
+        outState.putInt("firstRevealedCardId", firstRevealedCard?.id ?: -1)
+        outState.putInt("secondRevealedCardId", secondRevealedCard?.id ?: -1)
+        outState.putBoolean("isChecking", isChecking)
+    }
+    
+    private fun restoreGameState(savedState: Bundle) {
+        // Восстанавливаем базовые параметры
+        moves = savedState.getInt("moves", 0)
+        matchedPairs = savedState.getInt("matchedPairs", 0)
+        totalPairs = savedState.getInt("totalPairs", 4)
+        levelId = savedState.getInt("levelId", 1)
+        startTime = savedState.getLong("startTime", System.currentTimeMillis())
+        
+        // Восстанавливаем карточки
+        val cardIds = savedState.getIntArray("cardIds") ?: intArrayOf()
+        val cardImageRes = savedState.getIntArray("cardImageRes") ?: intArrayOf()
+        val cardPairIds = savedState.getIntArray("cardPairIds") ?: intArrayOf()
+        val cardIsRevealed = savedState.getBooleanArray("cardIsRevealed") ?: booleanArrayOf()
+        val cardIsMatched = savedState.getBooleanArray("cardIsMatched") ?: booleanArrayOf()
+        
+        cards.clear()
+        for (i in cardIds.indices) {
+            cards.add(
+                Card(
+                    id = cardIds[i],
+                    imageResId = cardImageRes[i],
+                    pairId = cardPairIds[i],
+                    isRevealed = cardIsRevealed[i],
+                    isMatched = cardIsMatched[i]
+                )
+            )
+        }
+        
+        // Восстанавливаем открытые карточки
+        val firstRevealedCardId = savedState.getInt("firstRevealedCardId", -1)
+        val secondRevealedCardId = savedState.getInt("secondRevealedCardId", -1)
+        isChecking = savedState.getBoolean("isChecking", false)
+        
+        firstRevealedCard = if (firstRevealedCardId >= 0) {
+            cards.find { it.id == firstRevealedCardId }
+        } else null
+        
+        secondRevealedCard = if (secondRevealedCardId >= 0) {
+            cards.find { it.id == secondRevealedCardId }
+        } else null
+        
+        // Восстанавливаем UI БЕЗ пересоздания карточек!
+        setupGameUI()
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        // При изменении ориентации пересчитываем UI с сохранением карточек
+        if (cards.isNotEmpty()) {
+            setupGameUI()
         }
     }
 
