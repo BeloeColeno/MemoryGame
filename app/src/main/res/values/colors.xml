@@ -7,4 +7,7 @@
     <color name="player_turn_active">#2196F3</color>
     <color name="player_turn_inactive">#9E9E9E</color>
     <color name="player_opponent_turn">#F44336</color>
+    
+    <!-- Фирменный фиолетовый цвет -->
+    <color name="brand_purple">#9C27B0</color>
 </resources>

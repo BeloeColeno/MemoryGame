@@ -18,7 +18,7 @@ import kotlin.coroutines.suspendCoroutine
 class FirebaseGameManager {
 
     private val database: DatabaseReference = FirebaseDatabase.getInstance(
-        "https://memorygame-f92f8-default-rtdb.europe-west1.firebasedatabase.app"
+        "https://memorygame-f6280-default-rtdb.europe-west1.firebasedatabase.app"
     ).reference
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     
